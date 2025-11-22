@@ -18,9 +18,9 @@ docker exec -it prayag /bin/bash
 
 Inside the container:
 
-1.  **Navigate to the source directory:**
+1.  **Navigate to the project root:**
     ```bash
-    cd /app/astra/mongoclient
+    cd /app/astra
     ```
 
 2.  **Create a build directory:**

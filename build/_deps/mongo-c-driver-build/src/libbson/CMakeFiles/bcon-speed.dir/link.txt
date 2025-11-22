@@ -1,0 +1,1 @@
+/usr/bin/cc -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/bcon-speed.dir/link.d "CMakeFiles/bcon-speed.dir/examples/bcon-speed.c.o" -o bcon-speed  -Wl,-rpath,/app/astra/build/_deps/mongo-c-driver-build/src/libbson libbson2.so.2.1.2 /usr/lib/x86_64-linux-gnu/librt.a -lm

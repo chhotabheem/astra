@@ -1,0 +1,1592 @@
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CMakeDetermineSystem.cmake:205 (message)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      The system is: Linux - 6.17.0-6-generic - x86_64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-3.31/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler: /usr/bin/cc 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+      
+      The C compiler identification is GNU, found in:
+        /app/astra/build/CMakeFiles/3.31.6/CompilerIdC/a.out
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-3.31/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler: /usr/bin/c++ 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+      
+      The CXX compiler identification is GNU, found in:
+        /app/astra/build/CMakeFiles/3.31.6/CompilerIdCXX/a.out
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:74 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-cIE8PP"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-cIE8PP"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-cIE8PP'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_5ecff/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_5ecff.dir/build.make CMakeFiles/cmTC_5ecff.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-cIE8PP'
+        Building C object CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o
+        /usr/bin/cc   -v -o CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake-3.31/Modules/CMakeCCompilerABI.c
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/cc
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-linux-gnu
+        Configured with: ../src/configure -v --with-pkgversion='Ubuntu 15.2.0-4ubuntu4' --with-bugurl=file:///usr/share/doc/gcc-15/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2,rust,cobol,algol68 --prefix=/usr --with-gcc-major-version-only --program-suffix=-15 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-15-deiAlw/gcc-15-15.2.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-15-deiAlw/gcc-15-15.2.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 15.2.0 (Ubuntu 15.2.0-4ubuntu4) 
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_5ecff.dir/'
+         /usr/libexec/gcc/x86_64-linux-gnu/15/cc1 -quiet -v -imultiarch x86_64-linux-gnu /usr/share/cmake-3.31/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_5ecff.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -fzero-init-padding-bits=all -Wbidi-chars=any -o /tmp/cclKHqFV.s
+        GNU C23 (Ubuntu 15.2.0-4ubuntu4) version 15.2.0 (x86_64-linux-gnu)
+        	compiled by GNU C version 15.2.0, GMP version 6.3.0, MPFR version 4.2.2, MPC version 1.3.1, isl version isl-0.27-GMP
+        
+        GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+        ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/15/include-fixed/x86_64-linux-gnu"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/15/include-fixed"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/15/../../../../x86_64-linux-gnu/include"
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /usr/lib/gcc/x86_64-linux-gnu/15/include
+         /usr/local/include
+         /usr/include/x86_64-linux-gnu
+         /usr/include
+        End of search list.
+        Compiler executable checksum: 0221f9d323e9ceb852d229511dac4b77
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_5ecff.dir/'
+         /usr/bin/x86_64-linux-gnu-as -v --64 -o CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o /tmp/cclKHqFV.s
+        GNU assembler version 2.45 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.45
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.'
+        Linking C executable cmTC_5ecff
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5ecff.dir/link.txt --verbose=1
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/cc
+        COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-linux-gnu
+        Configured with: ../src/configure -v --with-pkgversion='Ubuntu 15.2.0-4ubuntu4' --with-bugurl=file:///usr/share/doc/gcc-15/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2,rust,cobol,algol68 --prefix=/usr --with-gcc-major-version-only --program-suffix=-15 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-15-deiAlw/gcc-15-15.2.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-15-deiAlw/gcc-15-15.2.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 15.2.0 (Ubuntu 15.2.0-4ubuntu4) 
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_5ecff' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_5ecff.'
+         /usr/libexec/gcc/x86_64-linux-gnu/15/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/15/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper -plugin-opt=-fresolution=/tmp/cczc1uXO.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_5ecff /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/15 -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/15/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o
+        collect2 version 15.2.0
+        /usr/bin/ld -plugin /usr/libexec/gcc/x86_64-linux-gnu/15/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper -plugin-opt=-fresolution=/tmp/cczc1uXO.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_5ecff /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/15 -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/15/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o
+        GNU ld (GNU Binutils for Ubuntu) 2.45
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_5ecff' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_5ecff.'
+        /usr/bin/cc  -v -Wl,-v CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o -o cmTC_5ecff
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-cIE8PP'
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:182 (message)"
+      - "/usr/share/cmake-3.31/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Parsed C implicit include dir info: rv=done
+        found start of include info
+        found start of implicit include info
+          add: [/usr/lib/gcc/x86_64-linux-gnu/15/include]
+          add: [/usr/local/include]
+          add: [/usr/include/x86_64-linux-gnu]
+          add: [/usr/include]
+        end of search list found
+        collapse include dir [/usr/lib/gcc/x86_64-linux-gnu/15/include] ==> [/usr/lib/gcc/x86_64-linux-gnu/15/include]
+        collapse include dir [/usr/local/include] ==> [/usr/local/include]
+        collapse include dir [/usr/include/x86_64-linux-gnu] ==> [/usr/include/x86_64-linux-gnu]
+        collapse include dir [/usr/include] ==> [/usr/include]
+        implicit include dirs: [/usr/lib/gcc/x86_64-linux-gnu/15/include;/usr/local/include;/usr/include/x86_64-linux-gnu;/usr/include]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:218 (message)"
+      - "/usr/share/cmake-3.31/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Parsed C implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(\\.[a-z]+)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(\\.[a-z]+)?))("|,| |$)]
+        ignore line: [Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-cIE8PP']
+        ignore line: []
+        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_5ecff/fast]
+        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_5ecff.dir/build.make CMakeFiles/cmTC_5ecff.dir/build]
+        ignore line: [gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-cIE8PP']
+        ignore line: [Building C object CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o]
+        ignore line: [/usr/bin/cc   -v -o CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake-3.31/Modules/CMakeCCompilerABI.c]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/cc]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-linux-gnu]
+        ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 15.2.0-4ubuntu4' --with-bugurl=file:///usr/share/doc/gcc-15/README.Bugs --enable-languages=c ada c++ go d fortran objc obj-c++ m2 rust cobol algol68 --prefix=/usr --with-gcc-major-version-only --program-suffix=-15 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-15-deiAlw/gcc-15-15.2.0/debian/tmp-nvptx/usr amdgcn-amdhsa=/build/gcc-15-deiAlw/gcc-15-15.2.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 15.2.0 (Ubuntu 15.2.0-4ubuntu4) ]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_5ecff.dir/']
+        ignore line: [ /usr/libexec/gcc/x86_64-linux-gnu/15/cc1 -quiet -v -imultiarch x86_64-linux-gnu /usr/share/cmake-3.31/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_5ecff.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -fzero-init-padding-bits=all -Wbidi-chars=any -o /tmp/cclKHqFV.s]
+        ignore line: [GNU C23 (Ubuntu 15.2.0-4ubuntu4) version 15.2.0 (x86_64-linux-gnu)]
+        ignore line: [	compiled by GNU C version 15.2.0  GMP version 6.3.0  MPFR version 4.2.2  MPC version 1.3.1  isl version isl-0.27-GMP]
+        ignore line: []
+        ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+        ignore line: [ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/15/include-fixed/x86_64-linux-gnu"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/15/include-fixed"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/15/../../../../x86_64-linux-gnu/include"]
+        ignore line: [#include "..." search starts here:]
+        ignore line: [#include <...> search starts here:]
+        ignore line: [ /usr/lib/gcc/x86_64-linux-gnu/15/include]
+        ignore line: [ /usr/local/include]
+        ignore line: [ /usr/include/x86_64-linux-gnu]
+        ignore line: [ /usr/include]
+        ignore line: [End of search list.]
+        ignore line: [Compiler executable checksum: 0221f9d323e9ceb852d229511dac4b77]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_5ecff.dir/']
+        ignore line: [ /usr/bin/x86_64-linux-gnu-as -v --64 -o CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o /tmp/cclKHqFV.s]
+        ignore line: [GNU assembler version 2.45 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.45]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.']
+        ignore line: [Linking C executable cmTC_5ecff]
+        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5ecff.dir/link.txt --verbose=1]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/cc]
+        ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-linux-gnu]
+        ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 15.2.0-4ubuntu4' --with-bugurl=file:///usr/share/doc/gcc-15/README.Bugs --enable-languages=c ada c++ go d fortran objc obj-c++ m2 rust cobol algol68 --prefix=/usr --with-gcc-major-version-only --program-suffix=-15 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-15-deiAlw/gcc-15-15.2.0/debian/tmp-nvptx/usr amdgcn-amdhsa=/build/gcc-15-deiAlw/gcc-15-15.2.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 15.2.0 (Ubuntu 15.2.0-4ubuntu4) ]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_5ecff' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_5ecff.']
+        link line: [ /usr/libexec/gcc/x86_64-linux-gnu/15/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/15/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper -plugin-opt=-fresolution=/tmp/cczc1uXO.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_5ecff /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/15 -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/15/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o]
+          arg [/usr/libexec/gcc/x86_64-linux-gnu/15/collect2] ==> ignore
+          arg [-plugin] ==> ignore
+          arg [/usr/libexec/gcc/x86_64-linux-gnu/15/liblto_plugin.so] ==> ignore
+          arg [-plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper] ==> ignore
+          arg [-plugin-opt=-fresolution=/tmp/cczc1uXO.res] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [-plugin-opt=-pass-through=-lc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [--build-id] ==> ignore
+          arg [--eh-frame-hdr] ==> ignore
+          arg [-m] ==> ignore
+          arg [elf_x86_64] ==> ignore
+          arg [--hash-style=gnu] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-dynamic-linker] ==> ignore
+          arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+          arg [-pie] ==> ignore
+          arg [-znow] ==> ignore
+          arg [-zrelro] ==> ignore
+          arg [-o] ==> ignore
+          arg [cmTC_5ecff] ==> ignore
+          arg [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/Scrt1.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/Scrt1.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/15] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/15]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib]
+          arg [-L/lib/x86_64-linux-gnu] ==> dir [/lib/x86_64-linux-gnu]
+          arg [-L/lib/../lib] ==> dir [/lib/../lib]
+          arg [-L/usr/lib/x86_64-linux-gnu] ==> dir [/usr/lib/x86_64-linux-gnu]
+          arg [-L/usr/lib/../lib] ==> dir [/usr/lib/../lib]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/15/../../..] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/15/../../..]
+          arg [-L/lib] ==> dir [/lib]
+          arg [-L/usr/lib] ==> dir [/usr/lib]
+          arg [-v] ==> ignore
+          arg [CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o] ==> ignore
+          arg [-lgcc] ==> lib [gcc]
+          arg [--push-state] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [--pop-state] ==> ignore
+          arg [-lc] ==> lib [c]
+          arg [-lgcc] ==> lib [gcc]
+          arg [--push-state] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [--pop-state] ==> ignore
+          arg [/usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o]
+        ignore line: [collect2 version 15.2.0]
+        ignore line: [/usr/bin/ld -plugin /usr/libexec/gcc/x86_64-linux-gnu/15/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper -plugin-opt=-fresolution=/tmp/cczc1uXO.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_5ecff /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/15 -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/15/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_5ecff.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o]
+        linker tool for 'C': /usr/bin/ld
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/Scrt1.o] ==> [/usr/lib/x86_64-linux-gnu/Scrt1.o]
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o] ==> [/usr/lib/x86_64-linux-gnu/crti.o]
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o] ==> [/usr/lib/x86_64-linux-gnu/crtn.o]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/15] ==> [/usr/lib/gcc/x86_64-linux-gnu/15]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib] ==> [/usr/lib]
+        collapse library dir [/lib/x86_64-linux-gnu] ==> [/lib/x86_64-linux-gnu]
+        collapse library dir [/lib/../lib] ==> [/lib]
+        collapse library dir [/usr/lib/x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+        collapse library dir [/usr/lib/../lib] ==> [/usr/lib]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/15/../../..] ==> [/usr/lib]
+        collapse library dir [/lib] ==> [/lib]
+        collapse library dir [/usr/lib] ==> [/usr/lib]
+        implicit libs: [gcc;gcc_s;c;gcc;gcc_s]
+        implicit objs: [/usr/lib/x86_64-linux-gnu/Scrt1.o;/usr/lib/x86_64-linux-gnu/crti.o;/usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o;/usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o;/usr/lib/x86_64-linux-gnu/crtn.o]
+        implicit dirs: [/usr/lib/gcc/x86_64-linux-gnu/15;/usr/lib/x86_64-linux-gnu;/usr/lib;/lib/x86_64-linux-gnu;/lib]
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/Internal/CMakeDetermineLinkerId.cmake:40 (message)"
+      - "/usr/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:255 (cmake_determine_linker_id)"
+      - "/usr/share/cmake-3.31/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Running the C compiler's linker: "/usr/bin/ld" "-v"
+      GNU ld (GNU Binutils for Ubuntu) 2.45
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:74 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Uvb1zy"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Uvb1zy"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_CXX_SCAN_FOR_MODULES: "OFF"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Uvb1zy'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_b6b10/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_b6b10.dir/build.make CMakeFiles/cmTC_b6b10.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Uvb1zy'
+        Building CXX object CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o
+        /usr/bin/c++   -v -o CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/c++
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-linux-gnu
+        Configured with: ../src/configure -v --with-pkgversion='Ubuntu 15.2.0-4ubuntu4' --with-bugurl=file:///usr/share/doc/gcc-15/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2,rust,cobol,algol68 --prefix=/usr --with-gcc-major-version-only --program-suffix=-15 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-15-deiAlw/gcc-15-15.2.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-15-deiAlw/gcc-15-15.2.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 15.2.0 (Ubuntu 15.2.0-4ubuntu4) 
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_b6b10.dir/'
+         /usr/libexec/gcc/x86_64-linux-gnu/15/cc1plus -quiet -v -imultiarch x86_64-linux-gnu -D_GNU_SOURCE /usr/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_b6b10.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mtune=generic -march=x86-64 -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -fzero-init-padding-bits=all -Wbidi-chars=any -o /tmp/cclbsEn9.s
+        GNU C++17 (Ubuntu 15.2.0-4ubuntu4) version 15.2.0 (x86_64-linux-gnu)
+        	compiled by GNU C version 15.2.0, GMP version 6.3.0, MPFR version 4.2.2, MPC version 1.3.1, isl version isl-0.27-GMP
+        
+        GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+        ignoring duplicate directory "/usr/include/x86_64-linux-gnu/c++/15"
+        ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/15/include-fixed/x86_64-linux-gnu"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/15/include-fixed"
+        ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/15/../../../../x86_64-linux-gnu/include"
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /usr/include/c++/15
+         /usr/include/x86_64-linux-gnu/c++/15
+         /usr/include/c++/15/backward
+         /usr/lib/gcc/x86_64-linux-gnu/15/include
+         /usr/local/include
+         /usr/include/x86_64-linux-gnu
+         /usr/include
+        End of search list.
+        Compiler executable checksum: 303b1f6d80e10fe55145457c37243669
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_b6b10.dir/'
+         /usr/bin/x86_64-linux-gnu-as -v --64 -o CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o /tmp/cclbsEn9.s
+        GNU assembler version 2.45 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.45
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.'
+        Linking CXX executable cmTC_b6b10
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b6b10.dir/link.txt --verbose=1
+        Using built-in specs.
+        COLLECT_GCC=/usr/bin/c++
+        COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper
+        OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa
+        OFFLOAD_TARGET_DEFAULT=1
+        Target: x86_64-linux-gnu
+        Configured with: ../src/configure -v --with-pkgversion='Ubuntu 15.2.0-4ubuntu4' --with-bugurl=file:///usr/share/doc/gcc-15/README.Bugs --enable-languages=c,ada,c++,go,d,fortran,objc,obj-c++,m2,rust,cobol,algol68 --prefix=/usr --with-gcc-major-version-only --program-suffix=-15 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-15-deiAlw/gcc-15-15.2.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-15-deiAlw/gcc-15-15.2.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 15.2.0 (Ubuntu 15.2.0-4ubuntu4) 
+        COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_b6b10' '-foffload-options=-l_GCC_stdc++' '-foffload-options=-l_GCC_m' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_b6b10.'
+         /usr/libexec/gcc/x86_64-linux-gnu/15/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/15/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper -plugin-opt=-fresolution=/tmp/ccBoBJ6r.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_b6b10 /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/15 -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/15/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o
+        collect2 version 15.2.0
+        /usr/bin/ld -plugin /usr/libexec/gcc/x86_64-linux-gnu/15/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper -plugin-opt=-fresolution=/tmp/ccBoBJ6r.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_b6b10 /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/15 -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/15/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o
+        GNU ld (GNU Binutils for Ubuntu) 2.45
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_b6b10' '-foffload-options=-l_GCC_stdc++' '-foffload-options=-l_GCC_m' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_b6b10.'
+        /usr/bin/c++  -v -Wl,-v CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o -o cmTC_b6b10
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Uvb1zy'
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:182 (message)"
+      - "/usr/share/cmake-3.31/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Parsed CXX implicit include dir info: rv=done
+        found start of include info
+        found start of implicit include info
+          add: [/usr/include/c++/15]
+          add: [/usr/include/x86_64-linux-gnu/c++/15]
+          add: [/usr/include/c++/15/backward]
+          add: [/usr/lib/gcc/x86_64-linux-gnu/15/include]
+          add: [/usr/local/include]
+          add: [/usr/include/x86_64-linux-gnu]
+          add: [/usr/include]
+        end of search list found
+        collapse include dir [/usr/include/c++/15] ==> [/usr/include/c++/15]
+        collapse include dir [/usr/include/x86_64-linux-gnu/c++/15] ==> [/usr/include/x86_64-linux-gnu/c++/15]
+        collapse include dir [/usr/include/c++/15/backward] ==> [/usr/include/c++/15/backward]
+        collapse include dir [/usr/lib/gcc/x86_64-linux-gnu/15/include] ==> [/usr/lib/gcc/x86_64-linux-gnu/15/include]
+        collapse include dir [/usr/local/include] ==> [/usr/local/include]
+        collapse include dir [/usr/include/x86_64-linux-gnu] ==> [/usr/include/x86_64-linux-gnu]
+        collapse include dir [/usr/include] ==> [/usr/include]
+        implicit include dirs: [/usr/include/c++/15;/usr/include/x86_64-linux-gnu/c++/15;/usr/include/c++/15/backward;/usr/lib/gcc/x86_64-linux-gnu/15/include;/usr/local/include;/usr/include/x86_64-linux-gnu;/usr/include]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:218 (message)"
+      - "/usr/share/cmake-3.31/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Parsed CXX implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(\\.[a-z]+)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(\\.[a-z]+)?))("|,| |$)]
+        ignore line: [Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Uvb1zy']
+        ignore line: []
+        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_b6b10/fast]
+        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_b6b10.dir/build.make CMakeFiles/cmTC_b6b10.dir/build]
+        ignore line: [gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Uvb1zy']
+        ignore line: [Building CXX object CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o]
+        ignore line: [/usr/bin/c++   -v -o CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/c++]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-linux-gnu]
+        ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 15.2.0-4ubuntu4' --with-bugurl=file:///usr/share/doc/gcc-15/README.Bugs --enable-languages=c ada c++ go d fortran objc obj-c++ m2 rust cobol algol68 --prefix=/usr --with-gcc-major-version-only --program-suffix=-15 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-15-deiAlw/gcc-15-15.2.0/debian/tmp-nvptx/usr amdgcn-amdhsa=/build/gcc-15-deiAlw/gcc-15-15.2.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 15.2.0 (Ubuntu 15.2.0-4ubuntu4) ]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_b6b10.dir/']
+        ignore line: [ /usr/libexec/gcc/x86_64-linux-gnu/15/cc1plus -quiet -v -imultiarch x86_64-linux-gnu -D_GNU_SOURCE /usr/share/cmake-3.31/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_b6b10.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mtune=generic -march=x86-64 -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -fzero-init-padding-bits=all -Wbidi-chars=any -o /tmp/cclbsEn9.s]
+        ignore line: [GNU C++17 (Ubuntu 15.2.0-4ubuntu4) version 15.2.0 (x86_64-linux-gnu)]
+        ignore line: [	compiled by GNU C version 15.2.0  GMP version 6.3.0  MPFR version 4.2.2  MPC version 1.3.1  isl version isl-0.27-GMP]
+        ignore line: []
+        ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+        ignore line: [ignoring duplicate directory "/usr/include/x86_64-linux-gnu/c++/15"]
+        ignore line: [ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/15/include-fixed/x86_64-linux-gnu"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/15/include-fixed"]
+        ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/15/../../../../x86_64-linux-gnu/include"]
+        ignore line: [#include "..." search starts here:]
+        ignore line: [#include <...> search starts here:]
+        ignore line: [ /usr/include/c++/15]
+        ignore line: [ /usr/include/x86_64-linux-gnu/c++/15]
+        ignore line: [ /usr/include/c++/15/backward]
+        ignore line: [ /usr/lib/gcc/x86_64-linux-gnu/15/include]
+        ignore line: [ /usr/local/include]
+        ignore line: [ /usr/include/x86_64-linux-gnu]
+        ignore line: [ /usr/include]
+        ignore line: [End of search list.]
+        ignore line: [Compiler executable checksum: 303b1f6d80e10fe55145457c37243669]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_b6b10.dir/']
+        ignore line: [ /usr/bin/x86_64-linux-gnu-as -v --64 -o CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o /tmp/cclbsEn9.s]
+        ignore line: [GNU assembler version 2.45 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.45]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.']
+        ignore line: [Linking CXX executable cmTC_b6b10]
+        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b6b10.dir/link.txt --verbose=1]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/usr/bin/c++]
+        ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper]
+        ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa]
+        ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+        ignore line: [Target: x86_64-linux-gnu]
+        ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 15.2.0-4ubuntu4' --with-bugurl=file:///usr/share/doc/gcc-15/README.Bugs --enable-languages=c ada c++ go d fortran objc obj-c++ m2 rust cobol algol68 --prefix=/usr --with-gcc-major-version-only --program-suffix=-15 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/libexec --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-libstdcxx-backtrace --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --enable-cet --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-15-deiAlw/gcc-15-15.2.0/debian/tmp-nvptx/usr amdgcn-amdhsa=/build/gcc-15-deiAlw/gcc-15-15.2.0/debian/tmp-gcn/usr --enable-offload-defaulted --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-serialization=2]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 15.2.0 (Ubuntu 15.2.0-4ubuntu4) ]
+        ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/15/:/usr/libexec/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/15/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/15/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_b6b10' '-foffload-options=-l_GCC_stdc++' '-foffload-options=-l_GCC_m' '-shared-libgcc' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_b6b10.']
+        link line: [ /usr/libexec/gcc/x86_64-linux-gnu/15/collect2 -plugin /usr/libexec/gcc/x86_64-linux-gnu/15/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper -plugin-opt=-fresolution=/tmp/ccBoBJ6r.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_b6b10 /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/15 -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/15/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o]
+          arg [/usr/libexec/gcc/x86_64-linux-gnu/15/collect2] ==> ignore
+          arg [-plugin] ==> ignore
+          arg [/usr/libexec/gcc/x86_64-linux-gnu/15/liblto_plugin.so] ==> ignore
+          arg [-plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper] ==> ignore
+          arg [-plugin-opt=-fresolution=/tmp/ccBoBJ6r.res] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lc] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+          arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+          arg [--build-id] ==> ignore
+          arg [--eh-frame-hdr] ==> ignore
+          arg [-m] ==> ignore
+          arg [elf_x86_64] ==> ignore
+          arg [--hash-style=gnu] ==> ignore
+          arg [--as-needed] ==> ignore
+          arg [-dynamic-linker] ==> ignore
+          arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+          arg [-pie] ==> ignore
+          arg [-znow] ==> ignore
+          arg [-zrelro] ==> ignore
+          arg [-o] ==> ignore
+          arg [cmTC_b6b10] ==> ignore
+          arg [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/Scrt1.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/Scrt1.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/15] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/15]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib]
+          arg [-L/lib/x86_64-linux-gnu] ==> dir [/lib/x86_64-linux-gnu]
+          arg [-L/lib/../lib] ==> dir [/lib/../lib]
+          arg [-L/usr/lib/x86_64-linux-gnu] ==> dir [/usr/lib/x86_64-linux-gnu]
+          arg [-L/usr/lib/../lib] ==> dir [/usr/lib/../lib]
+          arg [-L/usr/lib/gcc/x86_64-linux-gnu/15/../../..] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/15/../../..]
+          arg [-L/lib] ==> dir [/lib]
+          arg [-L/usr/lib] ==> dir [/usr/lib]
+          arg [-v] ==> ignore
+          arg [CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+          arg [-lstdc++] ==> lib [stdc++]
+          arg [-lm] ==> lib [m]
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [-lgcc] ==> lib [gcc]
+          arg [-lc] ==> lib [c]
+          arg [-lgcc_s] ==> lib [gcc_s]
+          arg [-lgcc] ==> lib [gcc]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o]
+          arg [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o] ==> obj [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o]
+        ignore line: [collect2 version 15.2.0]
+        ignore line: [/usr/bin/ld -plugin /usr/libexec/gcc/x86_64-linux-gnu/15/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/x86_64-linux-gnu/15/lto-wrapper -plugin-opt=-fresolution=/tmp/ccBoBJ6r.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_b6b10 /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/15 -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/15/../../.. -L/lib -L/usr/lib -v CMakeFiles/cmTC_b6b10.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o]
+        linker tool for 'CXX': /usr/bin/ld
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/Scrt1.o] ==> [/usr/lib/x86_64-linux-gnu/Scrt1.o]
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crti.o] ==> [/usr/lib/x86_64-linux-gnu/crti.o]
+        collapse obj [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o] ==> [/usr/lib/x86_64-linux-gnu/crtn.o]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/15] ==> [/usr/lib/gcc/x86_64-linux-gnu/15]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/15/../../../../lib] ==> [/usr/lib]
+        collapse library dir [/lib/x86_64-linux-gnu] ==> [/lib/x86_64-linux-gnu]
+        collapse library dir [/lib/../lib] ==> [/lib]
+        collapse library dir [/usr/lib/x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+        collapse library dir [/usr/lib/../lib] ==> [/usr/lib]
+        collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/15/../../..] ==> [/usr/lib]
+        collapse library dir [/lib] ==> [/lib]
+        collapse library dir [/usr/lib] ==> [/usr/lib]
+        implicit libs: [stdc++;m;gcc_s;gcc;c;gcc_s;gcc]
+        implicit objs: [/usr/lib/x86_64-linux-gnu/Scrt1.o;/usr/lib/x86_64-linux-gnu/crti.o;/usr/lib/gcc/x86_64-linux-gnu/15/crtbeginS.o;/usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o;/usr/lib/x86_64-linux-gnu/crtn.o]
+        implicit dirs: [/usr/lib/gcc/x86_64-linux-gnu/15;/usr/lib/x86_64-linux-gnu;/usr/lib;/lib/x86_64-linux-gnu;/lib]
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/Internal/CMakeDetermineLinkerId.cmake:40 (message)"
+      - "/usr/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:255 (cmake_determine_linker_id)"
+      - "/usr/share/cmake-3.31/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:2 (project)"
+    message: |
+      Running the CXX compiler's linker: "/usr/bin/ld" "-v"
+      GNU ld (GNU Binutils for Ubuntu) 2.45
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.31/Modules/FindThreads.cmake:97 (CHECK_C_SOURCE_COMPILES)"
+      - "/usr/share/cmake-3.31/Modules/FindThreads.cmake:163 (_threads_check_libc)"
+      - "build/_deps/mongo-c-driver-src/CMakeLists.txt:196 (find_package)"
+    checks:
+      - "Performing Test CMAKE_HAVE_LIBC_PTHREAD"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-41WsOW"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-41WsOW"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "CMAKE_HAVE_LIBC_PTHREAD"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-41WsOW'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_86420/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_86420.dir/build.make CMakeFiles/cmTC_86420.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-41WsOW'
+        Building C object CMakeFiles/cmTC_86420.dir/src.c.o
+        /usr/bin/cc -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_86420.dir/src.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-41WsOW/src.c
+        Linking C executable cmTC_86420
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_86420.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_86420.dir/src.c.o -o cmTC_86420
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-41WsOW'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "build/_deps/mongo-c-driver-src/build/cmake/LLDLinker.cmake:25 (check_c_source_compiles)"
+      - "build/_deps/mongo-c-driver-src/CMakeLists.txt:296 (include)"
+    checks:
+      - "Performing Test HAVE_LLD_LINKER_SUPPORT"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-JDA79x"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-JDA79x"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "HAVE_LLD_LINKER_SUPPORT"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-JDA79x'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_1dd74/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_1dd74.dir/build.make CMakeFiles/cmTC_1dd74.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-JDA79x'
+        Building C object CMakeFiles/cmTC_1dd74.dir/src.c.o
+        /usr/bin/cc -DHAVE_LLD_LINKER_SUPPORT  -fuse-ld=lld -o CMakeFiles/cmTC_1dd74.dir/src.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-JDA79x/src.c
+        Linking C executable cmTC_1dd74
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1dd74.dir/link.txt --verbose=1
+        collect2: fatal error: cannot find 'ld'
+        compilation terminated.
+        /usr/bin/cc  -fuse-ld=lld -fuse-ld=lld CMakeFiles/cmTC_1dd74.dir/src.c.o -o cmTC_1dd74
+        gmake[1]: *** [CMakeFiles/cmTC_1dd74.dir/build.make:102: cmTC_1dd74] Error 1
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-JDA79x'
+        gmake: *** [Makefile:134: cmTC_1dd74/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "build/_deps/mongo-c-driver-src/src/libbson/CMakeLists.txt:84 (check_symbol_exists)"
+    checks:
+      - "Looking for snprintf"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-RqEWjc"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-RqEWjc"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "BSON_HAVE_SNPRINTF"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-RqEWjc'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_fd3fc/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_fd3fc.dir/build.make CMakeFiles/cmTC_fd3fc.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-RqEWjc'
+        Building C object CMakeFiles/cmTC_fd3fc.dir/CheckSymbolExists.c.o
+        /usr/bin/cc -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_fd3fc.dir/CheckSymbolExists.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-RqEWjc/CheckSymbolExists.c
+        Linking C executable cmTC_fd3fc
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_fd3fc.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_fd3fc.dir/CheckSymbolExists.c.o -o cmTC_fd3fc  /usr/lib/x86_64-linux-gnu/librt.a
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-RqEWjc'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckSourceCompiles.cmake:89 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.31/Modules/CheckStructHasMember.cmake:79 (CHECK_SOURCE_COMPILES)"
+      - "build/_deps/mongo-c-driver-src/src/libbson/CMakeLists.txt:86 (check_struct_has_member)"
+    checks:
+      - "Performing Test BSON_HAVE_TIMESPEC"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-g0S82K"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-g0S82K"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "BSON_HAVE_TIMESPEC"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-g0S82K'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_72974/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_72974.dir/build.make CMakeFiles/cmTC_72974.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-g0S82K'
+        Building C object CMakeFiles/cmTC_72974.dir/src.c.o
+        /usr/bin/cc -DBSON_HAVE_TIMESPEC -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_72974.dir/src.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-g0S82K/src.c
+        Linking C executable cmTC_72974
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_72974.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_72974.dir/src.c.o -o cmTC_72974  /usr/lib/x86_64-linux-gnu/librt.a
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-g0S82K'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "build/_deps/mongo-c-driver-src/src/libbson/CMakeLists.txt:88 (check_symbol_exists)"
+    checks:
+      - "Looking for gmtime_r"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-mzWQKl"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-mzWQKl"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "BSON_HAVE_GMTIME_R"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-mzWQKl'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_5b9be/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_5b9be.dir/build.make CMakeFiles/cmTC_5b9be.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-mzWQKl'
+        Building C object CMakeFiles/cmTC_5b9be.dir/CheckSymbolExists.c.o
+        /usr/bin/cc -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_5b9be.dir/CheckSymbolExists.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-mzWQKl/CheckSymbolExists.c
+        Linking C executable cmTC_5b9be
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5b9be.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_5b9be.dir/CheckSymbolExists.c.o -o cmTC_5b9be  /usr/lib/x86_64-linux-gnu/librt.a
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-mzWQKl'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckFunctionExists.cmake:93 (try_compile)"
+      - "build/_deps/mongo-c-driver-src/src/libbson/CMakeLists.txt:90 (check_function_exists)"
+    checks:
+      - "Looking for rand_r"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-ldPK6S"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-ldPK6S"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "BSON_HAVE_RAND_R"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-ldPK6S'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_6f2cd/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_6f2cd.dir/build.make CMakeFiles/cmTC_6f2cd.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-ldPK6S'
+        Building C object CMakeFiles/cmTC_6f2cd.dir/CheckFunctionExists.c.o
+        /usr/bin/cc -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -DCHECK_FUNCTION_EXISTS=rand_r -std=c99 -o CMakeFiles/cmTC_6f2cd.dir/CheckFunctionExists.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-ldPK6S/CheckFunctionExists.c
+        Linking C executable cmTC_6f2cd
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6f2cd.dir/link.txt --verbose=1
+        /usr/bin/cc  -DCHECK_FUNCTION_EXISTS=rand_r CMakeFiles/cmTC_6f2cd.dir/CheckFunctionExists.c.o -o cmTC_6f2cd  /usr/lib/x86_64-linux-gnu/librt.a
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-ldPK6S'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "build/_deps/mongo-c-driver-src/src/libbson/CMakeLists.txt:92 (check_include_file)"
+    checks:
+      - "Looking for strings.h"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-4hOPgY"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-4hOPgY"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "BSON_HAVE_STRINGS_H"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-4hOPgY'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_561db/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_561db.dir/build.make CMakeFiles/cmTC_561db.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-4hOPgY'
+        Building C object CMakeFiles/cmTC_561db.dir/CheckIncludeFile.c.o
+        /usr/bin/cc -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_561db.dir/CheckIncludeFile.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-4hOPgY/CheckIncludeFile.c
+        Linking C executable cmTC_561db
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_561db.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_561db.dir/CheckIncludeFile.c.o -o cmTC_561db  /usr/lib/x86_64-linux-gnu/librt.a
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-4hOPgY'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "build/_deps/mongo-c-driver-src/src/libbson/CMakeLists.txt:94 (check_symbol_exists)"
+    checks:
+      - "Looking for strlcpy"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-vFZsMn"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-vFZsMn"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "BSON_HAVE_STRLCPY"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-vFZsMn'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_58fd1/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_58fd1.dir/build.make CMakeFiles/cmTC_58fd1.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-vFZsMn'
+        Building C object CMakeFiles/cmTC_58fd1.dir/CheckSymbolExists.c.o
+        /usr/bin/cc -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_58fd1.dir/CheckSymbolExists.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-vFZsMn/CheckSymbolExists.c
+        Linking C executable cmTC_58fd1
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_58fd1.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_58fd1.dir/CheckSymbolExists.c.o -o cmTC_58fd1  /usr/lib/x86_64-linux-gnu/librt.a
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-vFZsMn'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "build/_deps/mongo-c-driver-src/src/libbson/CMakeLists.txt:96 (check_include_file)"
+    checks:
+      - "Looking for stdbool.h"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-bgpsTg"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-bgpsTg"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "BSON_HAVE_STDBOOL_H"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-bgpsTg'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_6229c/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_6229c.dir/build.make CMakeFiles/cmTC_6229c.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-bgpsTg'
+        Building C object CMakeFiles/cmTC_6229c.dir/CheckIncludeFile.c.o
+        /usr/bin/cc -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_6229c.dir/CheckIncludeFile.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-bgpsTg/CheckIncludeFile.c
+        Linking C executable cmTC_6229c
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6229c.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_6229c.dir/CheckIncludeFile.c.o -o cmTC_6229c  /usr/lib/x86_64-linux-gnu/librt.a
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-bgpsTg'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "build/_deps/mongo-c-driver-src/src/libbson/CMakeLists.txt:98 (check_symbol_exists)"
+    checks:
+      - "Looking for clock_gettime"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-A7XoDH"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-A7XoDH"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "BSON_HAVE_CLOCK_GETTIME"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-A7XoDH'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_9f53c/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_9f53c.dir/build.make CMakeFiles/cmTC_9f53c.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-A7XoDH'
+        Building C object CMakeFiles/cmTC_9f53c.dir/CheckSymbolExists.c.o
+        /usr/bin/cc -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_9f53c.dir/CheckSymbolExists.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-A7XoDH/CheckSymbolExists.c
+        Linking C executable cmTC_9f53c
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9f53c.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_9f53c.dir/CheckSymbolExists.c.o -o cmTC_9f53c  /usr/lib/x86_64-linux-gnu/librt.a
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-A7XoDH'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "build/_deps/mongo-c-driver-src/src/libbson/CMakeLists.txt:100 (check_symbol_exists)"
+    checks:
+      - "Looking for strnlen"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Lqb2eD"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Lqb2eD"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "BSON_HAVE_STRNLEN"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Lqb2eD'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_4b789/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_4b789.dir/build.make CMakeFiles/cmTC_4b789.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Lqb2eD'
+        Building C object CMakeFiles/cmTC_4b789.dir/CheckSymbolExists.c.o
+        /usr/bin/cc -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_4b789.dir/CheckSymbolExists.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Lqb2eD/CheckSymbolExists.c
+        Linking C executable cmTC_4b789
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4b789.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_4b789.dir/CheckSymbolExists.c.o -o cmTC_4b789  /usr/lib/x86_64-linux-gnu/librt.a
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Lqb2eD'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "build/_deps/mongo-c-driver-src/src/libbson/CMakeLists.txt:102 (check_symbol_exists)"
+    checks:
+      - "Looking for aligned_alloc"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Rnk4iI"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Rnk4iI"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "BSON_HAVE_ALIGNED_ALLOC"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Rnk4iI'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_3c46a/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_3c46a.dir/build.make CMakeFiles/cmTC_3c46a.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Rnk4iI'
+        Building C object CMakeFiles/cmTC_3c46a.dir/CheckSymbolExists.c.o
+        /usr/bin/cc -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_3c46a.dir/CheckSymbolExists.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Rnk4iI/CheckSymbolExists.c
+        /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Rnk4iI/CheckSymbolExists.c: In function 'main':
+        /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Rnk4iI/CheckSymbolExists.c:8:19: error: 'aligned_alloc' undeclared (first use in this function)
+            8 |   return ((int*)(&aligned_alloc))[argc];
+              |                   ^~~~~~~~~~~~~
+        /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Rnk4iI/CheckSymbolExists.c:8:19: note: each undeclared identifier is reported only once for each function it appears in
+        gmake[1]: *** [CMakeFiles/cmTC_3c46a.dir/build.make:81: CMakeFiles/cmTC_3c46a.dir/CheckSymbolExists.c.o] Error 1
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Rnk4iI'
+        gmake: *** [Makefile:134: cmTC_3c46a/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "build/_deps/mongo-c-driver-src/build/cmake/CheckSchedGetCPU.cmake:3 (check_symbol_exists)"
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:15 (include)"
+    checks:
+      - "Looking for sched_getcpu"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-KC3yQn"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-KC3yQn"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "HAVE_SCHED_GETCPU"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-KC3yQn'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_20523/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_20523.dir/build.make CMakeFiles/cmTC_20523.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-KC3yQn'
+        Building C object CMakeFiles/cmTC_20523.dir/CheckSymbolExists.c.o
+        /usr/bin/cc -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_20523.dir/CheckSymbolExists.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-KC3yQn/CheckSymbolExists.c
+        /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-KC3yQn/CheckSymbolExists.c: In function 'main':
+        /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-KC3yQn/CheckSymbolExists.c:8:19: error: 'sched_getcpu' undeclared (first use in this function); did you mean 'sched_getparam'?
+            8 |   return ((int*)(&sched_getcpu))[argc];
+              |                   ^~~~~~~~~~~~
+              |                   sched_getparam
+        /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-KC3yQn/CheckSymbolExists.c:8:19: note: each undeclared identifier is reported only once for each function it appears in
+        gmake[1]: *** [CMakeFiles/cmTC_20523.dir/build.make:81: CMakeFiles/cmTC_20523.dir/CheckSymbolExists.c.o] Error 1
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-KC3yQn'
+        gmake: *** [Makefile:134: cmTC_20523/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckIncludeFiles.cmake:141 (try_compile)"
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:113 (check_include_files)"
+    checks:
+      - "Looking for include file unistd.h"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-pEZR7j"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-pEZR7j"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "HAVE_UNISTD_H"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-pEZR7j'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_ddc4a/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_ddc4a.dir/build.make CMakeFiles/cmTC_ddc4a.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-pEZR7j'
+        Building C object CMakeFiles/cmTC_ddc4a.dir/HAVE_UNISTD_H.c.o
+        /usr/bin/cc -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_ddc4a.dir/HAVE_UNISTD_H.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-pEZR7j/HAVE_UNISTD_H.c
+        Linking C executable cmTC_ddc4a
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ddc4a.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_ddc4a.dir/HAVE_UNISTD_H.c.o -o cmTC_ddc4a  /usr/lib/x86_64-linux-gnu/librt.a
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-pEZR7j'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckIncludeFiles.cmake:141 (try_compile)"
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:114 (check_include_files)"
+    checks:
+      - "Looking for include file stdarg.h"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-MLvcPO"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-MLvcPO"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "HAVE_STDARG_H"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-MLvcPO'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_7dc55/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_7dc55.dir/build.make CMakeFiles/cmTC_7dc55.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-MLvcPO'
+        Building C object CMakeFiles/cmTC_7dc55.dir/HAVE_STDARG_H.c.o
+        /usr/bin/cc -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_7dc55.dir/HAVE_STDARG_H.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-MLvcPO/HAVE_STDARG_H.c
+        Linking C executable cmTC_7dc55
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7dc55.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_7dc55.dir/HAVE_STDARG_H.c.o -o cmTC_7dc55  /usr/lib/x86_64-linux-gnu/librt.a
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-MLvcPO'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:268 (check_symbol_exists)"
+    checks:
+      - "Looking for ASN1_STRING_get0_data"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-e5TMTk"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-e5TMTk"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "HAVE_ASN1_STRING_GET0_DATA"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-e5TMTk'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_ed787/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_ed787.dir/build.make CMakeFiles/cmTC_ed787.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-e5TMTk'
+        Building C object CMakeFiles/cmTC_ed787.dir/CheckSymbolExists.c.o
+        /usr/bin/cc -DHAVE_STDARG_H -DHAVE_UNISTD_H -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_ed787.dir/CheckSymbolExists.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-e5TMTk/CheckSymbolExists.c
+        Linking C executable cmTC_ed787
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ed787.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_ed787.dir/CheckSymbolExists.c.o -o cmTC_ed787  /usr/lib/x86_64-linux-gnu/librt.a /usr/lib/x86_64-linux-gnu/libssl.so /usr/lib/x86_64-linux-gnu/libcrypto.so
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-e5TMTk'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:367 (check_symbol_exists)"
+    checks:
+      - "Looking for sasl_client_done"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-FOx0GB"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-FOx0GB"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "SASL2_HAVE_SASL_CLIENT_DONE"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-FOx0GB'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_7f648/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_7f648.dir/build.make CMakeFiles/cmTC_7f648.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-FOx0GB'
+        Building C object CMakeFiles/cmTC_7f648.dir/CheckSymbolExists.c.o
+        /usr/bin/cc -DHAVE_STDARG_H -DHAVE_UNISTD_H -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_7f648.dir/CheckSymbolExists.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-FOx0GB/CheckSymbolExists.c
+        Linking C executable cmTC_7f648
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7f648.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_7f648.dir/CheckSymbolExists.c.o -o cmTC_7f648  /usr/lib/x86_64-linux-gnu/librt.a /usr/lib/x86_64-linux-gnu/libsasl2.so -ldl
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-FOx0GB'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckTypeSize.cmake:262 (check_include_file)"
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:390 (CHECK_TYPE_SIZE)"
+    checks:
+      - "Looking for sys/types.h"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Gp69ze"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Gp69ze"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "HAVE_SYS_TYPES_H"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Gp69ze'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_45623/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_45623.dir/build.make CMakeFiles/cmTC_45623.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Gp69ze'
+        Building C object CMakeFiles/cmTC_45623.dir/CheckIncludeFile.c.o
+        /usr/bin/cc -DHAVE_STDARG_H -DHAVE_UNISTD_H -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_45623.dir/CheckIncludeFile.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Gp69ze/CheckIncludeFile.c
+        Linking C executable cmTC_45623
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_45623.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_45623.dir/CheckIncludeFile.c.o -o cmTC_45623  /usr/lib/x86_64-linux-gnu/librt.a
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Gp69ze'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckTypeSize.cmake:263 (check_include_file)"
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:390 (CHECK_TYPE_SIZE)"
+    checks:
+      - "Looking for stdint.h"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-CrIRyg"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-CrIRyg"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "HAVE_STDINT_H"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-CrIRyg'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_90f1c/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_90f1c.dir/build.make CMakeFiles/cmTC_90f1c.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-CrIRyg'
+        Building C object CMakeFiles/cmTC_90f1c.dir/CheckIncludeFile.c.o
+        /usr/bin/cc -DHAVE_STDARG_H -DHAVE_UNISTD_H -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_90f1c.dir/CheckIncludeFile.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-CrIRyg/CheckIncludeFile.c
+        Linking C executable cmTC_90f1c
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_90f1c.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_90f1c.dir/CheckIncludeFile.c.o -o cmTC_90f1c  /usr/lib/x86_64-linux-gnu/librt.a
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-CrIRyg'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckIncludeFile.cmake:99 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckTypeSize.cmake:264 (check_include_file)"
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:390 (CHECK_TYPE_SIZE)"
+    checks:
+      - "Looking for stddef.h"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Cd5s3f"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Cd5s3f"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "HAVE_STDDEF_H"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Cd5s3f'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_af592/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_af592.dir/build.make CMakeFiles/cmTC_af592.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Cd5s3f'
+        Building C object CMakeFiles/cmTC_af592.dir/CheckIncludeFile.c.o
+        /usr/bin/cc -DHAVE_STDARG_H -DHAVE_UNISTD_H -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_af592.dir/CheckIncludeFile.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Cd5s3f/CheckIncludeFile.c
+        Linking C executable cmTC_af592
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_af592.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_af592.dir/CheckIncludeFile.c.o -o cmTC_af592  /usr/lib/x86_64-linux-gnu/librt.a
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-Cd5s3f'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckTypeSize.cmake:156 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckTypeSize.cmake:283 (__check_type_size_impl)"
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:390 (CHECK_TYPE_SIZE)"
+    checks:
+      - "Check size of socklen_t"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-fZo2Dh"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-fZo2Dh"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "HAVE_HAVE_SOCKLEN"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-fZo2Dh'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_b5486/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_b5486.dir/build.make CMakeFiles/cmTC_b5486.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-fZo2Dh'
+        Building C object CMakeFiles/cmTC_b5486.dir/HAVE_SOCKLEN.c.o
+        /usr/bin/cc -DHAVE_STDARG_H -DHAVE_UNISTD_H -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_b5486.dir/HAVE_SOCKLEN.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-fZo2Dh/HAVE_SOCKLEN.c
+        Linking C executable cmTC_b5486
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b5486.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_b5486.dir/HAVE_SOCKLEN.c.o -o cmTC_b5486  /usr/lib/x86_64-linux-gnu/librt.a
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-fZo2Dh'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "build/_deps/mongo-c-driver-src/build/cmake/ResSearch.cmake:19 (check_symbol_exists)"
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:402 (include)"
+    checks:
+      - "Looking for res_nsearch"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-93lw7h"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-93lw7h"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "_MONGOC_HAVE_RES_NSEARCH_RESOLV"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-93lw7h'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_8ecf3/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_8ecf3.dir/build.make CMakeFiles/cmTC_8ecf3.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-93lw7h'
+        Building C object CMakeFiles/cmTC_8ecf3.dir/CheckSymbolExists.c.o
+        /usr/bin/cc -DHAVE_STDARG_H -DHAVE_UNISTD_H -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_8ecf3.dir/CheckSymbolExists.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-93lw7h/CheckSymbolExists.c
+        Linking C executable cmTC_8ecf3
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8ecf3.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_8ecf3.dir/CheckSymbolExists.c.o -o cmTC_8ecf3  -lresolv
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-93lw7h'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "build/_deps/mongo-c-driver-src/build/cmake/ResSearch.cmake:20 (check_symbol_exists)"
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:402 (include)"
+    checks:
+      - "Looking for res_search"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-yXwhBN"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-yXwhBN"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "_MONGOC_HAVE_RES_SEARCH_RESOLV"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-yXwhBN'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_25d39/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_25d39.dir/build.make CMakeFiles/cmTC_25d39.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-yXwhBN'
+        Building C object CMakeFiles/cmTC_25d39.dir/CheckSymbolExists.c.o
+        /usr/bin/cc -DHAVE_STDARG_H -DHAVE_UNISTD_H -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_25d39.dir/CheckSymbolExists.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-yXwhBN/CheckSymbolExists.c
+        Linking C executable cmTC_25d39
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_25d39.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_25d39.dir/CheckSymbolExists.c.o -o cmTC_25d39  -lresolv
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-yXwhBN'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "build/_deps/mongo-c-driver-src/build/cmake/ResSearch.cmake:21 (check_symbol_exists)"
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:402 (include)"
+    checks:
+      - "Looking for res_ndestroy"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-gcigcd"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-gcigcd"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "_MONGOC_HAVE_RES_NDESTROY_RESOLV"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-gcigcd'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_629be/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_629be.dir/build.make CMakeFiles/cmTC_629be.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-gcigcd'
+        Building C object CMakeFiles/cmTC_629be.dir/CheckSymbolExists.c.o
+        /usr/bin/cc -DHAVE_STDARG_H -DHAVE_UNISTD_H -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_629be.dir/CheckSymbolExists.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-gcigcd/CheckSymbolExists.c
+        /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-gcigcd/CheckSymbolExists.c: In function 'main':
+        /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-gcigcd/CheckSymbolExists.c:11:19: error: 'res_ndestroy' undeclared (first use in this function)
+           11 |   return ((int*)(&res_ndestroy))[argc];
+              |                   ^~~~~~~~~~~~
+        /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-gcigcd/CheckSymbolExists.c:11:19: note: each undeclared identifier is reported only once for each function it appears in
+        gmake[1]: *** [CMakeFiles/cmTC_629be.dir/build.make:81: CMakeFiles/cmTC_629be.dir/CheckSymbolExists.c.o] Error 1
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-gcigcd'
+        gmake: *** [Makefile:134: cmTC_629be/fast] Error 2
+        
+      exitCode: 2
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "build/_deps/mongo-c-driver-src/build/cmake/ResSearch.cmake:22 (check_symbol_exists)"
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:402 (include)"
+    checks:
+      - "Looking for res_nclose"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-6y7g41"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-6y7g41"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "_MONGOC_HAVE_RES_NCLOSE_RESOLV"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-6y7g41'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_e6673/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_e6673.dir/build.make CMakeFiles/cmTC_e6673.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-6y7g41'
+        Building C object CMakeFiles/cmTC_e6673.dir/CheckSymbolExists.c.o
+        /usr/bin/cc -DHAVE_STDARG_H -DHAVE_UNISTD_H -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_e6673.dir/CheckSymbolExists.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-6y7g41/CheckSymbolExists.c
+        Linking C executable cmTC_e6673
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e6673.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_e6673.dir/CheckSymbolExists.c.o -o cmTC_e6673  -lresolv
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-6y7g41'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:425 (TRY_COMPILE)"
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:449 (mongoc_get_accept_args)"
+    directories:
+      source: "/app/astra/build/_deps/mongo-c-driver-build/src/libmongoc/CMakeFiles/CMakeTmp"
+      binary: "/app/astra/build/_deps/mongo-c-driver-build/src/libmongoc/CMakeFiles/CMakeTmp"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "RES"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/_deps/mongo-c-driver-build/src/libmongoc/CMakeFiles/CMakeTmp'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_4a2c2/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_4a2c2.dir/build.make CMakeFiles/cmTC_4a2c2.dir/build
+        gmake[1]: Entering directory '/app/astra/build/_deps/mongo-c-driver-build/src/libmongoc/CMakeFiles/CMakeTmp'
+        Building C object CMakeFiles/cmTC_4a2c2.dir/accept_test1.c.o
+        /usr/bin/cc   -std=c99 -o CMakeFiles/cmTC_4a2c2.dir/accept_test1.c.o -c /app/astra/build/_deps/mongo-c-driver-build/src/libmongoc/accept_test1.c
+        Linking C executable cmTC_4a2c2
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4a2c2.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_4a2c2.dir/accept_test1.c.o -o cmTC_4a2c2
+        gmake[1]: Leaving directory '/app/astra/build/_deps/mongo-c-driver-build/src/libmongoc/CMakeFiles/CMakeTmp'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/CheckSourceCompiles.cmake:89 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.31/Modules/CheckStructHasMember.cmake:79 (CHECK_SOURCE_COMPILES)"
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:520 (CHECK_STRUCT_HAS_MEMBER)"
+    checks:
+      - "Performing Test MONGOC_HAVE_SS_FAMILY"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-xzLE4L"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-xzLE4L"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "MONGOC_HAVE_SS_FAMILY"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-xzLE4L'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_0e1c6/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_0e1c6.dir/build.make CMakeFiles/cmTC_0e1c6.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-xzLE4L'
+        Building C object CMakeFiles/cmTC_0e1c6.dir/src.c.o
+        /usr/bin/cc -DHAVE_STDARG_H -DHAVE_UNISTD_H -DMONGOC_HAVE_SS_FAMILY -D_BSD_SOURCE -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=700  -std=c99 -o CMakeFiles/cmTC_0e1c6.dir/src.c.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-xzLE4L/src.c
+        Linking C executable cmTC_0e1c6
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0e1c6.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_0e1c6.dir/src.c.o -o cmTC_0e1c6  /usr/lib/x86_64-linux-gnu/librt.a
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-xzLE4L'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.31/Modules/CheckCompilerFlag.cmake:56 (cmake_check_compiler_flag)"
+      - "/usr/share/cmake-3.31/Modules/GenerateExportHeader.cmake:238 (check_compiler_flag)"
+      - "/usr/share/cmake-3.31/Modules/GenerateExportHeader.cmake:419 (_test_compiler_hidden_visibility)"
+      - "build/_deps/mongo_cxx_driver-src/src/bsoncxx/CMakeLists.txt:169 (generate_export_header)"
+      - "build/_deps/mongo_cxx_driver-src/src/bsoncxx/CMakeLists.txt:188 (bsoncxx_install_export_header)"
+    checks:
+      - "Performing Test COMPILER_HAS_HIDDEN_VISIBILITY"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-YH03zR"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-YH03zR"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "COMPILER_HAS_HIDDEN_VISIBILITY"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-YH03zR'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_8110c/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_8110c.dir/build.make CMakeFiles/cmTC_8110c.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-YH03zR'
+        Building CXX object CMakeFiles/cmTC_8110c.dir/src.cxx.o
+        /usr/bin/c++ -DCOMPILER_HAS_HIDDEN_VISIBILITY  -std=c++17   -fvisibility=hidden -o CMakeFiles/cmTC_8110c.dir/src.cxx.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-YH03zR/src.cxx
+        Linking CXX executable cmTC_8110c
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8110c.dir/link.txt --verbose=1
+        /usr/bin/c++ CMakeFiles/cmTC_8110c.dir/src.cxx.o -o cmTC_8110c
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-YH03zR'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-3.31/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/usr/share/cmake-3.31/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/usr/share/cmake-3.31/Modules/CheckCompilerFlag.cmake:56 (cmake_check_compiler_flag)"
+      - "/usr/share/cmake-3.31/Modules/GenerateExportHeader.cmake:239 (check_compiler_flag)"
+      - "/usr/share/cmake-3.31/Modules/GenerateExportHeader.cmake:419 (_test_compiler_hidden_visibility)"
+      - "build/_deps/mongo_cxx_driver-src/src/bsoncxx/CMakeLists.txt:169 (generate_export_header)"
+      - "build/_deps/mongo_cxx_driver-src/src/bsoncxx/CMakeLists.txt:188 (bsoncxx_install_export_header)"
+    checks:
+      - "Performing Test COMPILER_HAS_HIDDEN_INLINE_VISIBILITY"
+    directories:
+      source: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-wF8OUL"
+      binary: "/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-wF8OUL"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "COMPILER_HAS_HIDDEN_INLINE_VISIBILITY"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-wF8OUL'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_a6ecd/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_a6ecd.dir/build.make CMakeFiles/cmTC_a6ecd.dir/build
+        gmake[1]: Entering directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-wF8OUL'
+        Building CXX object CMakeFiles/cmTC_a6ecd.dir/src.cxx.o
+        /usr/bin/c++ -DCOMPILER_HAS_HIDDEN_INLINE_VISIBILITY  -std=c++17   -fvisibility-inlines-hidden -o CMakeFiles/cmTC_a6ecd.dir/src.cxx.o -c /app/astra/build/CMakeFiles/CMakeScratch/TryCompile-wF8OUL/src.cxx
+        Linking CXX executable cmTC_a6ecd
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a6ecd.dir/link.txt --verbose=1
+        /usr/bin/c++ CMakeFiles/cmTC_a6ecd.dir/src.cxx.o -o cmTC_a6ecd
+        gmake[1]: Leaving directory '/app/astra/build/CMakeFiles/CMakeScratch/TryCompile-wF8OUL'
+        
+      exitCode: 0
+...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:425 (TRY_COMPILE)"
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:449 (mongoc_get_accept_args)"
+    directories:
+      source: "/app/astra/build/_deps/mongo-c-driver-build/src/libmongoc/CMakeFiles/CMakeTmp"
+      binary: "/app/astra/build/_deps/mongo-c-driver-build/src/libmongoc/CMakeFiles/CMakeTmp"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "RES"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/build/_deps/mongo-c-driver-build/src/libmongoc/CMakeFiles/CMakeTmp'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_0beea/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_0beea.dir/build.make CMakeFiles/cmTC_0beea.dir/build
+        gmake[1]: Entering directory '/app/astra/build/_deps/mongo-c-driver-build/src/libmongoc/CMakeFiles/CMakeTmp'
+        Building C object CMakeFiles/cmTC_0beea.dir/accept_test1.c.o
+        /usr/bin/cc   -std=c99 -o CMakeFiles/cmTC_0beea.dir/accept_test1.c.o -c /app/astra/build/_deps/mongo-c-driver-build/src/libmongoc/accept_test1.c
+        Linking C executable cmTC_0beea
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0beea.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_0beea.dir/accept_test1.c.o -o cmTC_0beea
+        gmake[1]: Leaving directory '/app/astra/build/_deps/mongo-c-driver-build/src/libmongoc/CMakeFiles/CMakeTmp'
+        
+      exitCode: 0
+...

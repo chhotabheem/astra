@@ -1,0 +1,1 @@
+/usr/bin/cc -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/creating.dir/link.d CMakeFiles/creating.dir/examples/creating.c.o -o creating  -Wl,-rpath,/app/astra/build/_deps/mongo-c-driver-build/src/libbson libbson2.so.2.1.2 /usr/lib/x86_64-linux-gnu/librt.a -lm

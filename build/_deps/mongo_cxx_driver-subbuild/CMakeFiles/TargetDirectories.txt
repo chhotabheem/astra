@@ -1,0 +1,3 @@
+/app/astra/build/_deps/mongo_cxx_driver-subbuild/CMakeFiles/mongo_cxx_driver-populate.dir
+/app/astra/build/_deps/mongo_cxx_driver-subbuild/CMakeFiles/edit_cache.dir
+/app/astra/build/_deps/mongo_cxx_driver-subbuild/CMakeFiles/rebuild_cache.dir

@@ -21,22 +21,34 @@ astra/
 
 ## Quick Start
 
-### Automated Build
+## Quick Start
 
-You can use the `build.py` script to automate the entire process (build image, start container, compile & test):
+### 1. Set Up Environment
+
+Use the environment management script to build the Docker image and start the container:
 
 ```bash
-./build.py --all
+./imagebuilder/manage_env.py --up
 ```
 
-### Individual Steps
+### 2. Build and Test
 
-You can also run steps individually:
+You can compile and test the project inside the container using standard CMake commands:
 
-1.  **Build Image**: `./build.py --image`
-2.  **Start Container**: `./build.py --start`
-3.  **Compile & Test**: `./build.py --build`
-4.  **Clean Up**: `./build.py --clean`
+```bash
+docker exec -it prayag /bin/bash -c "mkdir -p build && cd build && cmake /app/astra && cmake --build . && ctest --output-on-failure && ./mongoclient/mongo_app"
+```
+
+Or enter the container to work interactively:
+
+```bash
+docker exec -it prayag /bin/bash
+cd /app/astra
+mkdir -p build && cd build
+cmake ..
+cmake --build .
+ctest
+```
 
 ## Key Features
 
