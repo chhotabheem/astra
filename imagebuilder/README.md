@@ -5,7 +5,9 @@ This project contains a Dockerized environment for developing and testing the Mo
 ## Docker Setup
 
 ### 1. Build the Docker Image
-The `Dockerfile` (located in the `imagebuilder` directory) sets up an Ubuntu environment with all necessary dependencies (CMake, OpenSSL, SASL, etc.) and compiles the `mongo-cxx-driver` (v4.1.4) from source.
+### 1. Build the Docker Image
+The `Dockerfile` (located in the `imagebuilder` directory) sets up an Ubuntu environment with all necessary dependencies (CMake, OpenSSL, SASL, git, tree, etc.).
+**Note:** The MongoDB C++ driver is NOT baked into the image. It is downloaded and built automatically by CMake when you compile the project.
 
 ```bash
 # Run from the imagebuilder directory
@@ -81,7 +83,6 @@ docker exec -it prayag /bin/bash -c "cd /app/astra/mongoclient && mkdir -p build
 ```
 
 ## Project Structure inside Container
-- `/app/mongo-cxx-driver-r4.1.4`: The installed MongoDB C++ driver source (built during image creation).
 - `/app/astra`: Your project root directory (mounted via volume).
 - `/app/astra/mongoclient`: Your MongoDB client code directory.
 - `/app/astra/imagebuilder`: Contains the Dockerfile and this README.
