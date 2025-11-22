@@ -1,0 +1,47 @@
+cmake_minimum_required(VERSION 3.15)
+project(AstraLogger VERSION 1.0.0 LANGUAGES CXX)
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Fetch spdlog
+include(FetchContent)
+FetchContent_Declare(
+    spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG        v1.12.0
+)
+FetchContent_MakeAvailable(spdlog)
+
+# Create logger library
+add_library(logger STATIC
+    src/LoggerImpl.cpp
+)
+
+target_include_directories(logger
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+)
+
+target_link_libraries(logger
+    PUBLIC
+        spdlog::spdlog
+)
+
+# Enable testing
+enable_testing()
+
+# Test executable
+add_executable(test_logger
+    tests/test_logger.cpp
+)
+
+target_link_libraries(test_logger
+    PRIVATE
+        logger
+)
+
+# Add tests
+add_test(NAME LoggerBasicTest COMMAND test_logger)

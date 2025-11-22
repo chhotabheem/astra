@@ -15,7 +15,12 @@ add_subdirectory(mongodriver)
 # find_package(bsoncxx REQUIRED)
 
 # Link libraries
-target_link_libraries(mongoclient PUBLIC mongocxx_shared bsoncxx_shared)
+target_link_libraries(mongoclient 
+    PUBLIC 
+        logger
+        mongocxx_shared 
+        bsoncxx_shared
+)
 
 # Include current directory for headers
 target_include_directories(mongoclient PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
