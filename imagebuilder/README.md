@@ -31,10 +31,10 @@ cd ..
 docker run -d --name prayag -v $(pwd):/app/astra astrabuilder tail -f /dev/null
 ```
 
-**Note:** It is recommended to use the `manage_env.py` script in this directory to manage this process automatically:
+**Note:** It is recommended to use the `build_container.py` script in this directory to manage this process automatically:
 
 ```bash
-./manage_env.py --up
+./build_container.py --up
 ```
 
 ## Next Steps

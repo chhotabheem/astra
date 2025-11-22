@@ -28,7 +28,7 @@ astra/
 Use the environment management script to build the Docker image and start the container:
 
 ```bash
-./imagebuilder/manage_env.py --up
+./imagebuilder/build_container.py --up
 ```
 
 ### 2. Build and Test
