@@ -1,0 +1,1 @@
+/usr/bin/cc -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/bcon-col-view.dir/link.d "CMakeFiles/bcon-col-view.dir/examples/bcon-col-view.c.o" -o bcon-col-view  -Wl,-rpath,/app/astra/mongoclient/build/_deps/mongo-c-driver-build/src/libbson libbson2.so.2.1.2 /usr/lib/x86_64-linux-gnu/librt.a -lm

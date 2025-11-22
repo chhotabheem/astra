@@ -8,12 +8,14 @@ enable_testing()
 
 add_library(mongoclient IMongoClient.h MongoClient.cpp)
 
-# Find MongoDB C++ driver
-find_package(mongocxx REQUIRED)
-find_package(bsoncxx REQUIRED)
+# Add MongoDB Driver
+add_subdirectory(mongodriver)
+
+# find_package(mongocxx REQUIRED) # Not needed as we build it from source
+# find_package(bsoncxx REQUIRED)
 
 # Link libraries
-target_link_libraries(mongoclient PUBLIC mongo::mongocxx_shared mongo::bsoncxx_shared)
+target_link_libraries(mongoclient PUBLIC mongocxx_shared bsoncxx_shared)
 
 # Include current directory for headers
 target_include_directories(mongoclient PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

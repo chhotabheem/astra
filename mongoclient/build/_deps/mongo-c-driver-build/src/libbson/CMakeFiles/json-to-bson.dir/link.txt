@@ -1,0 +1,1 @@
+/usr/bin/cc -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/json-to-bson.dir/link.d "CMakeFiles/json-to-bson.dir/examples/json-to-bson.c.o" -o json-to-bson  -Wl,-rpath,/app/astra/mongoclient/build/_deps/mongo-c-driver-build/src/libbson libbson2.so.2.1.2 /usr/lib/x86_64-linux-gnu/librt.a -lm
