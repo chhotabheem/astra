@@ -1,24 +1,23 @@
-# MongoDB C++ Driver Test Environment
+# Docker Environment Setup
 
-This project contains a Dockerized environment for developing and testing the MongoDB C++ client library.
+This directory contains the Docker configuration for the Astra project.
 
 ## Docker Setup
 
 ### 1. Build the Docker Image
-### 1. Build the Docker Image
-The `Dockerfile` (located in the `imagebuilder` directory) sets up an Ubuntu environment with all necessary dependencies (CMake, OpenSSL, SASL, git, tree, etc.).
+The `Dockerfile` sets up an Ubuntu environment with all necessary dependencies (CMake, OpenSSL, SASL, git, tree, etc.).
 **Note:** The MongoDB C++ driver is NOT baked into the image. It is downloaded and built automatically by CMake when you compile the project.
 
 ```bash
 # Run from the imagebuilder directory
 cd imagebuilder
-docker build -t mongo-test .
+docker build -t astrabuilder .
 ```
 
 **Note:** The Dockerfile includes a DNS fix (`nameserver 8.8.8.8`) to ensure internet connectivity during the build process.
 
 ### 2. Create the Persistent Container
-We use a persistent container named `prayag` to keep the environment running. This allows you to log in and run tests repeatedly without rebuilding or restarting.
+We use a persistent container named `prayag` to keep the environment running.
 
 ```bash
 # Remove any existing container named prayag
@@ -29,60 +28,11 @@ docker rm -f prayag
 # -v $(pwd):/app/astra : Mounts your project root directory to /app/astra inside the container
 # tail -f /dev/null    : Keeps the container running indefinitely
 cd ..
-docker run -d --name prayag -v $(pwd):/app/astra mongo-test tail -f /dev/null
+docker run -d --name prayag -v $(pwd):/app/astra astrabuilder tail -f /dev/null
 ```
 
-## Compiling and Running Tests
+**Note:** It is recommended to use the `build.py` script in the root directory to manage this process automatically.
 
-Since your code is mounted into the container, you must compile it **inside** the container.
+## Next Steps
 
-### 1. Access the Container
-Log in to the running `prayag` container:
-```bash
-docker exec -it prayag /bin/bash
-```
-
-### 2. Compile the Code
-Inside the container, navigate to the source directory and build:
-
-```bash
-# Go to the source directory (mounted volume)
-cd /app/astra/mongoclient
-
-# Create build directory
-mkdir -p build && cd build
-
-# Configure with CMake
-cmake ..
-
-# Compile
-cmake --build .
-```
-
-### 3. Run Tests
-After compiling, run the tests using CTest:
-
-```bash
-ctest --output-on-failure
-```
-
-### 4. Run the Main Application
-To run the main application:
-
-```bash
-./mongo_app
-```
-
-**Note:** The application attempts to connect to a MongoDB server at `172.17.0.3:27017`. Ensure a MongoDB instance is reachable at that address, or update the connection string in `main.cpp`.
-
-### One-liner Command
-You can also do everything (compile & test) from your host machine in one command:
-
-```bash
-docker exec -it prayag /bin/bash -c "cd /app/astra/mongoclient && mkdir -p build && cd build && cmake .. && cmake --build . && ctest --output-on-failure && ./mongo_app"
-```
-
-## Project Structure inside Container
-- `/app/astra`: Your project root directory (mounted via volume).
-- `/app/astra/mongoclient`: Your MongoDB client code directory.
-- `/app/astra/imagebuilder`: Contains the Dockerfile and this README.
+Once the container is running, refer to [../mongoclient/README.md](../mongoclient/README.md) for instructions on compiling and running the application.

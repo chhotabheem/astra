@@ -1,10 +1,10 @@
-Start testing: Nov 22 15:16 UTC
+Start testing: Nov 22 15:57 UTC
 ----------------------------------------------------------
 1/2 Testing: MongoClientTest
 1/2 Test: MongoClientTest
 Command: "/app/astra/mongoclient/build/test_mongoclient"
 Directory: /app/astra/mongoclient/build
-"MongoClientTest" start time: Nov 22 15:16 UTC
+"MongoClientTest" start time: Nov 22 15:57 UTC
 Output:
 ----------------------------------------------------------
 
@@ -34,10 +34,10 @@ Running MongoClient Test Suite
 ========================================
 
 <end of output>
-Test time =   0.02 sec
+Test time =   0.03 sec
 ----------------------------------------------------------
 Test Passed.
-"MongoClientTest" end time: Nov 22 15:16 UTC
+"MongoClientTest" end time: Nov 22 15:57 UTC
 "MongoClientTest" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -45,15 +45,15 @@ Test Passed.
 2/2 Test: mongoc/mlib/ckdint
 Command: "/app/astra/mongoclient/build/_deps/mongo-c-driver-build/src/common/mlib-ckdint-test"
 Directory: /app/astra/mongoclient/build/_deps/mongo-c-driver-build/src/common
-"mongoc/mlib/ckdint" start time: Nov 22 15:16 UTC
+"mongoc/mlib/ckdint" start time: Nov 22 15:57 UTC
 Output:
 ----------------------------------------------------------
 <end of output>
-Test time =   0.36 sec
+Test time =   0.29 sec
 ----------------------------------------------------------
 Test Passed.
-"mongoc/mlib/ckdint" end time: Nov 22 15:16 UTC
+"mongoc/mlib/ckdint" end time: Nov 22 15:57 UTC
 "mongoc/mlib/ckdint" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Nov 22 15:16 UTC
+End testing: Nov 22 15:57 UTC

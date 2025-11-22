@@ -21,26 +21,22 @@ astra/
 
 ## Quick Start
 
-### 1. Build the Docker Image
+### Automated Build
+
+You can use the `build.py` script to automate the entire process (build image, start container, compile & test):
 
 ```bash
-cd imagebuilder
-docker build -t mongo-test .
+./build.py --all
 ```
 
-### 2. Run the Container
+### Individual Steps
 
-```bash
-# From project root
-docker rm -f prayag
-docker run -d --name prayag -v $(pwd):/app/astra mongo-test tail -f /dev/null
-```
+You can also run steps individually:
 
-### 3. Compile and Test
-
-```bash
-docker exec -it prayag /bin/bash -c "cd /app/astra/mongoclient && mkdir -p build && cd build && cmake .. && cmake --build . && ctest --output-on-failure && ./mongo_app"
-```
+1.  **Build Image**: `./build.py --image`
+2.  **Start Container**: `./build.py --start`
+3.  **Compile & Test**: `./build.py --build`
+4.  **Clean Up**: `./build.py --clean`
 
 ## Key Features
 
@@ -50,4 +46,5 @@ docker exec -it prayag /bin/bash -c "cd /app/astra/mongoclient && mkdir -p build
 
 ## Documentation
 
-For detailed Docker setup, compilation instructions, and usage information, see [imagebuilder/README.md](imagebuilder/README.md).
+- **Docker Setup**: [imagebuilder/README.md](imagebuilder/README.md)
+- **Development & Testing**: [mongoclient/README.md](mongoclient/README.md)

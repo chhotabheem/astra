@@ -1590,3 +1590,37 @@ events:
         
       exitCode: 0
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:425 (TRY_COMPILE)"
+      - "build/_deps/mongo-c-driver-src/src/libmongoc/CMakeLists.txt:449 (mongoc_get_accept_args)"
+    directories:
+      source: "/app/astra/mongoclient/build/_deps/mongo-c-driver-build/src/libmongoc/CMakeFiles/CMakeTmp"
+      binary: "/app/astra/mongoclient/build/_deps/mongo-c-driver-build/src/libmongoc/CMakeFiles/CMakeTmp"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: "/app/astra/mongoclient/build/_deps/mongo-c-driver-src/build/cmake;/app/astra/mongoclient/build/_deps/mongo_cxx_driver-src/cmake;/app/astra/mongoclient/build/_deps/mongo_cxx_driver-src/cmake/make_dist"
+    buildResult:
+      variable: "RES"
+      cached: true
+      stdout: |
+        Change Dir: '/app/astra/mongoclient/build/_deps/mongo-c-driver-build/src/libmongoc/CMakeFiles/CMakeTmp'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_5c6b8/fast
+        /usr/bin/gmake  -f CMakeFiles/cmTC_5c6b8.dir/build.make CMakeFiles/cmTC_5c6b8.dir/build
+        gmake[1]: Entering directory '/app/astra/mongoclient/build/_deps/mongo-c-driver-build/src/libmongoc/CMakeFiles/CMakeTmp'
+        Building C object CMakeFiles/cmTC_5c6b8.dir/accept_test1.c.o
+        /usr/bin/cc   -std=c99 -o CMakeFiles/cmTC_5c6b8.dir/accept_test1.c.o -c /app/astra/mongoclient/build/_deps/mongo-c-driver-build/src/libmongoc/accept_test1.c
+        Linking C executable cmTC_5c6b8
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5c6b8.dir/link.txt --verbose=1
+        /usr/bin/cc CMakeFiles/cmTC_5c6b8.dir/accept_test1.c.o -o cmTC_5c6b8
+        gmake[1]: Leaving directory '/app/astra/mongoclient/build/_deps/mongo-c-driver-build/src/libmongoc/CMakeFiles/CMakeTmp'
+        
+      exitCode: 0
+...
