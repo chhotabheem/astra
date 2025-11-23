@@ -1,5 +1,0 @@
-if(BSON_HAVE_ALIGNED_ALLOC)
-  set(bool 1)
-else()
-  set(bool 0)
-endif()

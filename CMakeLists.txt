@@ -3,6 +3,10 @@ project(Astra)
 
 enable_testing()
 add_subdirectory(logger)
+add_subdirectory(httpserver)
 
 # Add the MongoDB client subdirectory
 add_subdirectory(mongoclient)
+
+# Add the main server application
+add_subdirectory(server)

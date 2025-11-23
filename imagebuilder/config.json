@@ -1,8 +1,0 @@
-{
-    "image_name": "astrabuilder",
-    "container_name": "prayag",
-    "container_workdir": "/app/astra",
-    "network_mode": "host",
-    "log_level": "INFO",
-    "dockerfile_path": "."
-}
