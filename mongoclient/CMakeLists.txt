@@ -6,7 +6,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 enable_testing()
 
-add_library(mongoclient IMongoClient.h MongoClient.cpp)
+add_library(mongoclient STATIC IMongoClient.h MongoClient.cpp)
 
 # Add MongoDB Driver
 add_subdirectory(mongodriver)
