@@ -1,9 +1,5 @@
-/**
- * @file LoggerImpl.cpp
- * @brief Logger implementation with JSON formatting
- */
-
 #include "LoggerImpl.h"
+#include <JsonFormatter.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/async.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -17,34 +13,32 @@
 namespace logger {
 namespace internal {
 
-/**
- * @brief Custom JSON formatter for spdlog
- */
-class JsonFormatter : public spdlog::custom_flag_formatter {
+class JsonFormatterSpdlog : public spdlog::custom_flag_formatter {
 public:
     void format(const spdlog::details::log_msg& msg, 
                 const std::tm&, 
                 spdlog::memory_buf_t& dest) override {
-        // This is called for custom flags, but we'll override the entire format
-        // in the pattern
     }
 
     std::unique_ptr<custom_flag_formatter> clone() const override {
-        return std::make_unique<JsonFormatter>();
+        return std::make_unique<JsonFormatterSpdlog>();
     }
 };
 
-/**
- * @brief Format log message as JSON
- */
+// Forward declare format_json helper
+static std::string format_json(spdlog::level::level_enum level,
+                               const std::string& message,
+                               std::string_view file,
+                               int line,
+                               std::string_view function);
+
 std::string format_json(spdlog::level::level_enum level,
                         const std::string& message,
-                        const char* file,
+                        std::string_view file,
                         int line,
-                        const char* function) {
-    std::ostringstream json;
+                        std::string_view function) {
+    json::JsonFormatter json;
     
-    // Get current timestamp with microseconds
     auto now = std::chrono::system_clock::now();
     auto time_t_now = std::chrono::system_clock::to_time_t(now);
     auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(
@@ -53,46 +47,43 @@ std::string format_json(spdlog::level::level_enum level,
     std::tm tm_now;
     localtime_r(&time_t_now, &tm_now);
     
-    // Get thread ID
+    std::ostringstream timestamp;
+    timestamp << std::put_time(&tm_now, "%Y-%m-%dT%H:%M:%S")
+              << "." << std::setfill('0') << std::setw(6) << microseconds.count();
+
     std::ostringstream thread_id_stream;
     thread_id_stream << std::this_thread::get_id();
-    std::string thread_id = thread_id_stream.str();
     
-    // Level to string
     const char* level_str = spdlog::level::to_string_view(level).data();
     
-    // Extract just the filename from full path
-    const char* filename = file;
-    const char* last_slash = strrchr(file, '/');
-    if (last_slash) {
-        filename = last_slash + 1;
+    std::string_view filename = file;
+    size_t last_slash = file.find_last_of('/');
+    if (last_slash != std::string_view::npos) {
+        filename = file.substr(last_slash + 1);
     }
+
+    json.add("timestamp", timestamp.str());
+    json.add("level", level_str);
+    json.add("message", message);
     
-    // Build JSON
-    json << "{"
-         << "\"timestamp\":\"" << std::put_time(&tm_now, "%Y-%m-%dT%H:%M:%S")
-         << "." << std::setfill('0') << std::setw(6) << microseconds.count() << "\","
-         << "\"level\":\"" << level_str << "\","
-         << "\"message\":\"" << message << "\","
-         << "\"source\":{"
-         << "\"file\":\"" << filename << "\","
-         << "\"line\":" << line << ","
-         << "\"function\":\"" << function << "\""
-         << "},"
-         << "\"thread_id\":\"" << thread_id << "\""
-         << "}";
+    json.start_object("source");
+        json.add("file", filename);
+        json.add("line", line);
+        json.add("function", function);
+    json.end_object();
     
-    return json.str();
+    json.add("thread_id", thread_id_stream.str());
+    json.end_object();
+    
+    return json.get_string();
 }
 
-// Singleton instance
 LoggerImpl& LoggerImpl::instance() {
     static LoggerImpl instance;
     return instance;
 }
 
 LoggerImpl::LoggerImpl() {
-    // Constructor is private
 }
 
 LoggerImpl::~LoggerImpl() {
@@ -100,7 +91,7 @@ LoggerImpl::~LoggerImpl() {
 }
 
 void LoggerImpl::initialize() {
-    std::call_once(init_flag_, [this]() {
+    std::call_once(m_init_flag, [this]() {
         try {
             // Create async logger with queue size 8192
             spdlog::init_thread_pool(8192, 1);
@@ -109,7 +100,7 @@ void LoggerImpl::initialize() {
             auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
             
             // Create async logger
-            logger_ = std::make_shared<spdlog::async_logger>(
+            m_logger = std::make_shared<spdlog::async_logger>(
                 "astra_logger",
                 stdout_sink,
                 spdlog::thread_pool(),
@@ -117,15 +108,15 @@ void LoggerImpl::initialize() {
             );
             
             // Set pattern to just output the message (we format JSON ourselves)
-            logger_->set_pattern("%v");
+            m_logger->set_pattern("%v");
             
             // Set default level to INFO
-            logger_->set_level(spdlog::level::info);
+            m_logger->set_level(spdlog::level::info);
             
             // Register logger
-            spdlog::register_logger(logger_);
+            spdlog::register_logger(m_logger);
             
-            initialized_ = true;
+            m_is_initialized = true;
         } catch (const std::exception& e) {
             // Fallback to stderr if initialization fails
             std::cerr << "Failed to initialize logger: " << e.what() << std::endl;
@@ -134,20 +125,20 @@ void LoggerImpl::initialize() {
 }
 
 void LoggerImpl::shutdown() {
-    if (initialized_ && logger_) {
-        logger_->flush();
+    if (m_is_initialized && m_logger) {
+        m_logger->flush();
         spdlog::drop("astra_logger");
         spdlog::shutdown();
-        initialized_ = false;
+        m_is_initialized = false;
     }
 }
 
 void LoggerImpl::set_level(Level level) {
-    if (!initialized_) {
+    if (!m_is_initialized) {
         initialize();
     }
     
-    if (logger_) {
+    if (m_logger) {
         spdlog::level::level_enum spdlog_level;
         switch (level) {
             case Level::TRACE: spdlog_level = spdlog::level::trace; break;
@@ -158,21 +149,20 @@ void LoggerImpl::set_level(Level level) {
             case Level::FATAL: spdlog_level = spdlog::level::critical; break;
             default:           spdlog_level = spdlog::level::info;  break;
         }
-        logger_->set_level(spdlog_level);
+        m_logger->set_level(spdlog_level);
     }
 }
 
 void LoggerImpl::log(Level level, const std::string& message,
-                     const char* file, int line, const char* function) {
-    if (!initialized_) {
+                     std::string_view file, int line, std::string_view function) {
+    if (!m_is_initialized) {
         initialize();
     }
     
-    if (!logger_) {
+    if (!m_logger) {
         return;
     }
     
-    // Convert level
     spdlog::level::level_enum spdlog_level;
     switch (level) {
         case Level::TRACE: spdlog_level = spdlog::level::trace; break;
@@ -184,16 +174,12 @@ void LoggerImpl::log(Level level, const std::string& message,
         default:           spdlog_level = spdlog::level::info;  break;
     }
     
-    // Format as JSON
     std::string json_message = format_json(spdlog_level, message, file, line, function);
-    
-    // Log the JSON message
-    logger_->log(spdlog_level, json_message);
+    m_logger->log(spdlog_level, json_message);
 }
 
 } // namespace internal
 
-// Public API implementation
 void Logger::initialize() {
     internal::LoggerImpl::instance().initialize();
 }
@@ -207,7 +193,7 @@ void Logger::set_level(Level level) {
 }
 
 void Logger::log_impl(Level level, const std::string& message,
-                     const char* file, int line, const char* function) {
+                     std::string_view file, int line, std::string_view function) {
     internal::LoggerImpl::instance().log(level, message, file, line, function);
 }
 

@@ -9,12 +9,12 @@ endif()
 
 message(STATUS "Fetching nghttp2-asio version: ${NGHTTP2_ASIO_VERSION}")
 
-# Fetch nghttp2-asio from GitHub
+# Fetch nghttp2-asio from the separate repository (moved from main nghttp2 in 2022)
 FetchContent_Declare(
     nghttp2_asio
-    GIT_REPOSITORY https://github.com/nghttp2/nghttp2.git
-    GIT_TAG        ${NGHTTP2_ASIO_VERSION}
-    SOURCE_SUBDIR  src  # nghttp2-asio is in the src directory
+    GIT_REPOSITORY https://github.com/nghttp2/nghttp2-asio.git
+    GIT_TAG        main
+    GIT_SHALLOW    TRUE
 )
 
 # Configure nghttp2 build options

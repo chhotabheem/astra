@@ -22,7 +22,18 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     libsasl2-dev \
     libnghttp2-dev \
-    ca-certificates && \
+    ca-certificates \
+    vim \
+    iputils-ping \
+    net-tools \
+    gdb \
+    valgrind \
+    wget \
+    openssh-client \
+    dnsutils \
+    iproute2 \
+    gnupg \
+    software-properties-common && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
