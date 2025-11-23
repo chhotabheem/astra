@@ -1,0 +1,6 @@
+{
+    "image_name": "astrabuilder:nghttp2",
+    "container_name": "astra",
+    "container_workdir": "/app/astra",
+    "network_mode": "host"
+}
