@@ -40,6 +40,7 @@ private:
     std::shared_ptr<spdlog::logger> m_logger;
     std::once_flag m_init_flag;
     bool m_is_initialized = false;
+    bool m_is_shutdown = false;
 };
 
 } // namespace internal

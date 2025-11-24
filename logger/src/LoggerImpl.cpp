@@ -87,7 +87,6 @@ LoggerImpl::LoggerImpl() {
 }
 
 LoggerImpl::~LoggerImpl() {
-    shutdown();
 }
 
 void LoggerImpl::initialize() {
@@ -125,10 +124,10 @@ void LoggerImpl::initialize() {
 }
 
 void LoggerImpl::shutdown() {
-    if (m_is_initialized && m_logger) {
+    if (m_is_initialized && m_logger && !m_is_shutdown) {
+        m_is_shutdown = true;
         m_logger->flush();
         spdlog::drop("astra_logger");
-        spdlog::shutdown();
         m_is_initialized = false;
     }
 }
@@ -155,6 +154,10 @@ void LoggerImpl::set_level(Level level) {
 
 void LoggerImpl::log(Level level, const std::string& message,
                      std::string_view file, int line, std::string_view function) {
+    if (m_is_shutdown) {
+        return;
+    }
+    
     if (!m_is_initialized) {
         initialize();
     }

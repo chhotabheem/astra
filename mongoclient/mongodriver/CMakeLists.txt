@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 include(FetchContent)
 
+add_definitions(-D_ISOC11_SOURCE)
 # Default version if not specified
 if(NOT DEFINED MONGO_CXX_DRIVER_VERSION)
     set(MONGO_CXX_DRIVER_VERSION "r4.1.4")
@@ -12,6 +13,7 @@ message(STATUS "Fetching MongoDB C++ Driver version: ${MONGO_CXX_DRIVER_VERSION}
 FetchContent_Declare(
   mongo_cxx_driver
   URL https://github.com/mongodb/mongo-cxx-driver/releases/download/${MONGO_CXX_DRIVER_VERSION}/mongo-cxx-driver-${MONGO_CXX_DRIVER_VERSION}.tar.gz
+
 )
 
 # We need to ensure the C driver is also available or fetched by the C++ driver.
