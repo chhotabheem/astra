@@ -52,3 +52,16 @@ if (simdjson_FOUND)
 else()
     message(STATUS "simdjson not found, using fallback validation")
 endif()
+
+# Test executable for HTTP/2 server
+add_executable(test_http2_server tests/test_http2_server.cpp)
+
+target_compile_features(test_http2_server PRIVATE cxx_std_17)
+
+target_link_libraries(test_http2_server
+    PRIVATE
+        nghttp2_asio
+        Boost::system
+        Boost::thread
+        Boost::chrono
+)

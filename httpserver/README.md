@@ -55,6 +55,60 @@ cd /app/astra/httpserver/build
 ctest --output-on-failure
 ```
 
+## Test HTTP/2 Server
+
+A simple HTTP/2 server is available for testing the patched `nghttp2-asio` library.
+
+### Building the Test Server
+
+```bash
+# From root directory
+cd /app/astra
+cmake --build build --target test_http2_server
+```
+
+### Running the Test Server
+
+```bash
+# Start server (default: 127.0.0.1:8080)
+./build/httpserver/test_http2_server
+
+# Or specify custom port
+./build/httpserver/test_http2_server 9090
+
+# Or specify custom address and port
+./build/httpserver/test_http2_server 9090 0.0.0.0
+```
+
+### Testing the Server
+
+```bash
+# Test root endpoint
+curl -v --http2-prior-knowledge http://127.0.0.1:8080/
+
+# Test health endpoint
+curl -v --http2-prior-knowledge http://127.0.0.1:8080/health
+```
+
+### Expected Responses
+
+**Root endpoint (`/`):**
+```json
+{
+  "status": "ok",
+  "message": "Hello from nghttp2-asio HTTP/2 server!",
+  "path": "/"
+}
+```
+
+**Health endpoint (`/health`):**
+```json
+{
+  "status": "healthy",
+  "service": "nghttp2-asio-test"
+}
+```
+
 ### Test Coverage
 - HTTP server lifecycle
 - Request/response handling
