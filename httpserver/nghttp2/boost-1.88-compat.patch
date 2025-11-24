@@ -1,0 +1,634 @@
+diff --git lib/asio_client_session.cc lib/asio_client_session.cc
+index 5cf01c7..510ce16 100644
+--- lib/asio_client_session.cc
++++ lib/asio_client_session.cc
+@@ -37,14 +37,14 @@ namespace client {
+ 
+ using boost::asio::ip::tcp;
+ 
+-session::session(boost::asio::io_service &io_service, const std::string &host,
++session::session(boost::asio::io_context &io_service, const std::string &host,
+                  const std::string &service)
+     : impl_(std::make_shared<session_tcp_impl>(
+           io_service, host, service, boost::posix_time::seconds(60))) {
+   impl_->start_resolve(host, service);
+ }
+ 
+-session::session(boost::asio::io_service &io_service,
++session::session(boost::asio::io_context &io_service,
+                  const boost::asio::ip::tcp::endpoint &local_endpoint,
+                  const std::string &host, const std::string &service)
+     : impl_(std::make_shared<session_tcp_impl>(
+@@ -53,7 +53,7 @@ session::session(boost::asio::io_service &io_service,
+   impl_->start_resolve(host, service);
+ }
+ 
+-session::session(boost::asio::io_service &io_service, const std::string &host,
++session::session(boost::asio::io_context &io_service, const std::string &host,
+                  const std::string &service,
+                  const boost::posix_time::time_duration &connect_timeout)
+     : impl_(std::make_shared<session_tcp_impl>(io_service, host, service,
+@@ -61,7 +61,7 @@ session::session(boost::asio::io_service &io_service, const std::string &host,
+   impl_->start_resolve(host, service);
+ }
+ 
+-session::session(boost::asio::io_service &io_service,
++session::session(boost::asio::io_context &io_service,
+                  const boost::asio::ip::tcp::endpoint &local_endpoint,
+                  const std::string &host, const std::string &service,
+                  const boost::posix_time::time_duration &connect_timeout)
+@@ -70,7 +70,7 @@ session::session(boost::asio::io_service &io_service,
+   impl_->start_resolve(host, service);
+ }
+ 
+-session::session(boost::asio::io_service &io_service,
++session::session(boost::asio::io_context &io_service,
+                  boost::asio::ssl::context &tls_ctx, const std::string &host,
+                  const std::string &service)
+     : impl_(std::make_shared<session_tls_impl>(
+@@ -78,7 +78,7 @@ session::session(boost::asio::io_service &io_service,
+   impl_->start_resolve(host, service);
+ }
+ 
+-session::session(boost::asio::io_service &io_service,
++session::session(boost::asio::io_context &io_service,
+                  boost::asio::ssl::context &tls_ctx, const std::string &host,
+                  const std::string &service,
+                  const boost::posix_time::time_duration &connect_timeout)
+@@ -108,7 +108,7 @@ void session::on_error(error_cb cb) const { impl_->on_error(std::move(cb)); }
+ 
+ void session::shutdown() const { impl_->shutdown(); }
+ 
+-boost::asio::io_service &session::io_service() const {
++boost::asio::io_context &session::io_service() const {
+   return impl_->io_service();
+ }
+ 
+diff --git lib/asio_client_session_impl.cc lib/asio_client_session_impl.cc
+index b96824d..c619c6c 100644
+--- lib/asio_client_session_impl.cc
++++ lib/asio_client_session_impl.cc
+@@ -39,7 +39,7 @@ namespace asio_http2 {
+ namespace client {
+ 
+ session_impl::session_impl(
+-    boost::asio::io_service &io_service,
++    boost::asio::io_context &io_service,
+     const boost::posix_time::time_duration &connect_timeout)
+     : wblen_(0),
+       io_service_(io_service),
+@@ -72,15 +72,15 @@ void session_impl::start_resolve(const std::string &host,
+ 
+   auto self = shared_from_this();
+ 
+-  resolver_.async_resolve({host, service},
++  resolver_.async_resolve(host, service,
+                           [self](const boost::system::error_code &ec,
+-                                 tcp::resolver::iterator endpoint_it) {
++                                 tcp::resolver::results_type results) {
+                             if (ec) {
+                               self->not_connected(ec);
+                               return;
+                             }
+ 
+-                            self->start_connect(endpoint_it);
++                            self->start_connect(results.begin());
+                           });
+ 
+   deadline_.async_wait(std::bind(&session_impl::handle_deadline, self));
+@@ -124,7 +124,7 @@ void session_impl::handle_ping(const boost::system::error_code &ec) {
+   start_ping();
+ }
+ 
+-void session_impl::connected(tcp::resolver::iterator endpoint_it) {
++void session_impl::connected(tcp::resolver::results_type::iterator endpoint_it) {
+   if (!setup_session()) {
+     return;
+   }
+@@ -585,7 +585,7 @@ void session_impl::shutdown() {
+   signal_write();
+ }
+ 
+-boost::asio::io_service &session_impl::io_service() { return io_service_; }
++boost::asio::io_context &session_impl::io_service() { return io_service_; }
+ 
+ void session_impl::signal_write() {
+   if (!inside_callback_) {
+diff --git lib/asio_client_session_impl.h lib/asio_client_session_impl.h
+index 694ac20..941685f 100644
+--- lib/asio_client_session_impl.h
++++ lib/asio_client_session_impl.h
+@@ -43,13 +43,13 @@ using boost::asio::ip::tcp;
+ 
+ class session_impl : public std::enable_shared_from_this<session_impl> {
+ public:
+-  session_impl(boost::asio::io_service &io_service,
++  session_impl(boost::asio::io_context &io_service,
+                const boost::posix_time::time_duration &connect_timeout);
+   virtual ~session_impl();
+ 
+   void start_resolve(const std::string &host, const std::string &service);
+ 
+-  void connected(tcp::resolver::iterator endpoint_it);
++  void connected(tcp::resolver::results_type::iterator endpoint_it);
+   void not_connected(const boost::system::error_code &ec);
+ 
+   void on_connect(connect_cb cb);
+@@ -72,7 +72,7 @@ public:
+                         const std::string &method, const std::string &uri,
+                         generator_cb cb, header_map h, priority_spec spec);
+ 
+-  virtual void start_connect(tcp::resolver::iterator endpoint_it) = 0;
++  virtual void start_connect(tcp::resolver::results_type::iterator endpoint_it) = 0;
+   virtual tcp::socket &socket() = 0;
+   virtual void read_socket(
+       std::function<void(const boost::system::error_code &ec, std::size_t n)>
+@@ -84,7 +84,7 @@ public:
+ 
+   void shutdown();
+ 
+-  boost::asio::io_service &io_service();
++  boost::asio::io_context &io_service();
+ 
+   void signal_write();
+ 
+@@ -112,7 +112,7 @@ private:
+   void start_ping();
+   void handle_ping(const boost::system::error_code &ec);
+ 
+-  boost::asio::io_service &io_service_;
++  boost::asio::io_context &io_service_;
+   tcp::resolver resolver_;
+ 
+   std::map<int32_t, std::unique_ptr<stream>> streams_;
+diff --git lib/asio_client_session_tcp_impl.cc lib/asio_client_session_tcp_impl.cc
+index 8fdf211..e81db4d 100644
+--- lib/asio_client_session_tcp_impl.cc
++++ lib/asio_client_session_tcp_impl.cc
+@@ -29,13 +29,13 @@ namespace asio_http2 {
+ namespace client {
+ 
+ session_tcp_impl::session_tcp_impl(
+-    boost::asio::io_service &io_service, const std::string &host,
++    boost::asio::io_context &io_service, const std::string &host,
+     const std::string &service,
+     const boost::posix_time::time_duration &connect_timeout)
+     : session_impl(io_service, connect_timeout), socket_(io_service) {}
+ 
+ session_tcp_impl::session_tcp_impl(
+-    boost::asio::io_service &io_service,
++    boost::asio::io_context &io_service,
+     const boost::asio::ip::tcp::endpoint &local_endpoint,
+     const std::string &host, const std::string &service,
+     const boost::posix_time::time_duration &connect_timeout)
+@@ -48,7 +48,7 @@ session_tcp_impl::session_tcp_impl(
+ 
+ session_tcp_impl::~session_tcp_impl() {}
+ 
+-void session_tcp_impl::start_connect(tcp::resolver::iterator endpoint_it) {
++void session_tcp_impl::start_connect(tcp::resolver::results_type::iterator endpoint_it) {
+   auto self = shared_from_this();
+   socket_.async_connect(
+       *endpoint_it, [self, endpoint_it](const boost::system::error_code &ec) {
+diff --git lib/asio_client_session_tcp_impl.h lib/asio_client_session_tcp_impl.h
+index 0b6ae93..80836b0 100644
+--- lib/asio_client_session_tcp_impl.h
++++ lib/asio_client_session_tcp_impl.h
+@@ -37,16 +37,16 @@ using boost::asio::ip::tcp;
+ 
+ class session_tcp_impl : public session_impl {
+ public:
+-  session_tcp_impl(boost::asio::io_service &io_service, const std::string &host,
++  session_tcp_impl(boost::asio::io_context &io_service, const std::string &host,
+                    const std::string &service,
+                    const boost::posix_time::time_duration &connect_timeout);
+-  session_tcp_impl(boost::asio::io_service &io_service,
++  session_tcp_impl(boost::asio::io_context &io_service,
+                    const boost::asio::ip::tcp::endpoint &local_endpoint,
+                    const std::string &host, const std::string &service,
+                    const boost::posix_time::time_duration &connect_timeout);
+   virtual ~session_tcp_impl();
+ 
+-  virtual void start_connect(tcp::resolver::iterator endpoint_it);
++  virtual void start_connect(tcp::resolver::results_type::iterator endpoint_it);
+   virtual tcp::socket &socket();
+   virtual void read_socket(
+       std::function<void(const boost::system::error_code &ec, std::size_t n)>
+diff --git lib/asio_client_session_tls_impl.cc lib/asio_client_session_tls_impl.cc
+index 377886c..946f595 100644
+--- lib/asio_client_session_tls_impl.cc
++++ lib/asio_client_session_tls_impl.cc
+@@ -30,14 +30,14 @@ namespace asio_http2 {
+ namespace client {
+ 
+ session_tls_impl::session_tls_impl(
+-    boost::asio::io_service &io_service, boost::asio::ssl::context &tls_ctx,
++    boost::asio::io_context &io_service, boost::asio::ssl::context &tls_ctx,
+     const std::string &host, const std::string &service,
+     const boost::posix_time::time_duration &connect_timeout)
+     : session_impl(io_service, connect_timeout), socket_(io_service, tls_ctx) {
+   // this callback setting is no effect is
+   // ssl::context::set_verify_mode(boost::asio::ssl::verify_peer) is
+   // not used, which is what we want.
+-  socket_.set_verify_callback(boost::asio::ssl::rfc2818_verification(host));
++  socket_.set_verify_callback(boost::asio::ssl::host_name_verification(host));
+   auto ssl = socket_.native_handle();
+   if (!util::numeric_host(host.c_str())) {
+     SSL_set_tlsext_host_name(ssl, host.c_str());
+@@ -46,12 +46,12 @@ session_tls_impl::session_tls_impl(
+ 
+ session_tls_impl::~session_tls_impl() {}
+ 
+-void session_tls_impl::start_connect(tcp::resolver::iterator endpoint_it) {
++void session_tls_impl::start_connect(tcp::resolver::results_type::iterator endpoint_it) {
+   auto self = std::static_pointer_cast<session_tls_impl>(shared_from_this());
+   boost::asio::async_connect(
+-      socket(), endpoint_it,
++      socket(), endpoint_it, tcp::resolver::results_type::iterator(),
+       [self](const boost::system::error_code &ec,
+-             tcp::resolver::iterator endpoint_it) {
++             tcp::resolver::results_type::iterator endpoint_it) {
+         if (self->stopped()) {
+           return;
+         }
+diff --git lib/asio_client_session_tls_impl.h lib/asio_client_session_tls_impl.h
+index 645c60f..88b1f6d 100644
+--- lib/asio_client_session_tls_impl.h
++++ lib/asio_client_session_tls_impl.h
+@@ -39,13 +39,13 @@ using ssl_socket = boost::asio::ssl::stream<tcp::socket>;
+ 
+ class session_tls_impl : public session_impl {
+ public:
+-  session_tls_impl(boost::asio::io_service &io_service,
++  session_tls_impl(boost::asio::io_context &io_service,
+                    boost::asio::ssl::context &tls_ctx, const std::string &host,
+                    const std::string &service,
+                    const boost::posix_time::time_duration &connect_timeout);
+   virtual ~session_tls_impl();
+ 
+-  virtual void start_connect(tcp::resolver::iterator endpoint_it);
++  virtual void start_connect(tcp::resolver::results_type::iterator endpoint_it);
+   virtual tcp::socket &socket();
+   virtual void read_socket(
+       std::function<void(const boost::system::error_code &ec, std::size_t n)>
+diff --git lib/asio_io_service_pool.cc lib/asio_io_service_pool.cc
+index 0148366..e4e3c7f 100644
+--- lib/asio_io_service_pool.cc
++++ lib/asio_io_service_pool.cc
+@@ -47,10 +47,10 @@ io_service_pool::io_service_pool(std::size_t pool_size) : next_io_service_(0) {
+   // Give all the io_services work to do so that their run() functions will not
+   // exit until they are explicitly stopped.
+   for (std::size_t i = 0; i < pool_size; ++i) {
+-    auto io_service = std::make_shared<boost::asio::io_service>();
+-    auto work = std::make_shared<boost::asio::io_service::work>(*io_service);
++    auto io_service = std::make_shared<boost::asio::io_context>();
++    auto work = boost::asio::make_work_guard(*io_service);
+     io_services_.push_back(io_service);
+-    work_.push_back(work);
++    work_.push_back(std::move(work));
+   }
+ }
+ 
+@@ -58,8 +58,8 @@ void io_service_pool::run(bool asynchronous) {
+   // Create a pool of threads to run all of the io_services.
+   for (std::size_t i = 0; i < io_services_.size(); ++i) {
+     futures_.push_back(std::async(std::launch::async,
+-                                  (size_t(boost::asio::io_service::*)(void)) &
+-                                      boost::asio::io_service::run,
++                                  (size_t(boost::asio::io_context::*)(void)) &
++                                      boost::asio::io_context::run,
+                                   io_services_[i]));
+   }
+ 
+@@ -84,10 +84,10 @@ void io_service_pool::force_stop() {
+ 
+ void io_service_pool::stop() {
+   // Destroy all work objects to signals end of work
+-  work_.clear();
++  // // work_.clear();
+ }
+ 
+-boost::asio::io_service &io_service_pool::get_io_service() {
++boost::asio::io_context &io_service_pool::get_io_service() {
+   // Use a round-robin scheme to choose the next io_service to use.
+   auto &io_service = *io_services_[next_io_service_];
+   ++next_io_service_;
+@@ -97,7 +97,7 @@ boost::asio::io_service &io_service_pool::get_io_service() {
+   return io_service;
+ }
+ 
+-const std::vector<std::shared_ptr<boost::asio::io_service>> &
++const std::vector<std::shared_ptr<boost::asio::io_context>> &
+ io_service_pool::io_services() const {
+   return io_services_;
+ }
+diff --git lib/asio_io_service_pool.h lib/asio_io_service_pool.h
+index 9c11533..d9dbfe6 100644
+--- lib/asio_io_service_pool.h
++++ lib/asio_io_service_pool.h
+@@ -71,18 +71,18 @@ public:
+   void join();
+ 
+   /// Get an io_service to use.
+-  boost::asio::io_service &get_io_service();
++  boost::asio::io_context &get_io_service();
+ 
+   /// Get access to all io_service objects.
+-  const std::vector<std::shared_ptr<boost::asio::io_service>> &
++  const std::vector<std::shared_ptr<boost::asio::io_context>> &
+   io_services() const;
+ 
+ private:
+   /// The pool of io_services.
+-  std::vector<std::shared_ptr<boost::asio::io_service>> io_services_;
++  std::vector<std::shared_ptr<boost::asio::io_context>> io_services_;
+ 
+   /// The work that keeps the io_services running.
+-  std::vector<std::shared_ptr<boost::asio::io_service::work>> work_;
++  std::vector<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>> work_;
+ 
+   /// The next io_service to use for a connection.
+   std::size_t next_io_service_;
+diff --git lib/asio_server.cc lib/asio_server.cc
+index 74c9227..f85fa74 100644
+--- lib/asio_server.cc
++++ lib/asio_server.cc
+@@ -82,14 +82,8 @@ boost::system::error_code server::bind_and_listen(boost::system::error_code &ec,
+   // Open the acceptor with the option to reuse the address (i.e.
+   // SO_REUSEADDR).
+   tcp::resolver resolver(io_service_pool_.get_io_service());
+-  tcp::resolver::query query(address, port);
+-  auto it = resolver.resolve(query, ec);
+-  if (ec) {
+-    return ec;
+-  }
+-
+-  for (; it != tcp::resolver::iterator(); ++it) {
+-    tcp::endpoint endpoint = *it;
++auto results = resolver.resolve(address, port, ec);  if (ec) {    return ec;  }  for (auto const& entry : results) {
++    tcp::endpoint endpoint = entry;
+     auto acceptor = tcp::acceptor(io_service_pool_.get_io_service());
+ 
+     if (acceptor.open(endpoint.protocol(), ec)) {
+@@ -103,7 +97,7 @@ boost::system::error_code server::bind_and_listen(boost::system::error_code &ec,
+     }
+ 
+     if (acceptor.listen(
+-            backlog == -1 ? boost::asio::socket_base::max_connections : backlog,
++            backlog == -1 ? boost::asio::socket_base::max_listen_connections : backlog,
+             ec)) {
+       continue;
+     }
+@@ -195,7 +189,7 @@ void server::stop() {
+ 
+ void server::join() { io_service_pool_.join(); }
+ 
+-const std::vector<std::shared_ptr<boost::asio::io_service>> &
++const std::vector<std::shared_ptr<boost::asio::io_context>> &
+ server::io_services() const {
+   return io_service_pool_.io_services();
+ }
+diff --git lib/asio_server.h lib/asio_server.h
+index 1190e32..39ba415 100644
+--- lib/asio_server.h
++++ lib/asio_server.h
+@@ -76,7 +76,7 @@ public:
+   void stop();
+ 
+   /// Get access to all io_service objects.
+-  const std::vector<std::shared_ptr<boost::asio::io_service>> &
++  const std::vector<std::shared_ptr<boost::asio::io_context>> &
+   io_services() const;
+ 
+   /// Returns a vector with all the acceptors ports in use.
+diff --git lib/asio_server_http2.cc lib/asio_server_http2.cc
+index 02d3d19..a89cd1f 100644
+--- lib/asio_server_http2.cc
++++ lib/asio_server_http2.cc
+@@ -85,7 +85,7 @@ void http2::stop() { impl_->stop(); }
+ 
+ void http2::join() { return impl_->join(); }
+ 
+-const std::vector<std::shared_ptr<boost::asio::io_service>> &
++const std::vector<std::shared_ptr<boost::asio::io_context>> &
+ http2::io_services() const {
+   return impl_->io_services();
+ }
+diff --git lib/asio_server_http2_handler.cc lib/asio_server_http2_handler.cc
+index c1fc195..a74f312 100644
+--- lib/asio_server_http2_handler.cc
++++ lib/asio_server_http2_handler.cc
+@@ -234,7 +234,7 @@ int on_frame_not_send_callback(nghttp2_session *session,
+ }
+ } // namespace
+ 
+-http2_handler::http2_handler(boost::asio::io_service &io_service,
++http2_handler::http2_handler(boost::asio::io_context &io_service,
+                              boost::asio::ip::tcp::endpoint ep,
+                              connection_write writefun, serve_mux &mux)
+     : writefun_(writefun),
+@@ -415,7 +415,7 @@ void http2_handler::signal_write() {
+   if (!inside_callback_ && !write_signaled_) {
+     write_signaled_ = true;
+     auto self = shared_from_this();
+-    io_service_.post([self]() { self->initiate_write(); });
++    boost::asio::post(io_service_, [self]() { self->initiate_write(); });
+   }
+ }
+ 
+@@ -478,7 +478,7 @@ response *http2_handler::push_promise(boost::system::error_code &ec,
+   return &promised_strm->response();
+ }
+ 
+-boost::asio::io_service &http2_handler::io_service() { return io_service_; }
++boost::asio::io_context &http2_handler::io_service() { return io_service_; }
+ 
+ const boost::asio::ip::tcp::endpoint &http2_handler::remote_endpoint() {
+   return remote_ep_;
+diff --git lib/asio_server_http2_handler.h lib/asio_server_http2_handler.h
+index 1206449..a830ee4 100644
+--- lib/asio_server_http2_handler.h
++++ lib/asio_server_http2_handler.h
+@@ -53,7 +53,7 @@ using connection_write = std::function<void(void)>;
+ 
+ class http2_handler : public std::enable_shared_from_this<http2_handler> {
+ public:
+-  http2_handler(boost::asio::io_service &io_service,
++  http2_handler(boost::asio::io_context &io_service,
+                 boost::asio::ip::tcp::endpoint ep, connection_write writefun,
+                 serve_mux &mux);
+ 
+@@ -88,7 +88,7 @@ public:
+ 
+   void signal_write();
+ 
+-  boost::asio::io_service &io_service();
++  boost::asio::io_context &io_service();
+ 
+   const boost::asio::ip::tcp::endpoint &remote_endpoint();
+ 
+@@ -154,7 +154,7 @@ private:
+   std::map<int32_t, std::shared_ptr<stream>> streams_;
+   connection_write writefun_;
+   serve_mux &mux_;
+-  boost::asio::io_service &io_service_;
++  boost::asio::io_context &io_service_;
+   boost::asio::ip::tcp::endpoint remote_ep_;
+   nghttp2_session *session_;
+   const uint8_t *buf_;
+diff --git lib/asio_server_http2_impl.cc lib/asio_server_http2_impl.cc
+index 00afdd6..f7c62aa 100644
+--- lib/asio_server_http2_impl.cc
++++ lib/asio_server_http2_impl.cc
+@@ -73,7 +73,7 @@ void http2_impl::stop() { return server_->stop(); }
+ 
+ void http2_impl::join() { return server_->join(); }
+ 
+-const std::vector<std::shared_ptr<boost::asio::io_service>> &
++const std::vector<std::shared_ptr<boost::asio::io_context>> &
+ http2_impl::io_services() const {
+   return server_->io_services();
+ }
+diff --git lib/asio_server_http2_impl.h lib/asio_server_http2_impl.h
+index 93a6d2c..970c29c 100644
+--- lib/asio_server_http2_impl.h
++++ lib/asio_server_http2_impl.h
+@@ -52,7 +52,7 @@ public:
+   bool handle(std::string pattern, request_cb cb);
+   void stop();
+   void join();
+-  const std::vector<std::shared_ptr<boost::asio::io_service>> &
++  const std::vector<std::shared_ptr<boost::asio::io_context>> &
+   io_services() const;
+   std::vector<int> ports() const;
+ 
+diff --git lib/asio_server_response.cc lib/asio_server_response.cc
+index f67921a..56de6d0 100644
+--- lib/asio_server_response.cc
++++ lib/asio_server_response.cc
+@@ -64,7 +64,7 @@ void response::resume() const { impl_->resume(); }
+ 
+ unsigned int response::status_code() const { return impl_->status_code(); }
+ 
+-boost::asio::io_service &response::io_service() const {
++boost::asio::io_context &response::io_service() const {
+   return impl_->io_service();
+ }
+ 
+diff --git lib/asio_server_response_impl.cc lib/asio_server_response_impl.cc
+index 3216ca0..2db13ae 100644
+--- lib/asio_server_response_impl.cc
++++ lib/asio_server_response_impl.cc
+@@ -129,7 +129,7 @@ void response_impl::resume() {
+   handler->resume(*strm_);
+ }
+ 
+-boost::asio::io_service &response_impl::io_service() {
++boost::asio::io_context &response_impl::io_service() {
+   return strm_->handler()->io_service();
+ }
+ 
+diff --git lib/asio_server_response_impl.h lib/asio_server_response_impl.h
+index 41df7a6..b608e8f 100644
+--- lib/asio_server_response_impl.h
++++ lib/asio_server_response_impl.h
+@@ -58,7 +58,7 @@ public:
+   response *push(boost::system::error_code &ec, std::string method,
+                  std::string raw_path_query, header_map) const;
+ 
+-  boost::asio::io_service &io_service();
++  boost::asio::io_context &io_service();
+ 
+   void start_response();
+ 
+diff --git lib/includes/nghttp2/asio_http2_client.h lib/includes/nghttp2/asio_http2_client.h
+index 7257914..af2ab6d 100644
+--- lib/includes/nghttp2/asio_http2_client.h
++++ lib/includes/nghttp2/asio_http2_client.h
+@@ -67,7 +67,7 @@ class request;
+ using response_cb = std::function<void(const response &)>;
+ using request_cb = std::function<void(const request &)>;
+ using connect_cb =
+-    std::function<void(boost::asio::ip::tcp::resolver::iterator)>;
++    std::function<void(boost::asio::ip::tcp::resolver::results_type::iterator)>;
+ 
+ class request_impl;
+ 
+@@ -147,23 +147,23 @@ public:
+   // Starts HTTP/2 session by connecting to |host| and |service|
+   // (e.g., "80") using clear text TCP connection with connect timeout
+   // 60 seconds.
+-  session(boost::asio::io_service &io_service, const std::string &host,
++  session(boost::asio::io_context &io_service, const std::string &host,
+           const std::string &service);
+ 
+   // Same as previous but with pegged local endpoint
+-  session(boost::asio::io_service &io_service,
++  session(boost::asio::io_context &io_service,
+           const boost::asio::ip::tcp::endpoint &local_endpoint,
+           const std::string &host, const std::string &service);
+ 
+   // Starts HTTP/2 session by connecting to |host| and |service|
+   // (e.g., "80") using clear text TCP connection with given connect
+   // timeout.
+-  session(boost::asio::io_service &io_service, const std::string &host,
++  session(boost::asio::io_context &io_service, const std::string &host,
+           const std::string &service,
+           const boost::posix_time::time_duration &connect_timeout);
+ 
+   // Same as previous but with pegged local endpoint
+-  session(boost::asio::io_service &io_service,
++  session(boost::asio::io_context &io_service,
+           const boost::asio::ip::tcp::endpoint &local_endpoint,
+           const std::string &host, const std::string &service,
+           const boost::posix_time::time_duration &connect_timeout);
+@@ -171,14 +171,14 @@ public:
+   // Starts HTTP/2 session by connecting to |host| and |service|
+   // (e.g., "443") using encrypted SSL/TLS connection with connect
+   // timeout 60 seconds.
+-  session(boost::asio::io_service &io_service,
++  session(boost::asio::io_context &io_service,
+           boost::asio::ssl::context &tls_context, const std::string &host,
+           const std::string &service);
+ 
+   // Starts HTTP/2 session by connecting to |host| and |service|
+   // (e.g., "443") using encrypted SSL/TLS connection with given
+   // connect timeout.
+-  session(boost::asio::io_service &io_service,
++  session(boost::asio::io_context &io_service,
+           boost::asio::ssl::context &tls_context, const std::string &host,
+           const std::string &service,
+           const boost::posix_time::time_duration &connect_timeout);
+@@ -202,7 +202,7 @@ public:
+   void shutdown() const;
+ 
+   // Returns underlying io_service object.
+-  boost::asio::io_service &io_service() const;
++  boost::asio::io_context &io_service() const;
+ 
+   // Submits request to server using |method| (e.g., "GET"), |uri|
+   // (e.g., "http://localhost/") and optionally additional header
+diff --git lib/includes/nghttp2/asio_http2_server.h lib/includes/nghttp2/asio_http2_server.h
+index 651af69..1a02c3b 100644
+--- lib/includes/nghttp2/asio_http2_server.h
++++ lib/includes/nghttp2/asio_http2_server.h
+@@ -112,8 +112,8 @@ public:
+   // Returns status code.
+   unsigned int status_code() const;
+ 
+-  // Returns boost::asio::io_service this response is running on.
+-  boost::asio::io_service &io_service() const;
++  // Returns boost::asio::io_context this response is running on.
++  boost::asio::io_context &io_service() const;
+ 
+   // Application must not call this directly.
+   response_impl &impl() const;
+@@ -211,7 +211,7 @@ public:
+   void join();
+ 
+   // Get access to the io_service objects.
+-  const std::vector<std::shared_ptr<boost::asio::io_service>> &
++  const std::vector<std::shared_ptr<boost::asio::io_context>> &
+   io_services() const;
+ 
+   // Returns a vector with the ports in use
