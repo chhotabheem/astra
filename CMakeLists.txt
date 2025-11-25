@@ -5,6 +5,7 @@ enable_testing()
 add_subdirectory(jsonformatter)
 add_subdirectory(logger)
 add_subdirectory(http2server)
+add_subdirectory(http2client)
 
 # Add the MongoDB client subdirectory
 add_subdirectory(mongoclient)

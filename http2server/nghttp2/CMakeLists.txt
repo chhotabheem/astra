@@ -15,6 +15,7 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/nghttp2/nghttp2-asio.git
     GIT_TAG        main
     GIT_SHALLOW    TRUE
+    PATCH_COMMAND ${CMAKE_CURRENT_LIST_DIR}/patch_nghttp2_asio.sh .
 )
 
 # Configure nghttp2 build options
