@@ -6,24 +6,27 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 enable_testing()
 
-add_library(mongoclient STATIC IMongoClient.h MongoClient.cpp)
-
 # Add MongoDB Driver
 add_subdirectory(mongodriver)
 
-# find_package(mongocxx REQUIRED) # Not needed as we build it from source
-# find_package(bsoncxx REQUIRED)
-
-# Link libraries
-target_link_libraries(mongoclient 
-    PUBLIC 
-        logger
-        mongocxx_shared 
-        bsoncxx_shared
+# Create library
+add_library(mongoclient STATIC
+    src/MongoClient.cpp
 )
 
-# Include current directory for headers
-target_include_directories(mongoclient PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(mongoclient
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+)
+
+# Link libraries
+target_link_libraries(mongoclient
+    PUBLIC
+        logger
+        mongocxx_static
+        bsoncxx_static
+)
 
 # Test executable
 add_executable(test_mongoclient tests/test_mongoclient.cpp)

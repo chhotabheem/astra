@@ -13,9 +13,7 @@ set(RAPIDJSON_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 
 FetchContent_Declare(
     rapidjson
-    GIT_REPOSITORY https://github.com/Tencent/rapidjson.git
-    GIT_TAG        v1.1.0
-    GIT_SHALLOW    TRUE
+    URL https://github.com/Tencent/rapidjson/archive/refs/tags/v1.1.0.tar.gz
 )
 FetchContent_MakeAvailable(rapidjson)
 

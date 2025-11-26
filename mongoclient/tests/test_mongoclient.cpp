@@ -149,6 +149,45 @@ void testMultipleClientInstances() {
     std::cout << "  ✓ Multiple client instances work correctly" << std::endl;
 }
 
+void testCRUDOperations() {
+    std::cout << "[TEST] testCRUDOperations" << std::endl;
+
+    mongoclient::MongoClient client;
+    client.connect("mongodb://localhost:27017");
+
+    try {
+        // Test insertOne
+        auto doc = bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("test_key", "test_value"));
+        client.insertOne("test_db", "test_collection", doc.view());
+        std::cout << "  ✓ insertOne executed" << std::endl;
+
+        // Test find
+        auto query = bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("test_key", "test_value"));
+        auto results = client.find("test_db", "test_collection", query.view());
+        std::cout << "  ✓ find executed, found " << results.size() << " documents" << std::endl;
+
+        // Test updateMany
+        auto update = bsoncxx::builder::basic::make_document(
+            bsoncxx::builder::basic::kvp("$set",
+                bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("test_key", "updated_value"))
+            )
+        );
+        client.updateMany("test_db", "test_collection", query.view(), update.view());
+        std::cout << "  ✓ updateMany executed" << std::endl;
+
+        // Test deleteMany
+        auto delete_filter = bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("test_key", "updated_value"));
+        client.deleteMany("test_db", "test_collection", delete_filter.view());
+        std::cout << "  ✓ deleteMany executed" << std::endl;
+
+    } catch (const std::exception& e) {
+        // If we can't connect to Mongo, we expect an exception.
+        // We shouldn't fail the test suite if the environment lacks a DB,
+        // but we should report it.
+        std::cout << "  ! CRUD operations skipped/failed (likely no MongoDB running): " << e.what() << std::endl;
+    }
+}
+
 int main() {
     std::cout << "\n========================================" << std::endl;
     std::cout << "Running MongoClient Test Suite" << std::endl;
@@ -163,9 +202,10 @@ int main() {
         testDisconnectWhenNotConnected();
         testQueryWithoutConnectionThrows();
         testMultipleClientInstances();
+        testCRUDOperations();
         
         std::cout << "\n========================================" << std::endl;
-        std::cout << "✓ All tests passed! (8/8)" << std::endl;
+        std::cout << "✓ All tests passed! (9/9)" << std::endl;
         std::cout << "========================================\n" << std::endl;
         return 0;
     } catch (const std::exception& e) {

@@ -7,8 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(FetchContent)
 FetchContent_Declare(
     spdlog
-    GIT_REPOSITORY https://github.com/gabime/spdlog.git
-    GIT_TAG        v1.12.0
+    URL https://github.com/gabime/spdlog/archive/refs/tags/v1.12.0.tar.gz
 )
 FetchContent_MakeAvailable(spdlog)
 

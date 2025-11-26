@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     libsasl2-dev \
     libnghttp2-dev \
+    libhiredis-dev \
     ca-certificates \
     vim \
     iputils-ping \
@@ -35,6 +36,8 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     software-properties-common && \
     rm -rf /var/lib/apt/lists/*
+
+
 
 WORKDIR /app
 
