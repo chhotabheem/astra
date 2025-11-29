@@ -18,6 +18,7 @@ public:
 
     void add(std::string_view key, std::string_view value);
     void add(std::string_view key, const std::string& value);
+    void add(std::string_view key, const char* value);
     void add(std::string_view key, int value);
     void add(std::string_view key, long value);
     void add(std::string_view key, unsigned long value);

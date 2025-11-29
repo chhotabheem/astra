@@ -49,44 +49,71 @@ void Server::stop() {
     thread_pool_.clear();
 }
 
-void Server::do_accept() {
-    acceptor_.async_accept(
-        net::make_strand(ioc_),
-        [this](beast::error_code ec, tcp::socket socket) {
-            if (!ec) {
-                std::make_shared<std::thread>(
-                    [this, s = std::move(socket)]() mutable {
-                        do_session(std::move(s));
-                    }
-                )->detach(); // Simple thread-per-connection for now or use async session
-                // Actually, let's use a simple sync session in a detached thread for simplicity in this example
-                // or better, implement a proper async session.
-                // For "production quality", async is better. Let's stick to a simple async accept loop
-                // but dispatching to a session function.
-            }
-            do_accept();
-        });
-}
 
-void Server::do_session(tcp::socket socket) {
-    beast::error_code ec;
-    beast::flat_buffer buffer;
+class Session : public std::enable_shared_from_this<Session> {
+    tcp::socket socket_;
+    beast::flat_buffer buffer_;
+    http::request<http::string_body> req_;
+    Server::Handler handler_; // Copy of handler (std::function is cheap to copy usually, or use reference if lifetime guaranteed)
+    // Actually Server lifetime outlives Session? Not necessarily if Server is destroyed.
+    // But Handler is a function object.
+    
+public:
+    Session(tcp::socket socket, Server::Handler handler)
+        : socket_(std::move(socket)), handler_(std::move(handler)) {}
 
-    for(;;) {
-        http::request<http::string_body> req;
-        http::read(socket, buffer, req, ec);
+    void run() {
+        do_read();
+    }
 
-        if(ec == http::error::end_of_stream)
-            break;
-        if(ec)
-            return; // Error
+private:
+    void do_read() {
+        auto self = shared_from_this();
+        http::async_read(socket_, buffer_, req_,
+            [self](beast::error_code ec, std::size_t bytes_transferred) {
+                boost::ignore_unused(bytes_transferred);
+                if(ec == http::error::end_of_stream)
+                    return self->do_close();
+                if(ec)
+                    return; // Log error?
 
-        // Create abstractions
-        Request request(std::move(req));
+                self->process_request();
+            });
+    }
+
+    void process_request() {
+        auto self = shared_from_this();
         
-        auto send_lambda = [&socket](http::response<http::string_body> msg) {
-            beast::error_code ec;
-            http::write(socket, msg, ec);
+        // Create abstractions
+        // We need to keep request alive until response is sent?
+        // The Request object copies data or views?
+        // Http1Request uses boost::beast::http::request which owns data.
+        // We move req_ into Request?
+        // If we move req_, we can't use it for next loop if we wanted to reuse.
+        // But for now let's assume one request per read or reset.
+        
+        // Construct Request wrapper
+        // We need to be careful about moving req_ if we want to support pipelining/keep-alive later.
+        // But Http1Request takes by value/move usually.
+        
+        // Let's look at Http1Request constructor: explicit Request(boost::beast::http::request<...> req);
+        // It takes by value (copy or move).
+        
+        Request request(std::move(req_));
+        
+        auto send_lambda = [self](http::response<http::string_body> msg) {
+            // The response object 'msg' needs to be kept alive during async_write
+            // We need a shared_ptr to the message or capture it by value in the lambda.
+            // http::async_write takes the message by const reference.
+            // So the message must exist until completion.
+            
+            auto sp = std::make_shared<http::response<http::string_body>>(std::move(msg));
+            
+            http::async_write(self->socket_, *sp,
+                [self, sp](beast::error_code ec, std::size_t bytes) {
+                    self->socket_.shutdown(tcp::socket::shutdown_send, ec);
+                    // In a real server we would check keep-alive and loop back to do_read()
+                });
         };
 
         Response response(send_lambda);
@@ -98,21 +125,27 @@ void Server::do_session(tcp::socket socket) {
             response.write("No handler configured");
             response.close();
         }
-
-        // If we want to support keep-alive, we loop. 
-        // The Response::close() sends the response.
-        // We need to know if we should close the connection.
-        // For simplicity here, we might just close after one request or check keep-alive.
-        // But Response::close() sends data.
-        
-        // Check if we need to close
-        // if(!req.keep_alive()) break; 
-        // This logic is slightly complex with the abstraction. 
-        // For now, let's assume one request per connection or rely on the loop.
-        // If response closed the socket, we break? No, response writes to socket.
     }
-    
-    socket.shutdown(tcp::socket::shutdown_send, ec);
+
+    void do_close() {
+        beast::error_code ec;
+        socket_.shutdown(tcp::socket::shutdown_send, ec);
+    }
+};
+
+void Server::do_accept() {
+    acceptor_.async_accept(
+        net::make_strand(ioc_),
+        [this](beast::error_code ec, tcp::socket socket) {
+            if (!ec) {
+                std::make_shared<Session>(std::move(socket), handler_)->run();
+            }
+            do_accept();
+        });
+}
+
+void Server::do_session(tcp::socket socket) {
+    // Deprecated/Unused
 }
 
 } // namespace http1

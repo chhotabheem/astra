@@ -29,6 +29,8 @@ RUN apt-get update && apt-get install -y \
     net-tools \
     gdb \
     valgrind \
+    clang \
+    lldb \
     wget \
     openssh-client \
     dnsutils \

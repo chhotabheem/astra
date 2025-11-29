@@ -7,7 +7,10 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-enable_testing()
+# Enable CTest and Valgrind
+include(CTest)
+find_program(MEMORYCHECK_COMMAND valgrind)
+set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full --error-exitcode=1")
 add_subdirectory(jsonformatter)
 add_subdirectory(logger)
 add_subdirectory(exception)

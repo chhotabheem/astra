@@ -31,6 +31,11 @@ void JsonFormatter::add(std::string_view key, const std::string& value) {
     m_impl->writer.String(value.c_str(), static_cast<rapidjson::SizeType>(value.length()));
 }
 
+void JsonFormatter::add(std::string_view key, const char* value) {
+    m_impl->writer.Key(key.data(), static_cast<rapidjson::SizeType>(key.length()));
+    m_impl->writer.String(value);
+}
+
 void JsonFormatter::add(std::string_view key, int value) {
     m_impl->writer.Key(key.data(), static_cast<rapidjson::SizeType>(key.length()));
     m_impl->writer.Int(value);

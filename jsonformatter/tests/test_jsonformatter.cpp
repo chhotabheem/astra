@@ -19,7 +19,6 @@ void test_basic_json() {
     assert(result.find("\"active\":true") != std::string::npos);
     
     std::cout << "✓ Basic JSON test passed\n";
-    std::cout << "  Result: " << result << "\n";
 }
 
 void test_nested_object() {

@@ -83,6 +83,26 @@ void test_ServerBindToAllInterfaces() {
     ASSERT(server != nullptr, "Server should bind to 0.0.0.0");
     server.reset();
 }
+void test_ServerStressConstruction() {
+    for(int i=0; i<100; ++i) {
+        auto server = std::make_unique<http2server::Server>("127.0.0.1", "9008", 1);
+        server.reset();
+    }
+    ASSERT(true, "Server stress construction passed");
+}
+
+void test_ServerStartStop() {
+    auto server = std::make_unique<http2server::Server>("127.0.0.1", "9009", 1);
+    std::thread t([&server](){
+        server->run();
+    });
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    server->stop();
+    if(t.joinable()) t.join();
+    
+    ASSERT(true, "Server start/stop cycle passed");
+}
 
 int main() {
     std::cout << "\n========================================" << std::endl;
@@ -94,6 +114,8 @@ int main() {
     run_test("ServerMultipleHandlers", test_ServerMultipleHandlers);
     run_test("ServerThreadConfiguration", test_ServerThreadConfiguration);
     run_test("ServerBindToAllInterfaces", test_ServerBindToAllInterfaces);
+    run_test("ServerStressConstruction", test_ServerStressConstruction);
+    run_test("ServerStartStop", test_ServerStartStop);
     
     std::cout << "\n========================================" << std::endl;
     std::cout << "Test Results:" << std::endl;

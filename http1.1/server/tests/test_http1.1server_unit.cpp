@@ -77,33 +77,81 @@ void test_large_body(int port) {
     std::cout << "test_large_body passed" << std::endl;
 }
 
+
+
+void test_stress_memory(int port) {
+    int num_requests = 1000;
+    std::cout << "Starting stress test (" << num_requests << " requests)..." << std::endl;
+    for (int i = 0; i < num_requests; ++i) {
+        auto res = send_request(port, "GET", "/test");
+        assert(res.find("200 OK") != std::string::npos);
+        if (i % 100 == 0) std::cout << "." << std::flush;
+    }
+    std::cout << "\ntest_stress_memory passed" << std::endl;
+}
+
+void test_high_concurrency(int port) {
+    int num_threads = 50; // Higher concurrency
+    std::cout << "Starting high concurrency test (" << num_threads << " threads)..." << std::endl;
+    std::vector<std::thread> threads;
+    std::atomic<int> success_count{0};
+
+    for (int i = 0; i < num_threads; ++i) {
+        threads.emplace_back([port, &success_count] {
+            // Each thread sends multiple requests
+            for(int j=0; j<10; ++j) {
+                auto res = send_request(port, "GET", "/test");
+                if (res.find("200 OK") != std::string::npos) {
+                    success_count++;
+                }
+            }
+        });
+    }
+
+    for (auto& t : threads) {
+        t.join();
+    }
+
+    assert(success_count == num_threads * 10);
+    std::cout << "test_high_concurrency passed" << std::endl;
+}
+
 int main() {
     int port = 8082;
     
     // Start server in a thread
-    std::thread server_thread([port]{
-        http1::Server server("127.0.0.1", port, 4); // 4 threads
-        server.handle([](const http_abstractions::IRequest& req, http_abstractions::IResponse& res) {
-            if (req.path() == "/test") {
-                res.set_status(200);
-                res.write("Hello Test");
-            } else if (req.path() == "/echo") {
-                res.set_status(200);
-                res.write(req.body());
-            } else {
-                res.set_status(404);
-            }
-            res.close();
-        });
+    http1::Server server("127.0.0.1", port, 4); // 4 threads
+    server.handle([](const http_abstractions::IRequest& req, http_abstractions::IResponse& res) {
+        if (req.path() == "/test") {
+            res.set_status(200);
+            res.write("Hello Test");
+        } else if (req.path() == "/echo") {
+            res.set_status(200);
+            res.write(req.body());
+        } else {
+            res.set_status(404);
+        }
+        res.close();
+    });
+
+    std::thread server_thread([&server]{
         server.run();
     });
-    server_thread.detach();
 
     std::this_thread::sleep_for(1s); // Wait for server to start
 
     test_basic_requests(port);
     test_concurrent_requests(port);
     test_large_body(port);
+    
+    // New Stress Tests
+    test_stress_memory(port);
+    test_high_concurrency(port);
+
+    server.stop();
+    if (server_thread.joinable()) {
+        server_thread.join();
+    }
 
     std::cout << "All http1.1server tests passed" << std::endl;
     return 0;

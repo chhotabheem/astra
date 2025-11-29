@@ -61,10 +61,12 @@ void NgHttp2Server::handle(const std::string& method, const std::string& path, S
 void NgHttp2Server::run() {
     is_running_ = true;
     boost::system::error_code ec;
-    if (server_.listen_and_serve(ec, address_, port_)) {
-        logger::Logger::info("Server listening on " + address_ + ":" + port_);
+    logger::Logger::info("Server starting on " + address_ + ":" + port_);
+    server_.listen_and_serve(ec, address_, port_);
+    if (ec) {
+        logger::Logger::error("Server stopped with error: " + ec.message());
     } else {
-        logger::Logger::error("Failed to start server: " + ec.message());
+        logger::Logger::info("Server stopped cleanly");
     }
 }
 
