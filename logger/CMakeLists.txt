@@ -42,4 +42,4 @@ target_link_libraries(test_logger
 )
 
 # Add tests
-add_test(NAME LoggerBasicTest COMMAND test_logger)
+add_test(NAME logger_basic_test COMMAND test_logger)

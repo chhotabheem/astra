@@ -29,4 +29,4 @@ target_link_libraries(test_boost_msm
 )
 
 # Add tests
-add_test(NAME BoostMsmBasicTest COMMAND test_boost_msm)
+add_test(NAME boost_msm_basic_test COMMAND test_boost_msm)

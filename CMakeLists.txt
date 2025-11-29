@@ -61,6 +61,15 @@ add_custom_target(test_massif
     COMMAND ${CMAKE_CTEST_COMMAND} -T MemCheck --overwrite "MemoryCheckCommandOptions=--tool=massif" --output-on-failure
     COMMENT "Running Massif (Heap Profiling)"
 )
+
+add_custom_target(test_valgrind_all
+    COMMAND ${CMAKE_COMMAND} --build . --target test_memcheck
+    COMMAND ${CMAKE_COMMAND} --build . --target test_helgrind
+    COMMAND ${CMAKE_COMMAND} --build . --target test_massif
+    COMMAND ${CMAKE_COMMAND} --build . --target test_callgrind
+    COMMAND ${CMAKE_COMMAND} --build . --target test_cachegrind
+    COMMENT "Running ALL Valgrind verification tools..."
+)
 add_subdirectory(jsonformatter)
 add_subdirectory(logger)
 add_subdirectory(exception)

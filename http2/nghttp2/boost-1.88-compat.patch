@@ -305,7 +305,7 @@ index 0148366..e4e3c7f 100644
  void io_service_pool::stop() {
    // Destroy all work objects to signals end of work
 -  work_.clear();
-+  // // work_.clear();
++  work_.clear();
  }
  
 -boost::asio::io_service &io_service_pool::get_io_service() {

@@ -32,7 +32,7 @@ target_link_libraries(mongoclient
 add_executable(test_mongoclient tests/test_mongoclient.cpp)
 target_link_libraries(test_mongoclient PRIVATE mongoclient)
 
-add_test(NAME MongoClientTest COMMAND test_mongoclient)
+add_test(NAME mongoclient_test COMMAND test_mongoclient)
 
 # Main application executable
 add_executable(mongo_app main.cpp)

@@ -54,4 +54,4 @@ add_executable(test_http2server_unit tests/test_http2server_unit.cpp)
 target_link_libraries(test_http2server_unit PRIVATE http2server)
 
 # Register test with CTest
-add_test(NAME Http2ServerUnitTests COMMAND test_http2server_unit)
+add_test(NAME http2_server_unit_tests COMMAND test_http2server_unit)

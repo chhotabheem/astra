@@ -76,4 +76,4 @@ target_link_libraries(test_redisclient
 )
 
 # Add tests
-add_test(NAME RedisClientBasicTest COMMAND test_redisclient)
+add_test(NAME redisclient_basic_test COMMAND test_redisclient)
