@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <atomic>
 #include <nghttp2/asio_http2_server.h>
 #include "Http2Server.hpp"
 
@@ -20,7 +21,7 @@ private:
     std::string address_;
     std::string port_;
     int threads_;
-    bool is_running_ = false;
+    std::atomic<bool> is_running_{false};
     nghttp2::asio_http2::server::http2 server_;
 };
 

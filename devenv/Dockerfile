@@ -46,3 +46,8 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # MongoDB driver and nghttp2-asio will be built by CMake during the project build
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

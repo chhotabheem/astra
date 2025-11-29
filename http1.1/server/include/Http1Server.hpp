@@ -1,7 +1,7 @@
 #pragma once
 
-#include "http_abstractions/IRequest.hpp"
-#include "http_abstractions/IResponse.hpp"
+#include "IRequest.hpp"
+#include "IResponse.hpp"
 #include <boost/asio.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
@@ -15,7 +15,7 @@ namespace http1 {
 
 class Server {
 public:
-    using Handler = std::function<void(const http_abstractions::IRequest&, http_abstractions::IResponse&)>;
+    using Handler = std::function<void(const router::IRequest&, router::IResponse&)>;
 
     Server(const std::string& address, unsigned short port, int threads = 1);
     ~Server();
@@ -37,6 +37,7 @@ private:
     boost::asio::ip::tcp::acceptor acceptor_;
     std::vector<std::thread> thread_pool_;
     Handler handler_;
+    mutable std::mutex handler_mutex_;
 };
 
 } // namespace http1

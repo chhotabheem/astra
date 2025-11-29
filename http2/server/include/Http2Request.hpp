@@ -1,6 +1,6 @@
 #pragma once
 
-#include "http_abstractions/IRequest.hpp"
+#include "IRequest.hpp"
 #include <memory>
 #include <string_view>
 
@@ -9,7 +9,7 @@ namespace http2server {
 class Server;
 namespace backend { class NgHttp2Server; }
 
-class Request final : public http_abstractions::IRequest {
+class Request final : public router::IRequest {
 public:
     Request();
     ~Request() override;

@@ -1,4 +1,4 @@
-#include "exception/AstraException.hpp"
+#include "AstraException.hpp"
 #include <iostream>
 #include <cassert>
 #include <cstring>

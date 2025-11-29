@@ -27,6 +27,7 @@ Server::~Server() {
 }
 
 void Server::handle(Handler handler) {
+    std::lock_guard<std::mutex> lock(handler_mutex_);
     handler_ = std::move(handler);
 }
 
@@ -138,7 +139,12 @@ void Server::do_accept() {
         net::make_strand(ioc_),
         [this](beast::error_code ec, tcp::socket socket) {
             if (!ec) {
-                std::make_shared<Session>(std::move(socket), handler_)->run();
+                Handler handler_copy;
+                {
+                    std::lock_guard<std::mutex> lock(handler_mutex_);
+                    handler_copy = handler_;
+                }
+                std::make_shared<Session>(std::move(socket), std::move(handler_copy))->run();
             }
             do_accept();
         });

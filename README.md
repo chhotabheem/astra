@@ -38,10 +38,11 @@ The project is designed to run inside a **Dockerized Development Environment** t
 All development and building should happen inside the `astra` container.
 
 ```bash
-# Build and start the container (if not already running)
-cd devenv
-docker build -t astrabuilder:v2 .
-docker run -itd --name astra -v $(pwd)/..:/app/astra astrabuilder:v2 bash
+# Build the Docker image
+docker build --network=host -t astrabuilder:v1 -f devenv/Dockerfile devenv
+
+# Run the container
+docker run -it --name astra -v $(pwd):/app/astra astrabuilder:v1 bash
 ```
 
 ### 2. Enter the Container

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "http_abstractions/IResponse.hpp"
+#include "IResponse.hpp"
 #include <memory>
 #include <string_view>
 
@@ -9,7 +9,7 @@ namespace http2server {
 class Server;
 namespace backend { class NgHttp2Server; }
 
-class Response final : public http_abstractions::IResponse {
+class Response final : public router::IResponse {
 public:
     Response();
     ~Response() override;

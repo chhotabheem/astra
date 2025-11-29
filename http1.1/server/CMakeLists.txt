@@ -23,7 +23,7 @@ target_link_libraries(http1.1server
     PUBLIC
         Boost::system
         Boost::thread
-        http_abstractions
+        router
 )
 
 target_compile_features(http1.1server PUBLIC cxx_std_17)

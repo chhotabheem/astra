@@ -1,4 +1,4 @@
-#include "exception/AstraException.hpp"
+#include "AstraException.hpp"
 
 namespace exception {
 

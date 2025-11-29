@@ -1,13 +1,13 @@
 #pragma once
 
-#include "http_abstractions/IResponse.hpp"
+#include "IResponse.hpp"
 #include <boost/beast/http.hpp>
 #include <functional>
 #include <memory>
 
 namespace http1 {
 
-class Response : public http_abstractions::IResponse {
+class Response : public router::IResponse {
 public:
     using SendCallback = std::function<void(boost::beast::http::response<boost::beast::http::string_body>)>;
 

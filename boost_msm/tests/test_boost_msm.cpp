@@ -1,4 +1,4 @@
-#include "boost_msm/StateMachine.hpp"
+#include "StateMachine.hpp"
 #include <iostream>
 #include <cassert>
 

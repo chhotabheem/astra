@@ -1,4 +1,4 @@
-#include "router/Router.hpp"
+#include "Router.hpp"
 #include <iostream>
 
 namespace router {
@@ -30,11 +30,11 @@ void Router::handle(std::string_view method, std::string_view path, Handler hand
     routes_.push_back({std::string(method), std::string(path), std::move(handler)});
 }
 
-void Router::dispatch(const http_abstractions::IRequest& req, http_abstractions::IResponse& res) {
+void Router::dispatch(const router::IRequest& req, router::IResponse& res) {
     run_middleware(0, req, res);
 }
 
-void Router::run_middleware(size_t index, const http_abstractions::IRequest& req, http_abstractions::IResponse& res) {
+void Router::run_middleware(size_t index, const router::IRequest& req, router::IResponse& res) {
     if (index < middlewares_.size()) {
         middlewares_[index](req, res, [this, index, &req, &res]() {
             run_middleware(index + 1, req, res);

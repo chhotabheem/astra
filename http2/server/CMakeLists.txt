@@ -30,7 +30,7 @@ target_include_directories(http2server
 # Link libraries
 target_link_libraries(http2server 
     PUBLIC
-        http_abstractions
+        router
     PRIVATE 
         Boost::system 
         Boost::thread 

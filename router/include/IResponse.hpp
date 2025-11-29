@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-namespace http_abstractions {
+namespace router {
 
 class IResponse {
 public:
@@ -14,4 +14,4 @@ public:
     virtual void close() = 0;
 };
 
-} // namespace http_abstractions
+} // namespace router

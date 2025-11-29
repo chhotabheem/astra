@@ -1,0 +1,13 @@
+#pragma once
+
+#include "IRequest.hpp"
+#include "IResponse.hpp"
+#include <functional>
+
+namespace router {
+
+using Next = std::function<void()>;
+using Middleware = std::function<void(const router::IRequest&, router::IResponse&, Next)>;
+using Handler = std::function<void(const router::IRequest&, router::IResponse&)>;
+
+} // namespace router

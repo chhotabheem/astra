@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-namespace http_abstractions {
+namespace router {
 
 class IRequest {
 public:
@@ -14,4 +14,4 @@ public:
     [[nodiscard]] virtual std::string_view body() const = 0;
 };
 
-} // namespace http_abstractions
+} // namespace router

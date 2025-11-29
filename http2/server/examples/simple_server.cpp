@@ -1,7 +1,7 @@
 #include "Http2Server.hpp"
 #include "Http2Request.hpp"
 #include "Http2Response.hpp"
-#include <router/Router.hpp>
+#include <Router.hpp>
 #include <iostream>
 #include <thread>
 
@@ -11,20 +11,20 @@ int main() {
         router::Router router;
 
         // Middleware: Logging
-        router.use([](const http_abstractions::IRequest& req, http_abstractions::IResponse& res, router::Next next) {
+        router.use([](const router::IRequest& req, router::IResponse& res, router::Next next) {
             std::cout << "[" << req.method() << "] " << req.path() << std::endl;
             next();
         });
 
         // Routes
-        router.get("/", [](const http_abstractions::IRequest& req, http_abstractions::IResponse& res) {
+        router.get("/", [](const router::IRequest& req, router::IResponse& res) {
             res.set_status(200);
             res.set_header("content-type", "text/plain");
             res.write("Hello, HTTP/2 World from Router!");
             res.close();
         });
 
-        router.post("/echo", [](const http_abstractions::IRequest& req, http_abstractions::IResponse& res) {
+        router.post("/echo", [](const router::IRequest& req, router::IResponse& res) {
             res.set_status(200);
             res.write(req.body());
             res.close();

@@ -21,7 +21,7 @@ public:
     
     void handle(std::string_view method, std::string_view path, Handler handler);
     
-    void dispatch(const http_abstractions::IRequest& req, http_abstractions::IResponse& res);
+    void dispatch(const router::IRequest& req, router::IResponse& res);
 
 private:
     struct Route {
@@ -33,7 +33,7 @@ private:
     std::vector<Middleware> middlewares_;
     std::vector<Route> routes_;
     
-    void run_middleware(size_t index, const http_abstractions::IRequest& req, http_abstractions::IResponse& res);
+    void run_middleware(size_t index, const router::IRequest& req, router::IResponse& res);
 };
 
 } // namespace router

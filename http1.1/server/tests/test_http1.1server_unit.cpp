@@ -121,7 +121,7 @@ int main() {
     
     // Start server in a thread
     http1::Server server("127.0.0.1", port, 4); // 4 threads
-    server.handle([](const http_abstractions::IRequest& req, http_abstractions::IResponse& res) {
+    server.handle([](const router::IRequest& req, router::IResponse& res) {
         if (req.path() == "/test") {
             res.set_status(200);
             res.write("Hello Test");

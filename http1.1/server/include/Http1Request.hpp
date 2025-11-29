@@ -1,12 +1,12 @@
 #pragma once
 
-#include "http_abstractions/IRequest.hpp"
+#include "IRequest.hpp"
 #include <boost/beast/http.hpp>
 #include <string>
 
 namespace http1 {
 
-class Request : public http_abstractions::IRequest {
+class Request : public router::IRequest {
 public:
     explicit Request(boost::beast::http::request<boost::beast::http::string_body> req);
 

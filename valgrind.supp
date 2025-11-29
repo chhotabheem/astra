@@ -1,0 +1,24 @@
+{
+   boost_asio_detail_scheduler_run
+   Helgrind:Race
+   ...
+   fun:*boost*asio*detail*scheduler*run*
+}
+{
+   boost_asio_detail_posix_mutex_lock
+   Helgrind:Race
+   ...
+   fun:*boost*asio*detail*posix_mutex*lock*
+}
+{
+   nghttp2_asio_server_stop
+   Helgrind:Race
+   ...
+   fun:*nghttp2*asio_http2*server*stop*
+}
+{
+   nghttp2_asio_server_start_accept
+   Helgrind:Race
+   ...
+   fun:*nghttp2*asio_http2*server*start_accept*
+}
