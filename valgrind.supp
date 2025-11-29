@@ -3,6 +3,12 @@
    Helgrind:Race
    ...
    fun:*boost*asio*detail*scheduler*run*
+   fun:_ZN5boost4asio6detail19scheduler_operation8completeEPvRKNS_6system10error_codeEm
+}
+{
+   boost_asio_scheduler_operation_complete_alt
+   Helgrind:Race
+   fun:_ZN5boost4asio6detail19scheduler_operation8completeEPvRKNS_6system10error_codeEm
 }
 {
    boost_asio_detail_posix_mutex_lock

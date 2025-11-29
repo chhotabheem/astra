@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.25)
 project(http1.1client)
 
 find_package(Boost REQUIRED COMPONENTS system thread)

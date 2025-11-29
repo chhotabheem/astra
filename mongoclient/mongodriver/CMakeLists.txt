@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.25)
 
 include(FetchContent)
 
@@ -20,5 +20,9 @@ FetchContent_Declare(
 # The C++ driver's CMake build system usually looks for libmongoc using find_package.
 # If it's not found, we might need to fetch it too, but let's see if the driver handles it.
 # For now, we'll assume the system libraries or the driver's internal logic handles it.
+
+# Disable warnings as errors to prevent build failures with Sanitizers
+set(ENABLE_WARNINGS_AS_ERRORS OFF CACHE BOOL "" FORCE)
+set(ENABLE_MAINTAINER_FLAGS OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(mongo_cxx_driver)
