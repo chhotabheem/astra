@@ -1,1 +1,0 @@
-/usr/bin/cc -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/public-header-warnings.dir/link.d "CMakeFiles/public-header-warnings.dir/c-check.c.o" -o public-header-warnings  libmongoc/libmongoc2.a libbson/libbson2.a /usr/lib/x86_64-linux-gnu/librt.a -lm /usr/lib/x86_64-linux-gnu/libssl.so /usr/lib/x86_64-linux-gnu/libcrypto.so /usr/lib/x86_64-linux-gnu/libsasl2.so -ldl -lresolv

@@ -1,1 +1,0 @@
-/usr/bin/cc -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/bson-check-depth.dir/link.d "CMakeFiles/bson-check-depth.dir/examples/bson-check-depth.c.o" -o bson-check-depth  -Wl,-rpath,/app/astra/mongoclient/build/_deps/mongo-c-driver-build/src/libbson libbson2.so.2.1.2 /usr/lib/x86_64-linux-gnu/librt.a -lm

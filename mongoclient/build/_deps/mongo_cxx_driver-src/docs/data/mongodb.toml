@@ -1,5 +1,0 @@
-# Update versions in config.toml as well
-githubRepo = "mongo-cxx-driver"
-githubBranch = "master"
-highlightTheme = "idea.css"
-apiUrl = "https://mongocxx.org/api/current/"

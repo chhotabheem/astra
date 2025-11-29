@@ -30,6 +30,8 @@ RUN apt-get update && apt-get install -y \
     gdb \
     valgrind \
     clang \
+    libc++-dev \
+    libc++abi-dev \
     lldb \
     wget \
     openssh-client \
