@@ -29,10 +29,12 @@ target_link_libraries(mongoclient
 )
 
 # Test executable
-add_executable(test_mongoclient tests/test_mongoclient.cpp)
-target_link_libraries(test_mongoclient PRIVATE mongoclient)
-
-add_test(NAME mongoclient_test COMMAND test_mongoclient)
+# GTest Integration
+astra_add_test(
+    TARGET mongo_gtest
+    SOURCES tests/mongo_gtest.cpp
+    LIBRARIES mongoclient
+)
 
 # Main application executable
 add_executable(mongo_app main.cpp)

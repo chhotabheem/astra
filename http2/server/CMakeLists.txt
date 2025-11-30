@@ -50,8 +50,8 @@ target_link_libraries(simple_server PRIVATE http2server astra_router)
 enable_testing()
 
 # Test executable
-add_executable(test_http2server_unit tests/test_http2server_unit.cpp)
-target_link_libraries(test_http2server_unit PRIVATE http2server)
-
-# Register test with CTest
-add_test(NAME http2_server_unit_tests COMMAND test_http2server_unit)
+astra_add_test(
+    TARGET http2_server_gtest
+    SOURCES tests/http2_server_gtest.cpp
+    LIBRARIES http2server
+)

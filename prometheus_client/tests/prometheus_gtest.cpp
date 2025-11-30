@@ -1,12 +1,15 @@
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 #include "PrometheusManager.hpp"
-#include <iostream>
-#include <cassert>
 #include <thread>
 #include <vector>
 
-void test_counter_registration() {
-    auto& manager = prometheus_client::PrometheusManager::GetInstance();
-    auto& family = manager.GetCounterFamily("test_counter", "A test counter");
+using namespace testing;
+using namespace prometheus_client;
+
+TEST(PrometheusManagerTest, CounterRegistration) {
+    auto& manager = PrometheusManager::GetInstance();
+    auto& family = manager.GetCounterFamily("test_counter_gtest", "A test counter");
     auto& counter = family.Add({{"label", "value"}});
     counter.Increment();
     
@@ -15,24 +18,23 @@ void test_counter_registration() {
     
     bool found = false;
     for (const auto& metric_family : collected) {
-        if (metric_family.name == "test_counter") {
+        if (metric_family.name == "test_counter_gtest") {
             found = true;
-            assert(metric_family.metric[0].counter.value == 1.0);
+            ASSERT_EQ(metric_family.metric[0].counter.value, 1.0);
             break;
         }
     }
-    assert(found);
-    std::cout << "test_counter_registration passed" << std::endl;
+    EXPECT_TRUE(found);
 }
 
-void test_concurrent_registration() {
-    auto& manager = prometheus_client::PrometheusManager::GetInstance();
+TEST(PrometheusManagerTest, ConcurrentRegistration) {
+    auto& manager = PrometheusManager::GetInstance();
     std::vector<std::thread> threads;
     
     for (int i = 0; i < 10; ++i) {
         threads.emplace_back([&manager, i] {
             // Register same family from multiple threads
-            auto& family = manager.GetCounterFamily("concurrent_counter", "Concurrent test");
+            auto& family = manager.GetCounterFamily("concurrent_counter_gtest", "Concurrent test");
             auto& counter = family.Add({{"thread", std::to_string(i)}});
             counter.Increment();
         });
@@ -47,20 +49,12 @@ void test_concurrent_registration() {
     
     bool found = false;
     for (const auto& metric_family : collected) {
-        if (metric_family.name == "concurrent_counter") {
+        if (metric_family.name == "concurrent_counter_gtest") {
             found = true;
             // Should have 10 metrics (one per thread label)
-            assert(metric_family.metric.size() == 10);
+            EXPECT_EQ(metric_family.metric.size(), 10);
             break;
         }
     }
-    assert(found);
-    std::cout << "test_concurrent_registration passed" << std::endl;
-}
-
-int main() {
-    test_counter_registration();
-    test_concurrent_registration();
-    std::cout << "All prometheus tests passed" << std::endl;
-    return 0;
+    EXPECT_TRUE(found);
 }

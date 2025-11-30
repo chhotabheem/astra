@@ -51,22 +51,32 @@ cmake --build --preset gcc-asan -j$(($(nproc)/2))
 
 ## Testing
 
-Run unit tests using the matching test preset:
+We use **GoogleTest** for all unit tests.
 
+### Run All Tests
 ```bash
-ctest --preset <preset-name>
+# Using CTest (Recommended)
+ctest --preset gcc-debug
+
+# Or using Make directly
+cd build/gcc-debug && make test
 ```
 
-**Example:**
+### Run Specific Component Tests
+You can run tests for a specific component (e.g., `router`, `http1.1server`) by targeting its GTest executable.
+
 ```bash
-ctest --preset gcc-asan
+# Build and run just the router tests
+cmake --build --preset gcc-debug --target router_gtest
+./build/gcc-debug/router/tests/router_gtest
 ```
 
-### Running Specific Tests
-To run a specific test (e.g., `http2_server_unit_tests`) within a preset:
+### Run Specific Test Cases
+Use `--gtest_filter` to run specific test cases.
+
 ```bash
-cd build/<preset-name>
-ctest -R http2_server_unit_tests --output-on-failure
+# Run only the ExactMatch test in Router
+./build/gcc-debug/router/tests/router_gtest --gtest_filter=RouterTest.ExactMatch
 ```
 
 ## Verification (Valgrind)
@@ -85,22 +95,3 @@ cmake --build --preset gcc-debug --target test_memcheck   # Memory Leaks
 cmake --build --preset gcc-debug --target test_helgrind   # Thread Safety
 cmake --build --preset gcc-debug --target test_massif     # Heap Profiling
 ```
-
-## Fast Iteration (Pragmatic Workflow)
-
-When working on a specific library (e.g., `logger`), you don't need to build the entire project.
-
-1.  **Build Only the Component**:
-    Target the specific test executable for the library you are modifying.
-    ```bash
-    # Build only the logger tests
-    cmake --build --preset gcc-asan --target test_logger
-    ```
-
-2.  **Run Only the Component Tests**:
-    Use `ctest -R` to run tests matching the library name.
-    ```bash
-    ctest --preset gcc-asan -R logger
-    ```
-
-This saves time by avoiding unnecessary compilation of unrelated components.

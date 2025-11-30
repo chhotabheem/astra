@@ -27,6 +27,12 @@ include(Sanitizers)     # Address, Thread, Memory, Undefined
 include(Valgrind)       # Custom Valgrind targets
 
 # -----------------------------------------------------------------------------
+# 3. External Dependencies
+# -----------------------------------------------------------------------------
+include(AddGoogleTest)
+include(AddAstraTest)
+
+# -----------------------------------------------------------------------------
 # 3. Subdirectories
 # -----------------------------------------------------------------------------
 # Utilities

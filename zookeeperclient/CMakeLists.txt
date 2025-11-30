@@ -33,6 +33,9 @@ endif()
 target_compile_features(zookeeperclient PUBLIC cxx_std_17)
 
 enable_testing()
-add_executable(test_zookeeper_unit tests/test_zookeeper_unit.cpp)
-target_link_libraries(test_zookeeper_unit PRIVATE zookeeperclient)
-add_test(NAME zookeeper_unit_tests COMMAND test_zookeeper_unit)
+# GTest Integration
+astra_add_test(
+    TARGET zookeeper_gtest
+    SOURCES tests/zookeeper_gtest.cpp
+    LIBRARIES zookeeperclient
+)

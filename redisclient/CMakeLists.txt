@@ -66,14 +66,8 @@ target_link_libraries(redisclient
 enable_testing()
 
 # Test executable
-add_executable(test_redisclient
-    tests/test_redis_unit.cpp
+astra_add_test(
+    TARGET redis_gtest
+    SOURCES tests/redis_gtest.cpp
+    LIBRARIES redisclient
 )
-
-target_link_libraries(test_redisclient
-    PRIVATE
-        redisclient
-)
-
-# Add tests
-add_test(NAME redisclient_basic_test COMMAND test_redisclient)

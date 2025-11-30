@@ -24,6 +24,9 @@ target_link_libraries(http1.1client
 target_compile_features(http1.1client PUBLIC cxx_std_17)
 
 enable_testing()
-add_executable(test_http1.1client_unit tests/test_http1.1client_unit.cpp)
-target_link_libraries(test_http1.1client_unit PRIVATE http1.1client)
-add_test(NAME http1.1_client_unit_tests COMMAND test_http1.1client_unit)
+
+astra_add_test(
+    TARGET http1_client_gtest
+    SOURCES tests/http1_client_gtest.cpp
+    LIBRARIES http1.1client
+)

@@ -29,6 +29,9 @@ target_link_libraries(http1.1server
 target_compile_features(http1.1server PUBLIC cxx_std_17)
 
 enable_testing()
-add_executable(test_http1.1server_unit tests/test_http1.1server_unit.cpp)
-target_link_libraries(test_http1.1server_unit PRIVATE http1.1server)
-add_test(NAME http1.1_server_unit_tests COMMAND test_http1.1server_unit)
+
+astra_add_test(
+    TARGET http1_server_gtest
+    SOURCES tests/http1_server_gtest.cpp
+    LIBRARIES http1.1server
+)

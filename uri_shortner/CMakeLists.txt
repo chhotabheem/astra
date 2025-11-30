@@ -40,14 +40,11 @@ target_compile_features(uri_shortner_app PUBLIC cxx_std_17)
 
 # Testing
 enable_testing()
-add_executable(test_uri_shortener tests/test_uri_shortener.cpp ${URI_SHORTENER_SOURCES})
-target_include_directories(test_uri_shortener
-    PRIVATE
-        include
-        src
-)
-target_link_libraries(test_uri_shortener
-    PRIVATE
+astra_add_test(
+    TARGET uri_shortener_gtest
+    SOURCES tests/uri_shortener_gtest.cpp ${URI_SHORTENER_SOURCES}
+    INCLUDE_DIRS include src
+    LIBRARIES 
         astra_router
         redisclient
         mongoclient
@@ -56,7 +53,6 @@ target_link_libraries(test_uri_shortener
         Boost::system
         Boost::thread
 )
-add_test(NAME uri_shortener_tests COMMAND test_uri_shortener)
 
 # Load Generator
 add_executable(load_test load_test.cpp)
