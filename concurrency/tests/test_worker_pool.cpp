@@ -1,4 +1,4 @@
-#include "WorkerPool.hpp"
+#include "WorkerPool.h"
 #include <iostream>
 #include <cassert>
 #include <vector>

@@ -1,4 +1,4 @@
-#include "PrometheusManager.hpp"
+#include "PrometheusManager.h"
 
 namespace prometheus_client {
 

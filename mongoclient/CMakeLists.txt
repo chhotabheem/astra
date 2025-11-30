@@ -31,8 +31,14 @@ target_link_libraries(mongoclient
 # Test executable
 # GTest Integration
 astra_add_test(
-    TARGET mongo_gtest
-    SOURCES tests/mongo_gtest.cpp
+    TARGET mongo_integration_test
+    SOURCES tests/mongo_integration_test.cpp
+    LIBRARIES mongoclient
+)
+
+astra_add_test(
+    TARGET mongo_mock_test
+    SOURCES tests/mongo_mock_test.cpp
     LIBRARIES mongoclient
 )
 

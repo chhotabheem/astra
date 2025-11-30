@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "Router.hpp"
+#include "Router.h"
 
 using namespace testing;
 using namespace router;

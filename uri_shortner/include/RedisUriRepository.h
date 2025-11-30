@@ -1,7 +1,7 @@
 #pragma once
 
-#include "IUriRepository.hpp"
-#include "RedisClient.hpp"
+#include "IUriRepository.h"
+#include "RedisClient.h"
 #include <memory>
 
 namespace uri_shortener {

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "UriService.hpp"
-#include "IUriRepository.hpp"
+#include "UriService.h"
+#include "IUriRepository.h"
 
 using namespace testing;
 using namespace uri_shortener;

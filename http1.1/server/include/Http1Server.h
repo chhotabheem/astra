@@ -1,8 +1,8 @@
 #pragma once
 
-#include "IRequest.hpp"
-#include "IResponse.hpp"
-#include "Router.hpp"
+#include "IRequest.h"
+#include "IResponse.h"
+#include "Router.h"
 #include <boost/asio.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>

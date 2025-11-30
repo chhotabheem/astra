@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "RedisClient.hpp"
+#include "RedisClient.h"
 
 using namespace testing;
 

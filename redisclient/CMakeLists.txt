@@ -67,7 +67,13 @@ enable_testing()
 
 # Test executable
 astra_add_test(
-    TARGET redis_gtest
-    SOURCES tests/redis_gtest.cpp
+    TARGET redis_integration_test
+    SOURCES tests/redis_integration_test.cpp
+    LIBRARIES redisclient
+)
+
+astra_add_test(
+    TARGET redis_mock_test
+    SOURCES tests/redis_mock_test.cpp
     LIBRARIES redisclient
 )

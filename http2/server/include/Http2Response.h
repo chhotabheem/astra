@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IResponse.hpp"
+#include "IResponse.h"
 #include <memory>
 #include <string_view>
 

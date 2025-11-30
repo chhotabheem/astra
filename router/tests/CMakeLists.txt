@@ -1,5 +1,5 @@
 astra_add_test(
-    TARGET router_gtest
-    SOURCES router_gtest.cpp
+    TARGET router_test
+    SOURCES router_test.cpp
     LIBRARIES astra_router
 )

@@ -1,4 +1,4 @@
-#include "StateMachine.hpp"
+#include "StateMachine.h"
 #include <iostream>
 #include <cassert>
 

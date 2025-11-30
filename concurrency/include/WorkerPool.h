@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IWorkerPool.hpp"
+#include "IWorkerPool.h"
 #include <vector>
 #include <thread>
 #include <queue>
@@ -42,9 +42,9 @@ private:
 
     void worker_loop(size_t index);
 
-    size_t num_threads_;
-    std::vector<std::unique_ptr<Worker>> workers_;
-    std::atomic<bool> running_{false};
+    size_t m_num_threads;
+    std::vector<std::unique_ptr<Worker>> m_workers;
+    std::atomic<bool> m_running{false};
 };
 
 } // namespace astra::concurrency

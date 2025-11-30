@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "PrometheusManager.hpp"
+#include "PrometheusManager.h"
 #include <thread>
 #include <vector>
 

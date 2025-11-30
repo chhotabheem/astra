@@ -1,12 +1,12 @@
-#include "WorkerPool.hpp"
+#include "WorkerPool.h"
 #include <iostream>
 
 namespace astra::concurrency {
 
-WorkerPool::WorkerPool(size_t num_threads) : num_threads_(num_threads) {
-    workers_.reserve(num_threads_);
-    for (size_t i = 0; i < num_threads_; ++i) {
-        workers_.push_back(std::make_unique<Worker>());
+WorkerPool::WorkerPool(size_t num_threads) : m_num_threads(num_threads) {
+    m_workers.reserve(m_num_threads);
+    for (size_t i = 0; i < m_num_threads; ++i) {
+        m_workers.push_back(std::make_unique<Worker>());
     }
 }
 
@@ -15,27 +15,27 @@ WorkerPool::~WorkerPool() {
 }
 
 void WorkerPool::start() {
-    if (running_) return;
-    running_ = true;
+    if (m_running) return;
+    m_running = true;
 
-    for (size_t i = 0; i < num_threads_; ++i) {
-        workers_[i]->thread = std::thread(&WorkerPool::worker_loop, this, i);
+    for (size_t i = 0; i < m_num_threads; ++i) {
+        m_workers[i]->thread = std::thread(&WorkerPool::worker_loop, this, i);
     }
 }
 
 void WorkerPool::stop() {
-    if (!running_) return;
-    running_ = false;
+    if (!m_running) return;
+    m_running = false;
 
     // Wake up all workers so they can exit
-    for (auto& worker : workers_) {
+    for (auto& worker : m_workers) {
         {
             std::lock_guard<std::mutex> lock(worker->mutex);
         } // Flush lock
         worker->cv.notify_all();
     }
 
-    for (auto& worker : workers_) {
+    for (auto& worker : m_workers) {
         if (worker->thread.joinable()) {
             worker->thread.join();
         }
@@ -43,11 +43,11 @@ void WorkerPool::stop() {
 }
 
 bool WorkerPool::submit(Job job) {
-    if (!running_) return false;
+    if (!m_running) return false;
 
     // Sharding Logic: Route to specific worker based on session_id
-    size_t worker_index = job.session_id % num_threads_;
-    auto& worker = workers_[worker_index];
+    size_t worker_index = job.session_id % m_num_threads;
+    auto& worker = m_workers[worker_index];
 
     {
         std::lock_guard<std::mutex> lock(worker->mutex);
@@ -58,17 +58,17 @@ bool WorkerPool::submit(Job job) {
 }
 
 void WorkerPool::worker_loop(size_t index) {
-    auto& worker = workers_[index];
+    auto& worker = m_workers[index];
 
-    while (running_) {
+    while (m_running) {
         Job job{JobType::SHUTDOWN, 0, {}};
         {
             std::unique_lock<std::mutex> lock(worker->mutex);
             worker->cv.wait(lock, [&] { 
-                return !worker->queue.empty() || !running_; 
+                return !worker->queue.empty() || !m_running; 
             });
 
-            if (!running_ && worker->queue.empty()) {
+            if (!m_running && worker->queue.empty()) {
                 return;
             }
 

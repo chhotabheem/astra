@@ -1,6 +1,6 @@
-#include "Http1Server.hpp"
-#include "Http1Request.hpp"
-#include "Http1Response.hpp"
+#include "Http1Server.h"
+#include "Http1Request.h"
+#include "Http1Response.h"
 #include <iostream>
 
 namespace http1 {

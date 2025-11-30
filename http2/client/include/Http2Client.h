@@ -5,7 +5,7 @@
 #include <memory>
 #include <map>
 #include <chrono>
-#include "Http2ClientResponse.hpp"
+#include "Http2ClientResponse.h"
 
 namespace http2client {
 

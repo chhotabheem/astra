@@ -1,7 +1,7 @@
-#include "Http2Server.hpp"
-#include "Http2Request.hpp"
-#include "Http2Response.hpp"
-#include "backend/nghttp2/NgHttp2Server.hpp"
+#include "Http2Server.h"
+#include "Http2Request.h"
+#include "Http2Response.h"
+#include "backend/nghttp2/NgHttp2Server.h"
 
 namespace http2server {
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IResponse.hpp"
+#include "IResponse.h"
 #include <boost/beast/http.hpp>
 #include <functional>
 #include <memory>

@@ -1,4 +1,4 @@
-#include "RedisClient.hpp"
+#include "RedisClient.h"
 #include <iostream>
 
 namespace redisclient {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "IUriService.hpp"
-#include "IUriRepository.hpp"
+#include "IUriService.h"
+#include "IUriRepository.h"
 #include <memory>
 #include <string>
 #include <string_view>

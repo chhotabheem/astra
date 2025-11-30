@@ -1,5 +1,5 @@
-#include "Http2Client.hpp"
-#include "Http2ClientImpl.hpp"
+#include "Http2Client.h"
+#include "Http2ClientImpl.h"
 #include <sstream>
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>

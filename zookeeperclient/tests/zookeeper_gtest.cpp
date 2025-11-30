@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "ZookeeperClient.hpp"
+#include "ZookeeperClient.h"
 
 using namespace testing;
 using namespace zookeeperclient;

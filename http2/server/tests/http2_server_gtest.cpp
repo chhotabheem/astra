@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "Http2Server.hpp"
-#include "Http2Request.hpp"
-#include "Http2Response.hpp"
+#include "Http2Server.h"
+#include "Http2Request.h"
+#include "Http2Response.h"
 #include <thread>
 #include <chrono>
 

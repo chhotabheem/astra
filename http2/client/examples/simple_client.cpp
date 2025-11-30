@@ -1,5 +1,5 @@
-#include "Http2Client.hpp"
-#include "Http2ClientResponse.hpp"
+#include "Http2Client.h"
+#include "Http2ClientResponse.h"
 #include <iostream>
 #include <thread>
 #include <chrono>

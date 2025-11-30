@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IRequest.hpp"
+#include "IRequest.h"
 #include <memory>
 #include <unordered_map>
 #include <string_view>

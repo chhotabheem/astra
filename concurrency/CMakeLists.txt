@@ -6,6 +6,7 @@ find_package(Threads REQUIRED)
 
 add_library(astra_concurrency
     src/WorkerPool.cpp
+    src/IoWorkerPool.cpp
 )
 
 target_include_directories(astra_concurrency

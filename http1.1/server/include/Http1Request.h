@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IRequest.hpp"
+#include "IRequest.h"
 #include <boost/beast/http.hpp>
 #include <string>
 #include <unordered_map>

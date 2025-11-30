@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IUriRepository.hpp"
+#include "IUriRepository.h"
 #include "MongoClient.h"
 #include <memory>
 

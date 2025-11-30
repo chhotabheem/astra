@@ -1,8 +1,8 @@
-#include "Http1Server.hpp"
-#include "Http2Server.hpp"
-#include "UriService.hpp"
-#include "UriController.hpp"
-#include "IUriRepository.hpp"
+#include "Http1Server.h"
+#include "Http2Server.h"
+#include "UriService.h"
+#include "UriController.h"
+#include "IUriRepository.h"
 #include <iostream>
 #include <thread>
 #include <csignal>

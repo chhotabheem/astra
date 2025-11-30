@@ -1,8 +1,8 @@
 #pragma once
 
-#include "IUriService.hpp"
-#include "IRequest.hpp"
-#include "IResponse.hpp"
+#include "IUriService.h"
+#include "IRequest.h"
+#include "IResponse.h"
 #include <memory>
 
 namespace uri_shortener {

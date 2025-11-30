@@ -1,4 +1,4 @@
-#include "MongoUriRepository.hpp"
+#include "MongoUriRepository.h"
 #include <stdexcept>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/json.hpp>

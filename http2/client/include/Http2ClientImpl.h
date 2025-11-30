@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Http2Client.hpp"
-#include "Http2ClientResponse.hpp"
+#include "Http2Client.h"
+#include "Http2ClientResponse.h"
 #include <nghttp2/asio_http2_client.h>
 #include <boost/asio.hpp>
 #include <thread>

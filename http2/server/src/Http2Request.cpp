@@ -1,11 +1,11 @@
-#include "Http2Request.hpp"
-#include "RequestImpl.hpp"
+#include "Http2Request.h"
+#include "RequestImpl.h"
 
 namespace http2server {
 
 Request::Request() = default;
 
-// Move operations must be defined after Impl is complete (after RequestImpl.hpp include)
+// Move operations must be defined after Impl is complete (after RequestImpl.h include)
 Request::Request(Request&&) noexcept = default;
 Request& Request::operator=(Request&&) noexcept = default;
 

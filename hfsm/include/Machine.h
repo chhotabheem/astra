@@ -1,7 +1,7 @@
 #pragma once
 
 // Wrapper for hfsm2 to provide a clean include path
-#include "machine.hpp"
+#include "machine.h"
 
 namespace hfsm {
     // We can add common type aliases or configuration here if needed

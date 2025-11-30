@@ -1,7 +1,7 @@
 #pragma once
 
-#include "IRequest.hpp"
-#include "IResponse.hpp"
+#include "IRequest.h"
+#include "IResponse.h"
 #include <functional>
 
 namespace router {

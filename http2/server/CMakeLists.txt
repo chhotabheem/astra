@@ -9,6 +9,7 @@ set(HTTP2SERVER_SOURCES
     src/Http2Server.cpp
     src/Http2Request.cpp
     src/Http2Response.cpp
+    src/ResponseHandle.cpp
     src/backend/nghttp2/NgHttp2Server.cpp
 )
 
@@ -52,6 +53,8 @@ enable_testing()
 # Test executable
 astra_add_test(
     TARGET http2_server_gtest
-    SOURCES tests/http2_server_gtest.cpp
+    SOURCES 
+        tests/http2_server_gtest.cpp
+        tests/response_handle_test.cpp
     LIBRARIES http2server
 )

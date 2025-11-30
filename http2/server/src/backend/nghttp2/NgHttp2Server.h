@@ -3,7 +3,7 @@
 #include <string>
 #include <atomic>
 #include <nghttp2/asio_http2_server.h>
-#include "Http2Server.hpp"
+#include "Http2Server.h"
 
 namespace http2server {
 namespace backend {

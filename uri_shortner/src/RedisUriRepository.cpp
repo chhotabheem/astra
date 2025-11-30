@@ -1,4 +1,4 @@
-#include "RedisUriRepository.hpp"
+#include "RedisUriRepository.h"
 #include <stdexcept>
 
 namespace uri_shortener {
