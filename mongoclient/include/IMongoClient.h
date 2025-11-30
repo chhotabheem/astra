@@ -12,7 +12,7 @@ namespace mongoclient{
         virtual void connect(const std::string& uri) = 0;
         virtual void disconnect() = 0;
         virtual bool isConnected() const = 0;
-        virtual std::optional<bsoncxx::document::value> findOne(
+        [[nodiscard]] virtual std::optional<bsoncxx::document::value> findOne(
             const std::string& database, 
             const std::string& collection,
             const bsoncxx::document::view& query) = 0;
@@ -38,7 +38,7 @@ namespace mongoclient{
             const std::string& collection,
             const bsoncxx::document::view& filter) = 0;
 
-        virtual std::vector<bsoncxx::document::value> find(
+        [[nodiscard]] virtual std::vector<bsoncxx::document::value> find(
             const std::string& database,
             const std::string& collection,
             const bsoncxx::document::view& query) = 0;

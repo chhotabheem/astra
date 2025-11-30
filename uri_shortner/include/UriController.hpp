@@ -7,7 +7,7 @@
 
 namespace uri_shortener {
 
-class UriController {
+class UriController final {
 public:
     explicit UriController(std::shared_ptr<IUriService> service);
     ~UriController() = default;

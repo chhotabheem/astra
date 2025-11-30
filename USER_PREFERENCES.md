@@ -54,3 +54,20 @@ The architecture and code style should align with the philosophies in:
 - **CMake Presets**: ALWAYS use `cmake --preset <name>` and `cmake --build --preset <name>`.
     - *Why*: Avoids manual errors, ensures consistency, and simplifies complex flags (like Sanitizers).
     - *Never*: Do not manually type long `cmake -D...` commands if a preset exists.
+
+## Coding Discipline
+- **Mental Dry Run**: Perform a mental dry run (at least 5 times) before compiling.
+    - *Goal*: Catch logic errors and lifetime issues (especially with `std::string_view`) before the compiler does.
+    - *Motto*: "Compilation is for verification, not debugging."
+- **Don't Jump to Compilation**: Do not run the build immediately after coding. Review the diffs first.
+
+## Mandatory Design Principles
+- **Embrace TDD Wholeheartedly**:
+    - *Philosophy*: Test-Driven Development is not just about testing; it's about design.
+    - *Process*: Write the test *before* the implementation. This forces you to design the API from the user's perspective.
+    - *Discipline*: Write enough product code to pass the test, then refactor.
+- **C++ Core Guidelines Adherence**:
+    - **RAII**: No raw `new`/`delete`. Use smart pointers and stack allocation (R.1).
+    - **Modern Features**: Use `auto`, `override`, `nullptr`, and `std::string_view` (P.1).
+    - **Safety**: No `reinterpret_cast` (unless parsing bytes) or `const_cast`.
+    - **Contracts**: Use `[[nodiscard]]` for error codes and `noexcept` for optimization.

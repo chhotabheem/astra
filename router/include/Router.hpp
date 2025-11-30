@@ -27,7 +27,7 @@ public:
         std::unordered_map<std::string_view, std::string_view> params;
     };
     
-    MatchResult match(std::string_view method, std::string_view path) const;
+    [[nodiscard]] MatchResult match(std::string_view method, std::string_view path) const;
     
     // Dispatch helper (runs middleware then handler)
     // Dispatch helper (runs middleware then handler)

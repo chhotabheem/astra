@@ -3,18 +3,21 @@
 #include "IUriService.hpp"
 #include "IUriRepository.hpp"
 #include <memory>
+#include <string>
+#include <string_view>
+#include <optional>
 #include <vector>
 #include <cstdint>
 
 namespace uri_shortener {
 
-class UriService : public IUriService {
+class UriService final : public IUriService {
 public:
     explicit UriService(std::shared_ptr<IUriRepository> repository);
     ~UriService() override = default;
 
-    std::string shorten(const std::string& long_url) override;
-    std::optional<std::string> expand(const std::string& short_code) override;
+    [[nodiscard]] std::string shorten(std::string_view long_url) override;
+    [[nodiscard]] std::optional<std::string> expand(std::string_view short_code) override;
 
 private:
     std::shared_ptr<IUriRepository> repository_;

@@ -23,13 +23,13 @@ public:
     [[nodiscard]] std::shared_ptr<prometheus::Registry> GetRegistry() const;
 
     // Helper to create a family of counters
-    [[nodiscard]] prometheus::Family<prometheus::Counter>& GetCounterFamily(const std::string& name, const std::string& help);
+    [[nodiscard]] prometheus::Family<prometheus::Counter>& GetCounterFamily(std::string_view name, std::string_view help);
 
     // Helper to create a family of gauges
-    [[nodiscard]] prometheus::Family<prometheus::Gauge>& GetGaugeFamily(const std::string& name, const std::string& help);
+    [[nodiscard]] prometheus::Family<prometheus::Gauge>& GetGaugeFamily(std::string_view name, std::string_view help);
 
     // Helper to create a family of histograms
-    [[nodiscard]] prometheus::Family<prometheus::Histogram>& GetHistogramFamily(const std::string& name, const std::string& help);
+    [[nodiscard]] prometheus::Family<prometheus::Histogram>& GetHistogramFamily(std::string_view name, std::string_view help);
 
 private:
     PrometheusManager();

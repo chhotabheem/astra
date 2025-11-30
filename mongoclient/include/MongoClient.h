@@ -13,7 +13,7 @@ namespace mongoclient {
         void connect(const std::string& uri) override;
         void disconnect() override;
         bool isConnected() const override;
-        std::optional<bsoncxx::document::value> findOne(
+        [[nodiscard]] std::optional<bsoncxx::document::value> findOne(
             const std::string& database, 
             const std::string& collection,
             const bsoncxx::document::view& query) override;
@@ -39,7 +39,7 @@ namespace mongoclient {
             const std::string& collection,
             const bsoncxx::document::view& filter) override;
 
-        std::vector<bsoncxx::document::value> find(
+        [[nodiscard]] std::vector<bsoncxx::document::value> find(
             const std::string& database,
             const std::string& collection,
             const bsoncxx::document::view& query) override;

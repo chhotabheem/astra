@@ -15,42 +15,45 @@ std::shared_ptr<prometheus::Registry> PrometheusManager::GetRegistry() const {
     return registry_;
 }
 
-prometheus::Family<prometheus::Counter>& PrometheusManager::GetCounterFamily(const std::string& name, const std::string& help) {
+prometheus::Family<prometheus::Counter>& PrometheusManager::GetCounterFamily(std::string_view name, std::string_view help) {
+    std::string name_str(name);
     std::lock_guard<std::mutex> lock(mutex_);
-    if (counter_families_.find(name) != counter_families_.end()) {
-        return *counter_families_[name];
+    if (counter_families_.find(name_str) != counter_families_.end()) {
+        return *counter_families_[name_str];
     }
     auto& family = prometheus::BuildCounter()
-        .Name(name)
-        .Help(help)
+        .Name(name_str)
+        .Help(std::string(help))
         .Register(*registry_);
-    counter_families_[name] = &family;
+    counter_families_[name_str] = &family;
     return family;
 }
 
-prometheus::Family<prometheus::Gauge>& PrometheusManager::GetGaugeFamily(const std::string& name, const std::string& help) {
+prometheus::Family<prometheus::Gauge>& PrometheusManager::GetGaugeFamily(std::string_view name, std::string_view help) {
+    std::string name_str(name);
     std::lock_guard<std::mutex> lock(mutex_);
-    if (gauge_families_.find(name) != gauge_families_.end()) {
-        return *gauge_families_[name];
+    if (gauge_families_.find(name_str) != gauge_families_.end()) {
+        return *gauge_families_[name_str];
     }
     auto& family = prometheus::BuildGauge()
-        .Name(name)
-        .Help(help)
+        .Name(name_str)
+        .Help(std::string(help))
         .Register(*registry_);
-    gauge_families_[name] = &family;
+    gauge_families_[name_str] = &family;
     return family;
 }
 
-prometheus::Family<prometheus::Histogram>& PrometheusManager::GetHistogramFamily(const std::string& name, const std::string& help) {
+prometheus::Family<prometheus::Histogram>& PrometheusManager::GetHistogramFamily(std::string_view name, std::string_view help) {
+    std::string name_str(name);
     std::lock_guard<std::mutex> lock(mutex_);
-    if (histogram_families_.find(name) != histogram_families_.end()) {
-        return *histogram_families_[name];
+    if (histogram_families_.find(name_str) != histogram_families_.end()) {
+        return *histogram_families_[name_str];
     }
     auto& family = prometheus::BuildHistogram()
-        .Name(name)
-        .Help(help)
+        .Name(name_str)
+        .Help(std::string(help))
         .Register(*registry_);
-    histogram_families_[name] = &family;
+    histogram_families_[name_str] = &family;
     return family;
 }
 

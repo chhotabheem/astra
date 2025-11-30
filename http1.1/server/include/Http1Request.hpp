@@ -7,7 +7,7 @@
 
 namespace http1 {
 
-class Request : public router::IRequest {
+class Request final : public router::IRequest {
 public:
     explicit Request(boost::beast::http::request<boost::beast::http::string_body> req);
 

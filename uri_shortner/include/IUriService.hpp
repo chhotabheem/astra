@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <optional>
 
 namespace uri_shortener {
@@ -14,14 +15,14 @@ public:
      * @param long_url The original URL
      * @return The generated short code
      */
-    virtual std::string shorten(const std::string& long_url) = 0;
+    [[nodiscard]] virtual std::string shorten(std::string_view long_url) = 0;
 
     /**
      * @brief Expand a short code
      * @param short_code The short code
      * @return The original URL if found, std::nullopt otherwise
      */
-    virtual std::optional<std::string> expand(const std::string& short_code) = 0;
+    [[nodiscard]] virtual std::optional<std::string> expand(std::string_view short_code) = 0;
 };
 
 } // namespace uri_shortener

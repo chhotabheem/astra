@@ -17,10 +17,10 @@ public:
     RedisClient& operator=(const RedisClient&) = delete;
 
     // Basic operations
-    void set(const std::string& key, const std::string& value);
-    std::optional<std::string> get(const std::string& key);
-    bool del(const std::string& key);
-    long long incr(const std::string& key);
+    void set(std::string_view key, std::string_view value);
+    [[nodiscard]] std::optional<std::string> get(std::string_view key);
+    bool del(std::string_view key);
+    long long incr(std::string_view key);
     
     // Check connection
     bool ping();
