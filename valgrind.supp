@@ -28,3 +28,22 @@
    ...
    fun:*nghttp2*asio_http2*server*start_accept*
 }
+{
+   boost_asio_strand_destructor_race
+   Helgrind:Race
+   ...
+   fun:*strand_executor_service*strand_impl*
+   ...
+}
+{
+   boost_asio_op_queue_race
+   Helgrind:Race
+   ...
+   fun:*boost*asio*detail*op_queue*
+}
+{
+   boost_beast_fields_race
+   Helgrind:Race
+   ...
+   fun:*boost*beast*http*basic_fields*
+}

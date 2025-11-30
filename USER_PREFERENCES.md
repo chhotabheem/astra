@@ -25,3 +25,32 @@
 ## Product Mindset
 - **Product > Project**: We are building a product for the field, not just finishing a project.
 - **Stability First**: Spend time now to ensure stability later. "Product spends more time in field than in development."
+
+## Performance Goals
+- **Target**: 1M+ TPS (scaled across pods).
+- **Architecture**: Cloud Native, Non-blocking, Staged Event-Driven Architecture (SEDA).
+- **Threading Model**: Strict Separation of Concerns.
+    - **Network Threads**: Only IO/Parsing. NEVER execute business logic.
+    - **Worker Threads**: Business Logic only. Isolated from Network.
+    - **IO Services**: Abstracted blocking operations.
+- **Routing Strategy**: Flexible Topology.
+    - **Default**: Sharded Queues (One per Worker) for performance.
+    - **Option**: Shared Queue (Work Stealing) for load balancing.
+    - **Constraint**: Design must support switching topologies without rewriting logic.
+
+
+- **Service Abstraction**: "DB Threads" are actually "IO Services". They abstract away the data source (Local DB, Remote Service, Cache). The Application Layer should not know the implementation details.
+
+## Guiding Principles & Recommended Reading
+The architecture and code style should align with the philosophies in:
+1.  **Clean Architecture** (Robert C. Martin) - *Dependency Rule, Decoupling.*
+2.  **Release It!** (Michael Nygard) - *Bulkheads, Fail Fast, Stability.*
+3.  **Effective Modern C++** (Scott Meyers) - *Move Semantics, Smart Pointers, constexpr.*
+4.  **Designing Data-Intensive Applications** (Martin Kleppmann) - *Scalability, Reliability, Maintainability.*
+
+
+
+## Build Systems
+- **CMake Presets**: ALWAYS use `cmake --preset <name>` and `cmake --build --preset <name>`.
+    - *Why*: Avoids manual errors, ensures consistency, and simplifies complex flags (like Sanitizers).
+    - *Never*: Do not manually type long `cmake -D...` commands if a preset exists.

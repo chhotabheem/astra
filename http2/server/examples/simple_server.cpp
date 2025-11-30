@@ -8,31 +8,25 @@
 int main() {
     try {
         http2server::Server server("0.0.0.0", "8080", 2);
-        router::Router router;
 
         // Middleware: Logging
-        router.use([](const router::IRequest& req, router::IResponse& res, router::Next next) {
+        server.router().use([](router::IRequest& req, router::IResponse& res, router::Next next) {
             std::cout << "[" << req.method() << "] " << req.path() << std::endl;
             next();
         });
 
         // Routes
-        router.get("/", [](const router::IRequest& req, router::IResponse& res) {
+        server.router().get("/", [](router::IRequest& req, router::IResponse& res) {
             res.set_status(200);
             res.set_header("content-type", "text/plain");
             res.write("Hello, HTTP/2 World from Router!");
             res.close();
         });
 
-        router.post("/echo", [](const router::IRequest& req, router::IResponse& res) {
+        server.router().post("/echo", [](router::IRequest& req, router::IResponse& res) {
             res.set_status(200);
             res.write(req.body());
             res.close();
-        });
-
-        // Delegate all requests to Router
-        server.handle("*", "/", [&router](const http2server::Request& req, http2server::Response& res) {
-            router.dispatch(req, res);
         });
 
         std::cout << "Starting server on 0.0.0.0:8080..." << std::endl;

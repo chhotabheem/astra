@@ -33,6 +33,7 @@ include(Valgrind)       # Custom Valgrind targets
 add_subdirectory(jsonformatter)
 add_subdirectory(logger)
 add_subdirectory(exception)
+add_subdirectory(concurrency)
 add_subdirectory(hfsm)
 add_subdirectory(boost_msm)
 
@@ -42,6 +43,7 @@ add_subdirectory(prometheus_client)
 add_subdirectory(zookeeperclient)
 add_subdirectory(mongoclient)
 add_subdirectory(http1.1)
+add_subdirectory(uri_shortner)
 
 # Core Server Components
 add_subdirectory(router)

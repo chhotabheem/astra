@@ -20,6 +20,11 @@ Server::Server(const std::string& address, unsigned short port, int threads)
     acceptor_.set_option(net::socket_base::reuse_address(true));
     acceptor_.bind(endpoint);
     acceptor_.listen(net::socket_base::max_listen_connections);
+
+    // Default handler: Dispatch to Router
+    handler_ = [this](router::IRequest& req, router::IResponse& res) {
+        router_.dispatch(req, res);
+    };
 }
 
 Server::~Server() {

@@ -112,6 +112,16 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "SANITIZE_MODE": "memory"
       }
+    },
+    {
+      "name": "clang-ubsan",
+      "inherits": "clang-base",
+      "displayName": "Clang UndefinedBehaviorSanitizer",
+      "description": "Debug build using Clang with UndefinedBehaviorSanitizer",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "SANITIZE_MODE": "undefined"
+      }
     }
   ],
   "buildPresets": [
@@ -146,48 +156,75 @@
     {
       "name": "clang-msan",
       "configurePreset": "clang-msan"
+    },
+    {
+      "name": "clang-ubsan",
+      "configurePreset": "clang-ubsan"
     }
   ],
   "testPresets": [
     {
       "name": "gcc-release",
       "configurePreset": "gcc-release",
-      "output": {"outputOnFailure": true}
+      "output": {
+        "outputOnFailure": true
+      }
     },
     {
       "name": "gcc-debug",
       "configurePreset": "gcc-debug",
-      "output": {"outputOnFailure": true}
+      "output": {
+        "outputOnFailure": true
+      }
     },
     {
       "name": "gcc-asan",
       "configurePreset": "gcc-asan",
-      "output": {"outputOnFailure": true}
+      "output": {
+        "outputOnFailure": true
+      }
     },
     {
       "name": "clang-release",
       "configurePreset": "clang-release",
-      "output": {"outputOnFailure": true}
+      "output": {
+        "outputOnFailure": true
+      }
     },
     {
       "name": "clang-debug",
       "configurePreset": "clang-debug",
-      "output": {"outputOnFailure": true}
+      "output": {
+        "outputOnFailure": true
+      }
     },
     {
       "name": "clang-asan",
       "configurePreset": "clang-asan",
-      "output": {"outputOnFailure": true}
+      "output": {
+        "outputOnFailure": true
+      }
     },
     {
       "name": "clang-tsan",
       "configurePreset": "clang-tsan",
-      "output": {"outputOnFailure": true}
+      "output": {
+        "outputOnFailure": true
+      }
     },
     {
       "name": "clang-msan",
       "configurePreset": "clang-msan",
-      "output": {"outputOnFailure": true}
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "clang-ubsan",
+      "configurePreset": "clang-ubsan",
+      "output": {
+        "outputOnFailure": true
+      }
     }
   ]
 }

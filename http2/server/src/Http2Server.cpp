@@ -14,7 +14,13 @@ public:
 };
 
 Server::Server(const std::string& address, const std::string& port, int threads)
-    : m_impl(std::make_unique<Impl>(address, port, threads)) {}
+    : m_impl(std::make_unique<Impl>(address, port, threads)) {
+    
+    // Default handler: Dispatch to Router
+    m_impl->backend.handle("*", "/", [this](Request& req, Response& res) {
+        router_.dispatch(req, res);
+    });
+}
 
 Server::~Server() = default;
 

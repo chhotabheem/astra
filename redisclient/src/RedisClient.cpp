@@ -45,6 +45,15 @@ bool RedisClient::del(const std::string& key) {
     }
 }
 
+long long RedisClient::incr(const std::string& key) {
+    try {
+        return redis_->incr(key);
+    } catch (const std::exception& e) {
+        std::cerr << "Redis incr error: " << e.what() << std::endl;
+        throw;
+    }
+}
+
 bool RedisClient::ping() {
     try {
         return redis_->ping() == "PONG";

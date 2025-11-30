@@ -2,6 +2,7 @@
 
 #include "IRequest.hpp"
 #include <memory>
+#include <unordered_map>
 #include <string_view>
 
 namespace http2server {
@@ -25,6 +26,11 @@ public:
     [[nodiscard]] std::string_view path() const override;
     [[nodiscard]] std::string_view header(std::string_view key) const override;
     [[nodiscard]] std::string_view body() const override;
+
+    [[nodiscard]] std::string_view path_param(std::string_view key) const override;
+    [[nodiscard]] std::string_view query_param(std::string_view key) const override;
+
+    void set_path_params(std::unordered_map<std::string_view, std::string_view> params) override;
 
 private:
     class Impl;

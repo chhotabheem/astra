@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <functional>
+#include "Router.hpp"
 
 namespace http2server {
 
@@ -25,7 +26,7 @@ public:
     Server(const Server&) = delete;
     Server& operator=(const Server&) = delete;
 
-    using Handler = std::function<void(const Request&, Response&)>;
+    using Handler = std::function<void(Request&, Response&)>;
 
     /**
      * @brief Register a handler for a specific method and path
@@ -46,9 +47,12 @@ public:
      */
     void stop();
 
+    router::Router& router() { return router_; }
+
 private:
     class Impl;
     std::unique_ptr<Impl> m_impl;
+    router::Router router_;
 };
 
 } // namespace http2server

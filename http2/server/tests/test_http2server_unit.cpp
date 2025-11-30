@@ -37,7 +37,7 @@ void test_ServerHandlerRegistration() {
     auto server = std::make_unique<http2server::Server>("127.0.0.1", "9002", 1);
     
     bool handler_called = false;
-    server->handle("GET", "/test", [&](const http2server::Request& req, http2server::Response& res) {
+    server->handle("GET", "/test", [&](http2server::Request& req, http2server::Response& res) {
         handler_called = true;
         res.close();
     });
@@ -49,15 +49,15 @@ void test_ServerHandlerRegistration() {
 void test_ServerMultipleHandlers() {
     auto server = std::make_unique<http2server::Server>("127.0.0.1", "9003", 1);
     
-    server->handle("GET", "/path1", [](const auto& req, auto& res) {
+    server->handle("GET", "/path1", [](auto& req, auto& res) {
         res.close();
     });
     
-    server->handle("POST", "/path2", [](const auto& req, auto& res) {
+    server->handle("POST", "/path2", [](auto& req, auto& res) {
         res.close();
     });
     
-    server->handle("GET", "/path3", [](const auto& req, auto& res) {
+    server->handle("GET", "/path3", [](auto& req, auto& res) {
         res.close();
     });
     

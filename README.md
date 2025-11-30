@@ -38,10 +38,10 @@ cmake --build --preset <preset-name> -j$(($(nproc)/2))
 
 | Preset Name | Sanitizer | Compiler | Notes |
 | :--- | :--- | :--- | :--- |
-| `gcc-asan` | Address | GCC | Recommended for daily dev. |
+| `gcc-asan` | Address | GCC | **Recommended** for daily dev. |
 | `clang-asan` | Address | Clang | Alternative ASan build. |
-| `clang-tsan` | Thread | Clang | Requires `docker run --security-opt seccomp=unconfined` to run tests. |
-| `clang-msan` | Memory | Clang | **Experimental**. Fails at runtime due to ABI mismatch with system libraries. |
+| `clang-tsan` | Thread | Clang | **Note**: May fail in Docker due to `personality` syscall restrictions. |
+| `clang-msan` | Memory | Clang | **Experimental**. Requires instrumented libc++. |
 
 **Example (GCC ASan):**
 ```bash
@@ -69,11 +69,21 @@ cd build/<preset-name>
 ctest -R http2_server_unit_tests --output-on-failure
 ```
 
-### Valgrind Verification
-Valgrind targets are available in **Debug** builds (e.g., `gcc-debug` or `clang-debug`).
+## Verification (Valgrind)
 
+We provide a unified target to run all Valgrind tools (MemCheck, Helgrind, Massif, Callgrind, Cachegrind).
+**Note**: Valgrind targets are only available in **Debug** builds (e.g., `gcc-debug`).
+
+### Run All Valgrind Checks
 ```bash
 cmake --build --preset gcc-debug --target test_valgrind_all
+```
+
+### Run Specific Checks
+```bash
+cmake --build --preset gcc-debug --target test_memcheck   # Memory Leaks
+cmake --build --preset gcc-debug --target test_helgrind   # Thread Safety
+cmake --build --preset gcc-debug --target test_massif     # Heap Profiling
 ```
 
 ## Fast Iteration (Pragmatic Workflow)
@@ -93,23 +103,4 @@ When working on a specific library (e.g., `logger`), you don't need to build the
     ctest --preset gcc-asan -R logger
     ```
 
-This saves time by avoiding unnecessary compilation of unrelated components (like MongoDB or HTTP/2).
-
-## 4. Verification (Valgrind)
-
-We provide a unified command to run all Valgrind tools (MemCheck, Helgrind, Massif, Callgrind, Cachegrind).
-
-### Run All Valgrind Checks
-```bash
-cd <build_dir>
-make test_valgrind_all
-```
-
-### Run Specific Checks
-```bash
-make test_memcheck   # Memory Leaks
-make test_helgrind   # Thread Safety
-make test_massif     # Heap Profiling
-make test_callgrind  # Call Graph Profiling
-make test_cachegrind # Cache Profiling
-```
+This saves time by avoiding unnecessary compilation of unrelated components.

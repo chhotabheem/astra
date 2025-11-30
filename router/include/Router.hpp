@@ -4,6 +4,8 @@
 #include <vector>
 #include <string_view>
 #include <string>
+#include <unordered_map>
+#include <memory>
 
 namespace router {
 
@@ -19,21 +21,31 @@ public:
     void put(std::string_view path, Handler handler);
     void del(std::string_view path, Handler handler);
     
-    void handle(std::string_view method, std::string_view path, Handler handler);
+    // The core matching logic
+    struct MatchResult {
+        Handler handler;
+        std::unordered_map<std::string_view, std::string_view> params;
+    };
     
-    void dispatch(const router::IRequest& req, router::IResponse& res);
+    MatchResult match(std::string_view method, std::string_view path) const;
+    
+    // Dispatch helper (runs middleware then handler)
+    // Dispatch helper (runs middleware then handler)
+    void dispatch(router::IRequest& req, router::IResponse& res);
 
 private:
-    struct Route {
-        std::string method;
-        std::string path;
+    struct Node {
+        std::unordered_map<std::string_view, std::unique_ptr<Node>> children;
+        std::unique_ptr<Node> wildcard_child; // For :param
+        std::string_view param_name;          // Name of the param (e.g., "id")
         Handler handler;
     };
 
+    std::unordered_map<std::string, std::unique_ptr<Node>> roots_; // Method -> Root Node
     std::vector<Middleware> middlewares_;
-    std::vector<Route> routes_;
-    
-    void run_middleware(size_t index, const router::IRequest& req, router::IResponse& res);
+
+    void add_route(std::string_view method, std::string_view path, Handler handler);
+    void run_middleware(size_t index, router::IRequest& req, router::IResponse& res);
 };
 
 } // namespace router

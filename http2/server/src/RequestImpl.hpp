@@ -2,6 +2,8 @@
 
 #include <string>
 #include <map>
+#include <unordered_map>
+#include <string_view>
 #include "Http2Request.hpp"
 
 namespace http2server {
@@ -12,6 +14,7 @@ public:
     std::string path;
     std::string body;
     std::map<std::string, std::string> headers;
+    std::unordered_map<std::string_view, std::string_view> path_params;
 
     Impl() = default;
 };

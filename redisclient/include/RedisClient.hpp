@@ -20,6 +20,7 @@ public:
     void set(const std::string& key, const std::string& value);
     std::optional<std::string> get(const std::string& key);
     bool del(const std::string& key);
+    long long incr(const std::string& key);
     
     // Check connection
     bool ping();

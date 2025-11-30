@@ -30,7 +30,7 @@ target_include_directories(http2server
 # Link libraries
 target_link_libraries(http2server 
     PUBLIC
-        router
+        astra_router
     PRIVATE 
         Boost::system 
         Boost::thread 
@@ -44,7 +44,7 @@ target_compile_definitions(http2server PRIVATE HAS_NGHTTP2)
 
 # Example executable
 add_executable(simple_server examples/simple_server.cpp)
-target_link_libraries(simple_server PRIVATE http2server router)
+target_link_libraries(simple_server PRIVATE http2server astra_router)
 
 # Enable testing
 enable_testing()

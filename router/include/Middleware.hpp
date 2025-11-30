@@ -7,7 +7,7 @@
 namespace router {
 
 using Next = std::function<void()>;
-using Middleware = std::function<void(const router::IRequest&, router::IResponse&, Next)>;
-using Handler = std::function<void(const router::IRequest&, router::IResponse&)>;
+using Middleware = std::function<void(router::IRequest&, router::IResponse&, Next)>;
+using Handler = std::function<void(router::IRequest&, router::IResponse&)>;
 
 } // namespace router
