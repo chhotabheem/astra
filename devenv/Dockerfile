@@ -3,51 +3,70 @@ FROM ubuntu:25.10
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-
 # -----------------------------------------------------------------------------
-# 1. System Dependencies
+# System Dependencies
 # -----------------------------------------------------------------------------
-# Install build tools and libraries required for C++ development and nghttp2-asio
 RUN apt-get update && apt-get install -y \
+    #
+    # Build Tools
     build-essential \
     cmake \
-    pkg-config \
-    curl \
-    tar \
     git \
-    tree \
-    libboost-system-dev \
-    libboost-thread-dev \
-    libboost-chrono-dev \
-    libssl-dev \
-    libsasl2-dev \
-    libnghttp2-dev \
-    libhiredis-dev \
-    ca-certificates \
-    vim \
-    iputils-ping \
-    net-tools \
-    gdb \
-    valgrind \
+    ninja-build \
+    pkg-config \
+    #
+    # C++ Compilers & Tools
     clang \
     libc++-dev \
     libc++abi-dev \
+    #
+    # C++ Libraries (Boost)
+    libboost-chrono-dev \
+    libboost-system-dev \
+    libboost-thread-dev \
+    #
+    # Security & Networking Libraries
+    ca-certificates \
+    libhiredis-dev \
+    libnghttp2-dev \
+    libsasl2-dev \
+    libssl-dev \
+    #
+    # Debugging & Profiling
+    gdb \
     lldb \
-    wget \
-    openssh-client \
+    valgrind \
+    #
+    # Utilities
+    curl \
     dnsutils \
-    iproute2 \
     gnupg \
-    software-properties-common && \
-    rm -rf /var/lib/apt/lists/*
+    iproute2 \
+    iputils-ping \
+    net-tools \
+    openssh-client \
+    software-properties-common \
+    tar \
+    tree \
+    vim \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
 
-
+# -----------------------------------------------------------------------------
+# Build MongoDB C Driver 2.1.2 from source
+# NOTE: This takes ~25 minutes during image build (one-time cost)
+# The C++ driver will use this pre-installed version via find_package()
+# -----------------------------------------------------------------------------
+COPY scripts/build-mongo-driver.sh /tmp/
+RUN chmod +x /tmp/build-mongo-driver.sh && \
+    /tmp/build-mongo-driver.sh && \
+    rm /tmp/build-mongo-driver.sh
 
 WORKDIR /app
 
-# MongoDB driver and nghttp2-asio will be built by CMake during the project build
+# MongoDB C driver pre-installed (2.1.2). C++ driver and nghttp2-asio built by CMake.
 
-COPY entrypoint.sh /entrypoint.sh
+COPY scripts/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

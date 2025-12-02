@@ -33,7 +33,7 @@ include(AddGoogleTest)
 include(AddAstraTest)
 
 # -----------------------------------------------------------------------------
-# 3. Subdirectories
+# 4. Subdirectories
 # -----------------------------------------------------------------------------
 # Utilities
 add_subdirectory(jsonformatter)

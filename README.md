@@ -4,12 +4,12 @@
 
 ### Build Docker Image
 ```bash
-docker build --network=host -t astrabuilder:v1 -f devenv/Dockerfile devenv
+docker build --network=host -t astrabuilder:v6 -f devenv/Dockerfile devenv
 ```
 
 ### Run Container
 ```bash
-docker run -it --name astra -v $(pwd):/app/astra astrabuilder:v1 bash
+docker run -it --name astra -v $(pwd):/app/astra astrabuilder:v6 bash
 ```
 
 ## Build Instructions
@@ -31,7 +31,7 @@ We use **CMake Presets** to simplify building with different compilers and confi
 cmake --preset <preset-name>
 
 # Build (Recommended: Use half of available cores to avoid freezing)
-cmake --build --preset <preset-name> -j$(($(nproc)/2))
+cmake --build --preset <preset-name> -j2
 ```
 
 ### 2. Sanitizer Builds (Debug)
@@ -46,7 +46,38 @@ cmake --build --preset <preset-name> -j$(($(nproc)/2))
 **Example (GCC ASan):**
 ```bash
 cmake --preset gcc-asan
-cmake --build --preset gcc-asan -j$(($(nproc)/2))
+cmake --build --preset gcc-asan -j2
+```
+
+## Clean Builds
+
+We use **Ninja** as the build system (faster than Make, better dependency tracking).
+
+### Incremental Clean (Daily Development)
+Removes build artifacts but preserves CMake cache. Fast reconfigure-free rebuilds.
+```bash
+ninja -C build/gcc-debug clean
+```
+
+### Full Clean (CMake Changes, Troubleshooting)
+Nuclear option - deletes everything. Requires full reconfigure.
+```bash
+rm -rf build/gcc-debug
+
+# Or clean all presets
+rm -rf build/
+```
+
+**Clean → Build workflow:**
+```bash
+# Incremental (fast)
+ninja -C build/gcc-debug clean
+ninja -C build/gcc-debug -j2
+
+# Full rebuild
+rm -rf build/gcc-debug
+cmake --preset gcc-debug
+cmake --build --preset gcc-debug -j2
 ```
 
 ## Testing
@@ -58,8 +89,8 @@ We use **GoogleTest** for all unit tests.
 # Using CTest (Recommended)
 ctest --preset gcc-debug
 
-# Or using Make directly
-cd build/gcc-debug && make test
+# Or using Ninja directly
+cd build/gcc-debug && ninja test
 ```
 
 ### Run Specific Component Tests
