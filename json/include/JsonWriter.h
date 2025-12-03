@@ -6,15 +6,15 @@
 
 namespace json {
 
-class JsonFormatter {
+class JsonWriter {
 public:
-    JsonFormatter();
-    ~JsonFormatter();
+    JsonWriter();
+    ~JsonWriter();
 
-    JsonFormatter(const JsonFormatter&) = delete;
-    JsonFormatter& operator=(const JsonFormatter&) = delete;
-    JsonFormatter(JsonFormatter&&) noexcept;
-    JsonFormatter& operator=(JsonFormatter&&) noexcept;
+    JsonWriter(const JsonWriter&) = delete;
+    JsonWriter& operator=(const JsonWriter&) = delete;
+    JsonWriter(JsonWriter&&) noexcept;
+    JsonWriter& operator=(JsonWriter&&) noexcept;
 
     void add(std::string_view key, std::string_view value);
     void add(std::string_view key, const std::string& value);

@@ -36,10 +36,11 @@ include(AddAstraTest)
 # 4. Subdirectories
 # -----------------------------------------------------------------------------
 # Utilities
-add_subdirectory(jsonformatter)
+add_subdirectory(json)
 add_subdirectory(logger)
 add_subdirectory(exception)
 add_subdirectory(concurrency)
+add_subdirectory(config)
 add_subdirectory(hfsm)
 add_subdirectory(boost_msm)
 

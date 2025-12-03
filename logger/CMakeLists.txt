@@ -25,7 +25,7 @@ target_include_directories(logger
 target_link_libraries(logger
     PUBLIC
         spdlog::spdlog
-        jsonformatter
+        json
 )
 
 # Enable testing

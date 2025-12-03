@@ -1,5 +1,5 @@
 #include "LoggerImpl.h"
-#include <JsonFormatter.h>
+#include <JsonWriter.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/async.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -37,7 +37,7 @@ std::string format_json(spdlog::level::level_enum level,
                         std::string_view file,
                         int line,
                         std::string_view function) {
-    json::JsonFormatter json;
+    json::JsonWriter json;
     
     auto now = std::chrono::system_clock::now();
     auto time_t_now = std::chrono::system_clock::to_time_t(now);

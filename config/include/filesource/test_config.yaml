@@ -1,0 +1,54 @@
+server:
+  address: "0.0.0.0"
+  port: 8080
+
+threading:
+  worker_threads: 2
+  io_service_threads: 1
+
+database:
+  mongodb_uri: "mongodb://localhost:27017"
+  redis_uri: "redis://localhost:6379"
+
+service:
+  name: "test-service"
+  environment: "test"
+
+logging:
+  level: "DEBUG"
+  format: "json"
+  enable_access_logs: true
+
+timeouts:
+  request_ms: 3000
+  database_ms: 1500
+  http_client_ms: 2500
+
+connection_pools:
+  mongodb_pool_size: 5
+  redis_pool_size: 3
+  http2_max_connections: 50
+
+observability:
+  metrics_enabled: true
+  tracing_sample_rate: 0.2
+
+rate_limiting:
+  global_rps_limit: 50000
+  per_user_rps_limit: 500
+  burst_size: 2500
+
+circuit_breaker:
+  mongodb_threshold: 3
+  mongodb_timeout_sec: 15
+  redis_threshold: 2
+  redis_timeout_sec: 10
+
+feature_flags:
+  enable_caching: false
+  enable_url_preview: true
+  compression_enabled: false
+
+backpressure:
+  worker_queue_max: 5000
+  io_queue_max: 2500
