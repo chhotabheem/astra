@@ -554,7 +554,7 @@ TEST_F(ThreadSafetyTest, ProducerConsumerContextPassing) {
     std::vector<std::thread> consumers;
     for (int i = 0; i < 4; i++) {
         consumers.emplace_back([&queue, &queue_mutex, &done]() {
-            while (!done.load() || !queue.empty()) {
+            while (true) {
                 Context ctx;
                 bool got = false;
                 {
@@ -568,6 +568,10 @@ TEST_F(ThreadSafetyTest, ProducerConsumerContextPassing) {
                 if (got) {
                     obs::info("consumed", ctx);
                     auto span = obs::span("process", ctx);
+                } else if (done.load()) {
+                    // Only exit when done AND queue is empty (checked inside lock)
+                    std::lock_guard<std::mutex> lock(queue_mutex);
+                    if (queue.empty()) break;
                 }
             }
         });

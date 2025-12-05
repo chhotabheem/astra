@@ -11,13 +11,14 @@ namespace http2server {
 namespace backend {
 
 NgHttp2Server::NgHttp2Server(const std::string& address, const std::string& port, int threads)
-    : address_(address), port_(port), threads_(threads) {
-    server_.num_threads(threads);
-    obs::info("NgHttp2Server initialized with " + std::to_string(threads) + " threads");
+    : address_(address), port_(port), threads_(threads),
+      ready_future_(ready_promise_.get_future().share()) {
+    server_.num_threads(threads_);
+    obs::info("NgHttp2Server initialized with " + std::to_string(threads_) + " threads");
 }
 
 NgHttp2Server::~NgHttp2Server() {
-    if (is_running_) {
+    if (is_running_.load(std::memory_order_acquire)) {
         stop();
     }
 }
@@ -89,25 +90,49 @@ void NgHttp2Server::handle(const std::string& method, const std::string& path, S
 }
 
 void NgHttp2Server::run() {
-    is_running_ = true;
-    boost::system::error_code ec;
     obs::info("Server starting on " + address_ + ":" + port_);
-    server_.listen_and_serve(ec, address_, port_);
-    if (ec) {
-        obs::error("Server stopped with error: " + ec.message());
-    } else {
-        obs::info("Server stopped cleanly");
+    
+    boost::system::error_code ec;
+    
+    // Start server in async mode - this creates acceptors and returns immediately
+    if (server_.listen_and_serve(ec, address_, port_, true /*asynchronous*/)) {
+        obs::error("Server failed to start: " + ec.message());
+        return;
     }
+    
+    // At this point, acceptors are created and io_services are running
+    // Safe to signal ready and allow stop() to be called
+    is_running_.store(true, std::memory_order_release);
+    ready_promise_.set_value();
+    
+    // Block until server stops
+    server_.join();
+    
+    obs::info("Server stopped cleanly");
 }
 
 void NgHttp2Server::stop() {
-    if (is_running_) {
-        server_.stop();
-        is_running_ = false;
+    if (is_running_.load(std::memory_order_acquire)) {
+        // Post stop to io_context for thread-safe shutdown
+        // This ensures acceptor close happens on the same thread as async operations
+        auto& io_services = server_.io_services();
+        if (!io_services.empty()) {
+            boost::asio::post(*io_services[0], [this]() {
+                server_.stop();
+            });
+        } else {
+            server_.stop();
+        }
+        is_running_.store(false, std::memory_order_release);
         obs::info("Server stopped");
     }
 }
 
+void NgHttp2Server::wait_until_ready() {
+    ready_future_.wait();
+}
+
 } // namespace backend
 } // namespace http2server
+
 

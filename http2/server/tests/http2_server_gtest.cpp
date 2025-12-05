@@ -79,7 +79,9 @@ TEST_F(Http2ServerRuntimeTest, StartStop) {
         server_->run();
     });
     
-    std::this_thread::sleep_for(100ms);
+    // Wait for server to be ready (proper synchronization)
+    server_->wait_until_ready();
+    
     server_->stop();
     server_thread_.join();
     

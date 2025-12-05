@@ -167,10 +167,10 @@ void FileConfigSource::start() {
     // Use executor to submit the watch task
     m_executor->submit([this]() {
         this->watchLoop();
-        {
-            std::lock_guard<std::mutex> lock(m_stop_mutex);
-            m_task_active.store(false);
-        }
+        // Hold lock during the entire notification sequence
+        // This ensures notify_all completes before wait() returns in stop()
+        std::lock_guard<std::mutex> lock(m_stop_mutex);
+        m_task_active.store(false);
         m_stop_cv.notify_all();
     });
     

@@ -36,4 +36,9 @@ void Server::stop() {
     m_impl->backend.stop();
 }
 
+void Server::wait_until_ready() {
+    m_impl->backend.wait_until_ready();
+}
+
 } // namespace http2server
+

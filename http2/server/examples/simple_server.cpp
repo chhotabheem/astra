@@ -10,13 +10,13 @@ int main() {
         http2server::Server server("0.0.0.0", "8080", 2);
 
         // Middleware: Logging
-        server.router().use([](router::IRequest& req, router::IResponse& res, router::Next next) {
+        server.router().use([](router::IRequest& req, [[maybe_unused]] router::IResponse& res, router::Next next) {
             std::cout << "[" << req.method() << "] " << req.path() << std::endl;
             next();
         });
 
         // Routes
-        server.router().get("/", [](router::IRequest& req, router::IResponse& res) {
+        server.router().get("/", []([[maybe_unused]] router::IRequest& req, router::IResponse& res) {
             res.set_status(200);
             res.set_header("content-type", "text/plain");
             res.write("Hello, HTTP/2 World from Router!");

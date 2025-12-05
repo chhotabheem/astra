@@ -47,6 +47,11 @@ public:
      */
     void stop();
 
+    /**
+     * @brief Block until the server is ready to accept connections
+     */
+    void wait_until_ready();
+
     router::Router& router() { return router_; }
 
 private:
