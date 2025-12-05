@@ -1,7 +1,7 @@
 #include "Http2Response.h"
 #include "ResponseImpl.h"
 #include "ResponseHandle.h"
-#include <Logger.h>
+#include <obs/Log.h>
 
 namespace http2server {
 
@@ -27,7 +27,7 @@ void Response::set_header(std::string_view key, std::string_view value) {
     if (!m_impl) return;
     // Headers are sent by nghttp2 server automatically with status
     // For now, we only support default headers
-    logger::Logger::debug("set_header called: " + std::string(key) + ": " + std::string(value));
+    obs::debug("set_header called: " + std::string(key) + ": " + std::string(value));
 }
 
 void Response::write(std::string_view data) {
@@ -46,8 +46,9 @@ void Response::close() {
         m_impl->closed = true;
     } else {
         // Stream already closed or handle expired
-        logger::Logger::debug("Cannot send response: stream already closed");
+        obs::debug("Cannot send response: stream already closed");
     }
 }
 
 } // namespace http2server
+

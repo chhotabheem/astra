@@ -64,6 +64,16 @@
       }
     },
     {
+      "name": "gcc-tsan",
+      "inherits": "gcc-base",
+      "displayName": "GCC ThreadSanitizer",
+      "description": "Debug build using GCC with ThreadSanitizer",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "SANITIZE_MODE": "thread"
+      }
+    },
+    {
       "name": "clang-release",
       "inherits": "clang-base",
       "displayName": "Clang Release",
@@ -138,6 +148,10 @@
       "configurePreset": "gcc-asan"
     },
     {
+      "name": "gcc-tsan",
+      "configurePreset": "gcc-tsan"
+    },
+    {
       "name": "clang-release",
       "configurePreset": "clang-release"
     },
@@ -180,6 +194,13 @@
     {
       "name": "gcc-asan",
       "configurePreset": "gcc-asan",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "gcc-tsan",
+      "configurePreset": "gcc-tsan",
       "output": {
         "outputOnFailure": true
       }

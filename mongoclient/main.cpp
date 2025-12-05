@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "MongoClient.h"
-#include <Logger.h>
+#include <obs/Log.h>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/json.hpp>
 #include <mongocxx/client.hpp>
@@ -10,11 +10,7 @@
 
 using bsoncxx::builder::basic::kvp;
 int main() {
-    // Initialize logger
-    logger::Logger::initialize();
-    logger::Logger::set_level(logger::Level::INFO);
-    
-    LOG_INFO("MongoDB Client Application started");
+    obs::info("MongoDB Client Application started");
     
     try {
         mongoclient::MongoClient client;
@@ -29,23 +25,21 @@ int main() {
         auto result = client.findOne("test", "users", query.view());
         
         if (result) {
-            LOG_INFO("Query successful");
+            obs::info("Query successful");
             std::cout << bsoncxx::to_json(*result) << std::endl;
         } else {
-            LOG_WARN("No documents found in collection");
+            obs::warn("No documents found in collection");
         }
         
         // Disconnect
         client.disconnect();
         
-        LOG_INFO("Application completed successfully");
+        obs::info("Application completed successfully");
         
     } catch (const std::exception& e) {
-        LOG_ERROR("Application error: " + std::string(e.what()));
-        logger::Logger::shutdown();
+        obs::error("Application error: " + std::string(e.what()));
         return 1;
     }
     
-    logger::Logger::shutdown();
     return 0;
 }

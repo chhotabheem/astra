@@ -1,33 +1,23 @@
 #pragma once
 #include "observability/IConfigMetrics.h"
-#include "PrometheusManager.h"
-#include <prometheus/counter.h>
+#include <obs/Metrics.h>
 
 namespace config {
 
+/**
+ * @brief Default config metrics implementation using unified observability library.
+ * 
+ * Uses obs::counter() for metrics, which is backed by OpenTelemetry.
+ */
 class DefaultConfigMetrics : public IConfigMetrics {
 public:
-    DefaultConfigMetrics() {
-        auto& success_family = prometheus_client::PrometheusManager::GetInstance()
-            .GetCounterFamily("config_reload_success_total", "Total successful config reloads");
-        m_success_counter = &success_family.Add({});
-        
-        auto& failure_family = prometheus_client::PrometheusManager::GetInstance()
-            .GetCounterFamily("config_reload_failure_total", "Total failed config reloads");
-        m_failure_counter = &failure_family.Add({});
-    }
-    
     void incrementReloadSuccess() override {
-        m_success_counter->Increment();
+        obs::counter("config_reload_success_total", "Total successful config reloads").inc();
     }
     
     void incrementReloadFailure() override {
-        m_failure_counter->Increment();
+        obs::counter("config_reload_failure_total", "Total failed config reloads").inc();
     }
-    
-private:
-    prometheus::Counter* m_success_counter{nullptr};
-    prometheus::Counter* m_failure_counter{nullptr};
 };
 
-}
+} // namespace config

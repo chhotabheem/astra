@@ -1,5 +1,5 @@
 #include "filesource/FileConfigSource.h"
-#include "Logger.h"
+#include <obs/Log.h>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -31,12 +31,12 @@ FileConfigSource::FileConfigSource(
         m_executor = std::make_shared<astra::concurrency::ThreadExecutor>();
     }
     
-    logger::Logger::info("FileConfigSource: Initialized with file: " + m_config_file_path.string());
+    obs::info("FileConfigSource: Initialized with file: " + m_config_file_path.string());
     
     if (std::filesystem::exists(m_config_file_path)) {
         m_last_modified = std::filesystem::last_write_time(m_config_file_path);
     } else {
-        logger::Logger::warn("FileConfigSource: Config file does not exist yet: " + m_config_file_path.string());
+        obs::warn("FileConfigSource: Config file does not exist yet: " + m_config_file_path.string());
     }
 }
 
@@ -57,7 +57,7 @@ std::string FileConfigSource::fetchConfig() {
     std::stringstream buffer;
     buffer << file.rdbuf();
     
-    logger::Logger::debug("FileConfigSource: Read " + std::to_string(buffer.str().size()) + " bytes from " + m_config_file_path.string());
+    obs::debug("FileConfigSource: Read " + std::to_string(buffer.str().size()) + " bytes from " + m_config_file_path.string());
     
     return buffer.str();
 }
@@ -71,14 +71,14 @@ void FileConfigSource::watchForChanges(ChangeCallback callback) {
 
 void FileConfigSource::start() {
     if (m_running.load()) {
-        logger::Logger::warn("FileConfigSource: Already running");
+        obs::warn("FileConfigSource: Already running");
         return;
     }
     
     // Initialize inotify
     m_inotify_fd = inotify_init1(IN_NONBLOCK); // Non-blocking for epoll
     if (m_inotify_fd == -1) {
-        logger::Logger::error("FileConfigSource: Failed to initialize inotify: " + std::string(std::strerror(errno)));
+        obs::error("FileConfigSource: Failed to initialize inotify: " + std::string(std::strerror(errno)));
         return;
     }
     
@@ -88,7 +88,7 @@ void FileConfigSource::start() {
                                     IN_MODIFY | IN_MOVED_TO | IN_CREATE | IN_DELETE_SELF);
     
     if (m_watch_fd == -1) {
-        logger::Logger::error("FileConfigSource: Failed to add inotify watch: " + std::string(std::strerror(errno)));
+        obs::error("FileConfigSource: Failed to add inotify watch: " + std::string(std::strerror(errno)));
         close(m_inotify_fd);
         m_inotify_fd = -1;
         return;
@@ -97,7 +97,7 @@ void FileConfigSource::start() {
     // Create eventfd for stop signal
     m_stop_event_fd = eventfd(0, EFD_NONBLOCK);
     if (m_stop_event_fd == -1) {
-        logger::Logger::error("FileConfigSource: Failed to create eventfd: " + std::string(std::strerror(errno)));
+        obs::error("FileConfigSource: Failed to create eventfd: " + std::string(std::strerror(errno)));
         close(m_inotify_fd);
         m_inotify_fd = -1;
         return;
@@ -106,7 +106,7 @@ void FileConfigSource::start() {
     // Create epoll instance
     m_epoll_fd = epoll_create1(0);
     if (m_epoll_fd == -1) {
-        logger::Logger::error("FileConfigSource: Failed to create epoll: " + std::string(std::strerror(errno)));
+        obs::error("FileConfigSource: Failed to create epoll: " + std::string(std::strerror(errno)));
         close(m_stop_event_fd);
         close(m_inotify_fd);
         m_stop_event_fd = -1;
@@ -117,7 +117,7 @@ void FileConfigSource::start() {
     // Create timerfd for debounce
     m_timer_fd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
     if (m_timer_fd == -1) {
-        logger::Logger::error("FileConfigSource: Failed to create timerfd: " + std::string(std::strerror(errno)));
+        obs::error("FileConfigSource: Failed to create timerfd: " + std::string(std::strerror(errno)));
         close(m_stop_event_fd);
         close(m_epoll_fd);
         close(m_inotify_fd);
@@ -129,7 +129,7 @@ void FileConfigSource::start() {
     ev.events = EPOLLIN;
     ev.data.fd = m_inotify_fd;
     if (epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_inotify_fd, &ev) == -1) {
-        logger::Logger::error("FileConfigSource: Failed to add inotify fd to epoll: " + std::string(std::strerror(errno)));
+        obs::error("FileConfigSource: Failed to add inotify fd to epoll: " + std::string(std::strerror(errno)));
         close(m_timer_fd);
         close(m_stop_event_fd);
         close(m_epoll_fd);
@@ -141,7 +141,7 @@ void FileConfigSource::start() {
     ev.events = EPOLLIN;
     ev.data.fd = m_stop_event_fd;
     if (epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_stop_event_fd, &ev) == -1) {
-        logger::Logger::error("FileConfigSource: Failed to add event fd to epoll: " + std::string(std::strerror(errno)));
+        obs::error("FileConfigSource: Failed to add event fd to epoll: " + std::string(std::strerror(errno)));
         close(m_timer_fd);
         close(m_stop_event_fd);
         close(m_epoll_fd);
@@ -153,7 +153,7 @@ void FileConfigSource::start() {
     ev.events = EPOLLIN;
     ev.data.fd = m_timer_fd;
     if (epoll_ctl(m_epoll_fd, EPOLL_CTL_ADD, m_timer_fd, &ev) == -1) {
-        logger::Logger::error("FileConfigSource: Failed to add timer fd to epoll: " + std::string(std::strerror(errno)));
+        obs::error("FileConfigSource: Failed to add timer fd to epoll: " + std::string(std::strerror(errno)));
         close(m_timer_fd);
         close(m_stop_event_fd);
         close(m_epoll_fd);
@@ -174,7 +174,7 @@ void FileConfigSource::start() {
         m_stop_cv.notify_all();
     });
     
-    logger::Logger::info("FileConfigSource: Started watching file with epoll: " + m_config_file_path.string());
+    obs::info("FileConfigSource: Started watching file with epoll: " + m_config_file_path.string());
 }
 
 void FileConfigSource::stop() {
@@ -200,7 +200,7 @@ void FileConfigSource::stop() {
     if (m_stop_event_fd != -1) { close(m_stop_event_fd); m_stop_event_fd = -1; }
     if (m_inotify_fd != -1) { close(m_inotify_fd); m_inotify_fd = -1; }
     
-    logger::Logger::info("FileConfigSource: Stopped watching file");
+    obs::info("FileConfigSource: Stopped watching file");
 }
 
 void FileConfigSource::watchLoop() {
@@ -217,7 +217,7 @@ void FileConfigSource::watchLoop() {
         
         if (nfds == -1) {
             if (errno == EINTR) continue;
-            logger::Logger::error("FileConfigSource: epoll_wait error: " + std::string(std::strerror(errno)));
+            obs::error("FileConfigSource: epoll_wait error: " + std::string(std::strerror(errno)));
             break;
         }
         
@@ -233,7 +233,7 @@ void FileConfigSource::watchLoop() {
                 read(m_timer_fd, &expirations, sizeof(expirations));
                 
                 if (m_callback) {
-                    logger::Logger::info("FileConfigSource: File modification detected (debounced): " + m_config_file_path.string());
+                    obs::info("FileConfigSource: File modification detected (debounced): " + m_config_file_path.string());
                     try {
                         std::string new_content = fetchConfig();
                         m_callback(new_content);
@@ -241,7 +241,7 @@ void FileConfigSource::watchLoop() {
                             m_last_modified = std::filesystem::last_write_time(m_config_file_path);
                         }
                     } catch (const std::exception& e) {
-                        logger::Logger::error("FileConfigSource: Failed to read changed file: " + std::string(e.what()));
+                        obs::error("FileConfigSource: Failed to read changed file: " + std::string(e.what()));
                     }
                 }
             } else if (events[n].data.fd == m_inotify_fd) {
@@ -249,7 +249,7 @@ void FileConfigSource::watchLoop() {
                 ssize_t length = read(m_inotify_fd, buffer, BUF_LEN);
                 if (length < 0) {
                     if (errno != EAGAIN) {
-                        logger::Logger::error("FileConfigSource: inotify read error: " + std::string(std::strerror(errno)));
+                        obs::error("FileConfigSource: inotify read error: " + std::string(std::strerror(errno)));
                     }
                     continue;
                 }
@@ -263,7 +263,7 @@ void FileConfigSource::watchLoop() {
                             file_changed = true;
                         }
                         if (event.mask & IN_DELETE_SELF) {
-                            logger::Logger::warn("FileConfigSource: Config file deleted: " + m_config_file_path.string());
+                            obs::warn("FileConfigSource: Config file deleted: " + m_config_file_path.string());
                         }
                     }
                 }
@@ -277,7 +277,7 @@ void FileConfigSource::watchLoop() {
                     ts.it_value.tv_nsec = 10 * 1000 * 1000; // 10ms
                     
                     if (timerfd_settime(m_timer_fd, 0, &ts, nullptr) == -1) {
-                        logger::Logger::error("FileConfigSource: Failed to arm timer: " + std::string(std::strerror(errno)));
+                        obs::error("FileConfigSource: Failed to arm timer: " + std::string(std::strerror(errno)));
                     }
                 }
             }

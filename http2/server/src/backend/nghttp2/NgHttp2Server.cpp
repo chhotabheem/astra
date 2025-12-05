@@ -4,7 +4,7 @@
 #include "ResponseHandle.h"
 #include "../../RequestImpl.h"
 #include "../../ResponseImpl.h"
-#include <Logger.h>
+#include <obs/Log.h>
 #include <iostream>
 
 namespace http2server {
@@ -13,7 +13,7 @@ namespace backend {
 NgHttp2Server::NgHttp2Server(const std::string& address, const std::string& port, int threads)
     : address_(address), port_(port), threads_(threads) {
     server_.num_threads(threads);
-    logger::Logger::info("NgHttp2Server initialized with " + std::to_string(threads) + " threads");
+    obs::info("NgHttp2Server initialized with " + std::to_string(threads) + " threads");
 }
 
 NgHttp2Server::~NgHttp2Server() {
@@ -64,7 +64,7 @@ void NgHttp2Server::handle(const std::string& method, const std::string& path, S
             [response_handle = ctx->response_handle](uint32_t error_code) {
                 response_handle->mark_closed();
                 if (error_code != 0) {
-                    logger::Logger::debug("Stream closed with error code: " + std::to_string(error_code));
+                    obs::debug("Stream closed with error code: " + std::to_string(error_code));
                 }
             }
         );
@@ -91,12 +91,12 @@ void NgHttp2Server::handle(const std::string& method, const std::string& path, S
 void NgHttp2Server::run() {
     is_running_ = true;
     boost::system::error_code ec;
-    logger::Logger::info("Server starting on " + address_ + ":" + port_);
+    obs::info("Server starting on " + address_ + ":" + port_);
     server_.listen_and_serve(ec, address_, port_);
     if (ec) {
-        logger::Logger::error("Server stopped with error: " + ec.message());
+        obs::error("Server stopped with error: " + ec.message());
     } else {
-        logger::Logger::info("Server stopped cleanly");
+        obs::info("Server stopped cleanly");
     }
 }
 
@@ -104,9 +104,10 @@ void NgHttp2Server::stop() {
     if (is_running_) {
         server_.stop();
         is_running_ = false;
-        logger::Logger::info("Server stopped");
+        obs::info("Server stopped");
     }
 }
 
 } // namespace backend
 } // namespace http2server
+

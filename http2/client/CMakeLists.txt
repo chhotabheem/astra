@@ -26,7 +26,7 @@ target_include_directories(http2client
 # Note: nghttp2_asio is expected to be available from the parent project or http2server
 target_link_libraries(http2client 
     PUBLIC
-        logger
+        observability
         Boost::system
         Boost::thread
         Boost::chrono

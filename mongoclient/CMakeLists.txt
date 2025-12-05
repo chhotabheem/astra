@@ -23,7 +23,7 @@ target_include_directories(mongoclient
 # Link libraries
 target_link_libraries(mongoclient
     PUBLIC
-        logger
+        observability
         mongocxx_static
         bsoncxx_static
 )

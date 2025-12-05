@@ -4,13 +4,20 @@
 
 ### Build Docker Image
 ```bash
-docker build --network=host -t astrabuilder:v6 -f devenv/Dockerfile devenv
+docker build --network=host -t astrabuilder:v7 -f devenv/Dockerfile devenv
 ```
 
 ### Run Container
 ```bash
-docker run -it --name astra -v $(pwd):/app/astra astrabuilder:v6 bash
+docker run -it --name astra -v $(pwd):/app/astra astrabuilder:v7 bash
 ```
+
+### Run Container (with Sanitizer Support)
+For running ThreadSanitizer (TSan) or AddressSanitizer (ASan) tests, use:
+```bash
+docker run -it --name astra --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v $(pwd):/app/astra astrabuilder:v7 bash
+```
+> **Note**: `--cap-add=SYS_PTRACE` enables process tracing for sanitizers. `--security-opt seccomp=unconfined` allows the `personality` syscall needed by TSan to disable ASLR.
 
 ## Build Instructions
 
@@ -39,6 +46,7 @@ cmake --build --preset <preset-name> -j2
 | Preset Name | Sanitizer | Compiler | Notes |
 | :--- | :--- | :--- | :--- |
 | `gcc-asan` | Address | GCC | **Recommended** for daily dev. |
+| `gcc-tsan` | Thread | GCC | Thread safety via GCC. |
 | `clang-asan` | Address | Clang | Alternative ASan build. |
 | `clang-tsan` | Thread | Clang | **Note**: May fail in Docker due to `personality` syscall restrictions. |
 | `clang-msan` | Memory | Clang | **Experimental**. Requires instrumented libc++. |

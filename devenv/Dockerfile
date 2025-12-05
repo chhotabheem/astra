@@ -50,21 +50,34 @@ RUN apt-get update && apt-get install -y \
     tree \
     vim \
     wget \
+    protobuf-compiler \
+    libprotobuf-dev \
+    libgrpc++-dev \
+    libgrpc-dev \
+    protobuf-compiler-grpc \
+    libcurl4-openssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # -----------------------------------------------------------------------------
 # Build MongoDB C Driver 2.1.2 from source
-# NOTE: This takes ~25 minutes during image build (one-time cost)
-# The C++ driver will use this pre-installed version via find_package()
 # -----------------------------------------------------------------------------
 COPY scripts/build-mongo-driver.sh /tmp/
 RUN chmod +x /tmp/build-mongo-driver.sh && \
     /tmp/build-mongo-driver.sh && \
     rm /tmp/build-mongo-driver.sh
 
+# -----------------------------------------------------------------------------
+# Build OpenTelemetry C++ SDK v1.24.0 (C++20)
+# NOTE: Pre-built so our C++17 code can link against it
+# -----------------------------------------------------------------------------
+COPY scripts/build-opentelemetry.sh /tmp/
+RUN chmod +x /tmp/build-opentelemetry.sh && \
+    /tmp/build-opentelemetry.sh && \
+    rm /tmp/build-opentelemetry.sh
+
 WORKDIR /app
 
-# MongoDB C driver pre-installed (2.1.2). C++ driver and nghttp2-asio built by CMake.
+# Pre-installed: MongoDB C (2.1.2), OpenTelemetry C++ (v1.24.0)
 
 COPY scripts/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

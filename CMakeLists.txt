@@ -37,7 +37,7 @@ include(AddAstraTest)
 # -----------------------------------------------------------------------------
 # Utilities
 add_subdirectory(json)
-add_subdirectory(logger)
+add_subdirectory(observability)  # Unified observability (logs, traces, metrics)
 add_subdirectory(exception)
 add_subdirectory(concurrency)
 add_subdirectory(config)
@@ -46,7 +46,6 @@ add_subdirectory(boost_msm)
 
 # Clients
 add_subdirectory(redisclient)
-add_subdirectory(prometheus_client)
 add_subdirectory(zookeeperclient)
 add_subdirectory(mongoclient)
 add_subdirectory(http1.1)

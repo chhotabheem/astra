@@ -75,7 +75,7 @@ void ClientImpl::start_io_service() {
         try {
             m_io_context.run();
         } catch (const std::exception& e) {
-            logger::Logger::error(std::string("IO Service error: ") + e.what());
+            obs::error(std::string("IO Service error: ") + e.what());
         }
     });
 }
@@ -102,17 +102,17 @@ void ClientImpl::connect() {
 
         m_session->on_connect([this](boost::asio::ip::tcp::resolver::results_type::iterator endpoint_it) {
             m_connected = true;
-            logger::Logger::info("Connected to " + m_config.host + ":" + m_config.port);
+            obs::info("Connected to " + m_config.host + ":" + m_config.port);
         });
 
         m_session->on_error([this](const boost::system::error_code& ec) {
             m_connected = false;
-            logger::Logger::error("Connection error: " + ec.message());
+            obs::error("Connection error: " + ec.message());
             // Reconnect logic could go here, but for now we rely on retries or manual restart
         });
 
     } catch (const std::exception& e) {
-        logger::Logger::error("Failed to create session: " + std::string(e.what()));
+        obs::error("Failed to create session: " + std::string(e.what()));
     }
 }
 

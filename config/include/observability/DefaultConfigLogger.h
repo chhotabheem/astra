@@ -1,25 +1,25 @@
 #pragma once
 #include "observability/IConfigLogger.h"
-#include "Logger.h"
+#include <obs/Log.h>
 
 namespace config {
 
 class DefaultConfigLogger : public IConfigLogger {
 public:
     void debug(const std::string& message) override {
-        logger::Logger::debug(message);
+        obs::debug(message);
     }
     
     void info(const std::string& message) override {
-        logger::Logger::info(message);
+        obs::info(message);
     }
     
     void warn(const std::string& message) override {
-        logger::Logger::warn(message);
+        obs::warn(message);
     }
     
     void error(const std::string& message) override {
-        logger::Logger::error(message);
+        obs::error(message);
     }
 };
 

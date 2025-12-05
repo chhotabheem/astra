@@ -17,8 +17,7 @@ target_include_directories(config_impl PUBLIC
 )
 target_link_libraries(config_impl 
     PUBLIC 
-        logger 
-        prometheus_client
+        observability
         astra_concurrency
     PRIVATE
         json

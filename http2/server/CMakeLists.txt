@@ -37,7 +37,7 @@ target_link_libraries(http2server
         Boost::thread 
         Boost::chrono
         nghttp2_asio
-        logger
+        observability
 )
 
 # Add compile definition for nghttp2
