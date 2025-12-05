@@ -64,12 +64,15 @@ public:
         return *this;
     }
     
-    Span& attr(std::string_view key, bool value) override {
+private:
+    Span& do_attr_bool(std::string_view key, bool value) override {
         if (m_span) {
             m_span->SetAttribute(nostd::string_view(key.data(), key.size()), value);
         }
         return *this;
     }
+    
+public:
     
     Span& set_error(std::string_view message) override {
         if (m_span) {

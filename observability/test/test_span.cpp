@@ -40,10 +40,13 @@ public:
         return *this;
     }
     
-    Span& attr(std::string_view key, bool value) override {
+private:
+    Span& do_attr_bool(std::string_view key, bool value) override {
         attrs.emplace_back(std::string(key), value ? "true" : "false");
         return *this;
     }
+    
+public:
     
     Span& set_error(std::string_view message) override {
         error_set = true;

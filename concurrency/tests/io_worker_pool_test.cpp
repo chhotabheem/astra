@@ -1,4 +1,5 @@
 #include "IoWorkerPool.h"
+#include <obs/Context.h>
 #include <gtest/gtest.h>
 #include <vector>
 #include <atomic>
@@ -24,7 +25,7 @@ TEST_F(IoWorkerPoolTest, SubmitJob) {
     IoWorkerPool pool(2);
     pool.start();
     
-    bool result = pool.submit({JobType::HTTP_REQUEST, 1, {}});
+    bool result = pool.submit({JobType::HTTP_REQUEST, 1, {}, obs::Context{}});
     EXPECT_TRUE(result);
     
     pool.stop();
@@ -35,11 +36,11 @@ TEST_F(IoWorkerPoolTest, Backpressure) {
     IoWorkerPool pool(0, 2);
     pool.start(); // Enable submission
     
-    EXPECT_TRUE(pool.submit({JobType::HTTP_REQUEST, 1, {}})); // 1/2
-    EXPECT_TRUE(pool.submit({JobType::HTTP_REQUEST, 2, {}})); // 2/2
+    EXPECT_TRUE(pool.submit({JobType::HTTP_REQUEST, 1, {}, obs::Context{}})); // 1/2
+    EXPECT_TRUE(pool.submit({JobType::HTTP_REQUEST, 2, {}, obs::Context{}})); // 2/2
     
     // This should fail (Backpressure)
-    EXPECT_FALSE(pool.submit({JobType::HTTP_REQUEST, 3, {}})); // 3/2 -> Fail
+    EXPECT_FALSE(pool.submit({JobType::HTTP_REQUEST, 3, {}, obs::Context{}})); // 3/2 -> Fail
     
     pool.stop();
 }
@@ -54,7 +55,7 @@ TEST_F(IoWorkerPoolTest, SharedQueueBehavior) {
     pool.start();
     
     for(int i=0; i<100; ++i) {
-        pool.submit({JobType::HTTP_REQUEST, (uint64_t)i, {}});
+        pool.submit({JobType::HTTP_REQUEST, (uint64_t)i, {}, obs::Context{}});
     }
     
     pool.stop();

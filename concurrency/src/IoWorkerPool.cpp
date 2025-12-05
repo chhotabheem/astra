@@ -57,7 +57,7 @@ bool IoWorkerPool::submit(Job job) {
 
 void IoWorkerPool::worker_loop() {
     while (true) {
-        Job job{JobType::SHUTDOWN, 0, {}};
+        Job job = Job::shutdown();
         
         {
             std::unique_lock<std::mutex> lock(m_mutex);

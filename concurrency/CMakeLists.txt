@@ -17,6 +17,7 @@ target_include_directories(astra_concurrency
 target_link_libraries(astra_concurrency
     PUBLIC
         Threads::Threads
+        observability
 )
 
 # Add tests if testing is enabled

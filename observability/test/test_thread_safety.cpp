@@ -10,6 +10,7 @@
 #include <obs/Log.h>
 #include <obs/Metrics.h>
 #include <obs/Context.h>
+#include "MockBackend.h"
 #include <thread>
 #include <vector>
 #include <atomic>
@@ -18,44 +19,6 @@
 #include <mutex>
 
 namespace obs::test {
-
-// -----------------------------------------------------------------------------
-// Thread-safe MockBackend for concurrent tests
-// -----------------------------------------------------------------------------
-class ThreadSafeMockBackend : public IBackend {
-public:
-    std::atomic<int> span_count{0};
-    std::atomic<int> log_count{0};
-    std::atomic<int> counter_count{0};
-    std::atomic<int> histogram_count{0};
-    std::atomic<bool> shutdown_called{false};
-    
-    void shutdown() override { shutdown_called = true; }
-    
-    std::unique_ptr<Span> create_span(std::string_view, const Context&) override {
-        span_count++;
-        return nullptr;
-    }
-    
-    std::unique_ptr<Span> create_root_span(std::string_view) override {
-        span_count++;
-        return nullptr;
-    }
-    
-    void log(Level, std::string_view, const Context&) override {
-        log_count++;
-    }
-    
-    std::shared_ptr<Counter> get_counter(std::string_view, std::string_view) override {
-        counter_count++;
-        return nullptr;
-    }
-    
-    std::shared_ptr<Histogram> get_histogram(std::string_view, std::string_view) override {
-        histogram_count++;
-        return nullptr;
-    }
-};
 
 // -----------------------------------------------------------------------------
 // Test Fixture

@@ -1,4 +1,5 @@
 #include "WorkerPool.h"
+#include <obs/Context.h>
 #include <iostream>
 #include <cassert>
 #include <vector>
@@ -21,7 +22,7 @@ void test_submit_jobs() {
 
     for (int i = 0; i < 100; ++i) {
         // Use std::any to store an integer
-        Job job{JobType::HTTP_REQUEST, (uint64_t)i, i};
+        Job job{JobType::HTTP_REQUEST, (uint64_t)i, i, obs::Context{}};
         bool submitted = pool.submit(job);
         assert(submitted && "Job submission failed");
         

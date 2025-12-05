@@ -127,6 +127,35 @@ obs::counter("http_requests_total").inc();
 obs::histogram("request_latency_seconds").record(0.042);
 ```
 
+### 4.5 ConsoleBackend (for debugging/tests)
+
+Use ConsoleBackend to see all observability output on stderr:
+
+```cpp
+#include <obs/Observability.h>
+
+int main() {
+    // For debugging: use console backend (writes to stderr)
+    obs::set_backend(std::make_unique<obs::ConsoleBackend>());
+    
+    auto span = obs::span("my_operation");
+    obs::info("Processing request");
+    obs::counter("requests").inc();
+    
+    obs::shutdown();
+}
+```
+
+**Output on stderr:**
+```
+[OBS] ConsoleBackend initialized
+[SPAN START] my_operation trace=a1b2c3d4
+[INFO] Processing request trace=a1b2c3d4
+[COUNTER] requests += 1 (total=1)
+[SPAN END] my_operation duration=42us
+[OBS] ConsoleBackend shutdown
+```
+
 ---
 
 ## 5. HTTP Header Propagation (W3C Trace Context)
@@ -208,18 +237,39 @@ This is the ONLY place OTel headers appear. Other layers never see OTel types.
 
 ## 8. Implementation Checklist
 
-- [ ] Context.h / Context.cpp
-- [ ] Span.h / Span.cpp
-- [ ] Log.h (header-only or .cpp)
-- [ ] Metrics.h / Metrics.cpp
-- [ ] IBackend.h
-- [ ] OTelBackend.h / OTelBackend.cpp
-- [ ] NoopBackend.cpp
-- [ ] Observability.h / Observability.cpp
-- [ ] MockBackend.h (for tests)
-- [ ] Update CMakeLists.txt
-- [ ] Unit tests
-- [ ] Helgrind validation
+### Completed ✅
+- [x] Context.h / Context.cpp
+- [x] Span.h / Span.cpp
+- [x] Log.h (header-only)
+- [x] Metrics.h / Metrics.cpp
+- [x] IBackend.h
+- [x] OTelBackend.h / OTelBackend.cpp
+- [x] Observability.h / Observability.cpp (includes set_backend)
+- [x] ConsoleBackend.h (for debugging/tests - writes to stderr)
+- [x] MockBackend.h (shared test mock in observability/test/)
+- [x] Update CMakeLists.txt
+- [x] Unit tests (test_context, test_span, test_log, test_metrics)
+- [x] TSan validation (thread safety tests)
+
+### ✅ All Items Complete
+> **All design items have been implemented and tested with TSan**
+
+- [x] **Job.trace_ctx field** - Added to `concurrency/Job.h` for SEDA context propagation
+- [x] **NVI pattern for Span::attr(bool)** - Prevents string literals from matching bool overload
+- [x] **test_console_backend.cpp** - Tests ConsoleBackend stderr output
+- [x] **test_job_context.cpp** - Tests Job carries trace context
+- [x] **test_seda_tracing.cpp** - Tests end-to-end SEDA context flow
+
+### Job.trace_ctx Implementation
+```cpp
+// In concurrency/Job.h
+struct Job {
+    JobType type;
+    uint64_t session_id;
+    std::any payload;
+    obs::Context trace_ctx;   // ✅ IMPLEMENTED - enables end-to-end tracing
+};
+```
 
 ---
 

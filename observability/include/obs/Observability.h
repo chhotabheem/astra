@@ -31,6 +31,12 @@
 // Metrics
 #include "Metrics.h"
 
+// Backend interface (for set_backend() DI)
+#include "IBackend.h"
+
+// Console backend (for debugging/tests)
+#include "ConsoleBackend.h"
+
 namespace obs {
 
 // =============================================================================

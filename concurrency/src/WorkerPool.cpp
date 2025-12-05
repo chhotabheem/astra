@@ -61,7 +61,7 @@ void WorkerPool::worker_loop(size_t index) {
     auto& worker = m_workers[index];
 
     while (m_running) {
-        Job job{JobType::SHUTDOWN, 0, {}};
+        Job job = Job::shutdown();
         {
             std::unique_lock<std::mutex> lock(worker->mutex);
             worker->cv.wait(lock, [&] { 

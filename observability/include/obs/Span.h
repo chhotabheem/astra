@@ -6,11 +6,13 @@
 #include "Context.h"
 #include <string_view>
 #include <memory>
+#include <type_traits>
 
 namespace obs {
 
 /// RAII Span - automatically ends when destroyed.
-/// This is a virtual interface to allow mocking in tests.
+/// Uses NVI (Non-Virtual Interface) pattern for bool to prevent
+/// string literals from matching bool overload.
 class Span {
 public:
     Span() = default;
@@ -31,8 +33,11 @@ public:
     /// Set floating point attribute
     virtual Span& attr(std::string_view key, double value) = 0;
     
-    /// Set boolean attribute
-    virtual Span& attr(std::string_view key, bool value) = 0;
+    /// Set boolean attribute (SFINAE prevents string literals from matching)
+    template<typename T, typename = std::enable_if_t<std::is_same_v<T, bool>>>
+    Span& attr(std::string_view key, T value) {
+        return do_attr_bool(key, value);
+    }
     
     /// Mark span as error with message
     virtual Span& set_error(std::string_view message) = 0;
@@ -48,6 +53,10 @@ public:
     
     /// Check if span is recording (sampling decision)
     virtual bool is_recording() const = 0;
+
+private:
+    /// NVI: derived classes override this for bool attributes
+    virtual Span& do_attr_bool(std::string_view key, bool value) = 0;
 };
 
 // Forward declaration - actual function uses backend

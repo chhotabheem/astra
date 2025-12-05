@@ -50,12 +50,16 @@ add_executable(test_observability
     test/test_log.cpp
     test/test_metrics.cpp
     test/test_thread_safety.cpp
+    test/test_console_backend.cpp
+    test/test_seda_tracing.cpp
 )
 
 target_link_libraries(test_observability
     PRIVATE
         observability
+        astra_concurrency
         GTest::gtest_main
 )
 
 add_test(NAME observability_tests COMMAND test_observability)
+

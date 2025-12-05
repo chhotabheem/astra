@@ -7,3 +7,8 @@ add_test(NAME worker_pool_test COMMAND test_worker_pool)
 add_executable(test_io_worker_pool io_worker_pool_test.cpp)
 target_link_libraries(test_io_worker_pool PRIVATE astra_concurrency GTest::gtest_main)
 add_test(NAME io_worker_pool_test COMMAND test_io_worker_pool)
+
+add_executable(test_job_context test_job_context.cpp)
+target_link_libraries(test_job_context PRIVATE astra_concurrency GTest::gtest_main)
+add_test(NAME job_context_test COMMAND test_job_context)
+
