@@ -8,7 +8,7 @@ namespace config {
 class JsonConfigParserTest : public ::testing::Test {
 protected:
     std::string readTestConfigFile() {
-        std::ifstream file(CMAKE_SOURCE_DIR "/config/include/parsers/test_config.json");
+        std::ifstream file(CMAKE_SOURCE_DIR "/libs/core/config/include/parsers/test_config.json");
         std::stringstream buffer;
         buffer << file.rdbuf();
         return buffer.str();

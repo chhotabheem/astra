@@ -19,6 +19,7 @@ target_link_libraries(config_impl
     PUBLIC 
         observability
         astra_concurrency
+        outcome
     PRIVATE
         json
 )

@@ -13,7 +13,7 @@ message(STATUS "Fetching nghttp2-asio version: ${NGHTTP2_ASIO_VERSION}")
 FetchContent_Declare(
     nghttp2_asio
     URL https://github.com/nghttp2/nghttp2-asio/archive/refs/heads/main.tar.gz
-    PATCH_COMMAND ${CMAKE_CURRENT_LIST_DIR}/patch_nghttp2_asio.sh .
+    PATCH_COMMAND bash ${CMAKE_CURRENT_LIST_DIR}/patch_nghttp2_asio.sh .
 )
 
 # Configure nghttp2 build options

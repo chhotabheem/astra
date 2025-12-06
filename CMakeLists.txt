@@ -1,59 +1,33 @@
 cmake_minimum_required(VERSION 3.25)
-project(Astra VERSION 1.0.0 LANGUAGES C CXX)
 
-# -----------------------------------------------------------------------------
-# 1. Configuration
-# -----------------------------------------------------------------------------
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+project(astra
+    VERSION 1.0.0
+    DESCRIPTION "High-performance C++ microservice platform"
+    LANGUAGES C CXX
+)
 
+# Global Compiler Settings
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Default Build Type
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build (Debug/Release/RelWithDebInfo/MinSizeRel)" FORCE)
-endif()
-message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+# Output Directories
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# Global Compiler Warnings (Production Level)
-add_compile_options(-Wall -Wextra -Wpedantic)
+# Testing
+enable_testing()
+include(GoogleTest)
 
-# -----------------------------------------------------------------------------
-# 2. Modules & Tools
-# -----------------------------------------------------------------------------
-include(CTest)          # Standard CTest
-include(Sanitizers)     # Address, Thread, Memory, Undefined
-include(Valgrind)       # Custom Valgrind targets
-
-# -----------------------------------------------------------------------------
-# 3. External Dependencies
-# -----------------------------------------------------------------------------
-include(AddGoogleTest)
+# Custom Modules
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(AddGoogleTest) # Handles GTest dependency
 include(AddAstraTest)
+include(Sanitizers)
+include(Valgrind)
 
-# -----------------------------------------------------------------------------
-# 4. Subdirectories
-# -----------------------------------------------------------------------------
-# Utilities
-add_subdirectory(json)
-add_subdirectory(observability)  # Unified observability (logs, traces, metrics)
-add_subdirectory(exception)
-add_subdirectory(concurrency)
-add_subdirectory(config)
-add_subdirectory(hfsm)
-add_subdirectory(boost_msm)
-
-# Clients
-add_subdirectory(redisclient)
-add_subdirectory(zookeeperclient)
-add_subdirectory(mongoclient)
-add_subdirectory(http1.1)
-add_subdirectory(uri_shortner)
-
-# Core Server Components
-add_subdirectory(router)
-add_subdirectory(http2)
-
-# Main Server (Uncomment when ready)
-# add_subdirectory(server)
+# Subdirectories
+add_subdirectory(libs)
+add_subdirectory(apps)

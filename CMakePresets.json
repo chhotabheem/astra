@@ -114,16 +114,6 @@
       }
     },
     {
-      "name": "clang-msan",
-      "inherits": "clang-base",
-      "displayName": "Clang MemorySanitizer",
-      "description": "Debug build using Clang with MemorySanitizer (Requires libc++)",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "SANITIZE_MODE": "memory"
-      }
-    },
-    {
       "name": "clang-ubsan",
       "inherits": "clang-base",
       "displayName": "Clang UndefinedBehaviorSanitizer",
@@ -166,10 +156,6 @@
     {
       "name": "clang-tsan",
       "configurePreset": "clang-tsan"
-    },
-    {
-      "name": "clang-msan",
-      "configurePreset": "clang-msan"
     },
     {
       "name": "clang-ubsan",
@@ -229,13 +215,6 @@
     {
       "name": "clang-tsan",
       "configurePreset": "clang-tsan",
-      "output": {
-        "outputOnFailure": true
-      }
-    },
-    {
-      "name": "clang-msan",
-      "configurePreset": "clang-msan",
       "output": {
         "outputOnFailure": true
       }

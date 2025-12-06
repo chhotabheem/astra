@@ -13,7 +13,7 @@
 #include <mutex>
 #include <condition_variable>
 #include "filesource/InotifyIterator.h"
-#include "concurrency/include/Executors.h"
+#include "Executors.h"
 
 namespace config {
 

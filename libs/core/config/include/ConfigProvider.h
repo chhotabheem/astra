@@ -8,7 +8,7 @@
 #include <functional>
 #include <vector>
 #include <mutex>
-#include "outcome/include/Result.h"
+#include "Result.h"
 
 namespace config {
 

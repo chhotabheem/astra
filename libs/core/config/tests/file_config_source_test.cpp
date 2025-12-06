@@ -44,9 +44,9 @@ TEST_F(FileConfigSourceTest, FetchConfigThrowsIfFileDoesNotExist) {
     EXPECT_THROW(source.fetchConfig(), std::runtime_error);
 }
 
-#include "concurrency/include/IExecutor.h"
+#include "IExecutor.h"
 
-#include "concurrency/include/IExecutor.h"
+#include "IExecutor.h"
 #include <thread>
 
 class MockExecutor : public astra::concurrency::IExecutor {
