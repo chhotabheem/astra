@@ -102,9 +102,9 @@ public:
         if (m_span) {
             auto span_ctx = m_span->GetContext();
             // Extract span ID to use as parent for children
-            child.parent_span_id.value = 0;
+            child.span_id.value = 0;
             for (int i = 0; i < 8; ++i) {
-                child.parent_span_id.value = (child.parent_span_id.value << 8) | 
+                child.span_id.value = (child.span_id.value << 8) | 
                     span_ctx.span_id().Id()[i];
             }
         }

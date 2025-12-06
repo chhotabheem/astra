@@ -146,7 +146,7 @@ TEST_F(SEDATracingTest, ContextFlowsThroughStages) {
     EXPECT_EQ(io_result.trace_ctx.trace_id.low, incoming.trace_id.low);
     
     // But parent span updated
-    EXPECT_EQ(io_result.trace_ctx.parent_span_id.value, worker_span.value);
+    EXPECT_EQ(io_result.trace_ctx.span_id.value, worker_span.value);
 }
 
 TEST_F(SEDATracingTest, SpanPerStage) {

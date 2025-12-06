@@ -19,7 +19,7 @@ add_custom_target(test_memcheck
 
 # 2. Helgrind (Thread Safety)
 add_custom_target(test_helgrind
-    COMMAND ${CMAKE_CTEST_COMMAND} -T MemCheck --overwrite "MemoryCheckCommandOptions=--tool=helgrind --error-exitcode=1 --suppressions=${CMAKE_SOURCE_DIR}/valgrind.supp" --output-on-failure
+    COMMAND ${CMAKE_CTEST_COMMAND} -T MemCheck --overwrite "MemoryCheckCommandOptions=--tool=helgrind --error-exitcode=1 --suppressions=${CMAKE_SOURCE_DIR}/tools/valgrind.supp" --output-on-failure
     COMMENT "Running Helgrind (Thread Error Detection)"
 )
 

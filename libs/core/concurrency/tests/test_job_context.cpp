@@ -65,7 +65,7 @@ TEST(JobContextTest, ChildContextPropagation) {
     EXPECT_EQ(parent_job.trace_ctx.trace_id.low, child_job.trace_ctx.trace_id.low);
     
     // Different parent span ID (parent -> child relationship)
-    EXPECT_NE(parent_job.trace_ctx.parent_span_id.value, child_job.trace_ctx.parent_span_id.value);
+    EXPECT_NE(parent_job.trace_ctx.span_id.value, child_job.trace_ctx.span_id.value);
 }
 
 TEST(JobContextTest, BaggagePropagation) {

@@ -75,7 +75,7 @@ TEST(ContextTest, ChildPreservesTraceId) {
     
     EXPECT_EQ(child.trace_id.high, parent.trace_id.high);
     EXPECT_EQ(child.trace_id.low, parent.trace_id.low);
-    EXPECT_EQ(child.parent_span_id.value, 123);
+    EXPECT_EQ(child.span_id.value, 123);
 }
 
 TEST(ContextTest, ChildPreservesBaggage) {
@@ -93,7 +93,7 @@ TEST(ContextTest, ChildPreservesBaggage) {
 TEST(ContextTest, ToTraceparentFormat) {
     Context ctx;
     ctx.trace_id = TraceId{0x0123456789abcdef, 0xfedcba9876543210};
-    ctx.parent_span_id = SpanId{0xaabbccddeeff0011};
+    ctx.span_id = SpanId{0xaabbccddeeff0011};
     ctx.trace_flags = 0x01;  // Sampled
     
     std::string header = ctx.to_traceparent();
@@ -110,7 +110,7 @@ TEST(ContextTest, FromTraceparentParsesCorrectly) {
     EXPECT_TRUE(ctx.is_valid());
     EXPECT_EQ(ctx.trace_id.high, 0x0123456789abcdef);
     EXPECT_EQ(ctx.trace_id.low, 0xfedcba9876543210);
-    EXPECT_EQ(ctx.parent_span_id.value, 0xaabbccddeeff0011);
+    EXPECT_EQ(ctx.span_id.value, 0xaabbccddeeff0011);
     EXPECT_EQ(ctx.trace_flags, 0x01);
 }
 
@@ -126,6 +126,70 @@ TEST(ContextTest, SamplingFlag) {
     
     ctx.trace_flags = 0x00;
     EXPECT_FALSE(ctx.is_sampled());
+}
+
+// -----------------------------------------------------------------------------
+// P1: span_id naming (TDD - tests new API)
+// -----------------------------------------------------------------------------
+TEST(ContextTest, SpanIdFieldExists) {
+    Context ctx = Context::create();
+    ctx.span_id = SpanId{12345};  // Using span_id, not parent_span_id
+    EXPECT_EQ(ctx.span_id.value, 12345);
+}
+
+TEST(ContextTest, ChildSetsSpanId) {
+    Context parent = Context::create();
+    parent.span_id = SpanId{111};
+    
+    SpanId new_span{222};
+    Context child = parent.child(new_span);
+    
+    // Child's span_id becomes the new_span
+    EXPECT_EQ(child.span_id.value, 222);
+}
+
+// -----------------------------------------------------------------------------
+// P2: Baggage deterministic ordering (TDD)
+// -----------------------------------------------------------------------------
+TEST(ContextTest, BaggageHeaderIsDeterministic) {
+    Context ctx1 = Context::create();
+    ctx1.baggage["zebra"] = "last";
+    ctx1.baggage["alpha"] = "first";
+    ctx1.baggage["middle"] = "mid";
+    
+    Context ctx2 = Context::create();
+    ctx2.baggage["middle"] = "mid";
+    ctx2.baggage["alpha"] = "first";
+    ctx2.baggage["zebra"] = "last";
+    
+    // Regardless of insertion order, output should be sorted (alpha, middle, zebra)
+    EXPECT_EQ(ctx1.to_baggage_header(), ctx2.to_baggage_header());
+    EXPECT_EQ(ctx1.to_baggage_header(), "alpha=first,middle=mid,zebra=last");
+}
+
+// -----------------------------------------------------------------------------
+// P3: TraceFlags formalization (TDD)
+// -----------------------------------------------------------------------------
+TEST(ContextTest, TraceFlagsConstants) {
+    EXPECT_EQ(TraceFlags::NONE, 0x00);
+    EXPECT_EQ(TraceFlags::SAMPLED, 0x01);
+}
+
+TEST(ContextTest, SetSampledMethod) {
+    Context ctx = Context::create();
+    
+    ctx.set_sampled(true);
+    EXPECT_TRUE(ctx.is_sampled());
+    EXPECT_EQ(ctx.trace_flags & TraceFlags::SAMPLED, TraceFlags::SAMPLED);
+    
+    ctx.set_sampled(false);
+    EXPECT_FALSE(ctx.is_sampled());
+    EXPECT_EQ(ctx.trace_flags & TraceFlags::SAMPLED, 0);
+}
+
+TEST(ContextTest, TraceFlagsDefaultIsNone) {
+    Context ctx;
+    EXPECT_EQ(ctx.trace_flags, TraceFlags::NONE);
 }
 
 } // namespace obs::test

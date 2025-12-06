@@ -64,14 +64,14 @@ Context Context::create() {
     Context ctx;
     ctx.trace_id.high = random_uint64();
     ctx.trace_id.low = random_uint64();
-    ctx.parent_span_id.value = 0;  // Root span has no parent
-    ctx.trace_flags = 0x01;  // Sampled by default
+    ctx.span_id.value = 0;  // Root context has no span yet
+    ctx.trace_flags = TraceFlags::SAMPLED;  // Sampled by default
     return ctx;
 }
 
-Context Context::child(SpanId new_parent) const {
+Context Context::child(SpanId new_span) const {
     Context ctx = *this;  // Copy trace_id, trace_flags, baggage
-    ctx.parent_span_id = new_parent;
+    ctx.span_id = new_span;
     return ctx;
 }
 
@@ -79,7 +79,7 @@ std::string Context::to_traceparent() const {
     // Format: 00-{trace_id}-{span_id}-{flags}
     std::ostringstream oss;
     oss << "00-" << trace_id.to_hex() 
-        << "-" << parent_span_id.to_hex()
+        << "-" << span_id.to_hex()
         << "-" << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(trace_flags);
     return oss.str();
 }
@@ -108,7 +108,7 @@ Context Context::from_traceparent(std::string_view header) {
     ctx.trace_id.low = parse_hex64(header.data() + 3 + 16);
     
     // Parse span_id (16 hex chars = 64 bits)
-    ctx.parent_span_id.value = parse_hex64(header.data() + 36);
+    ctx.span_id.value = parse_hex64(header.data() + 36);
     
     // Parse flags (2 hex chars)
     ctx.trace_flags = (hex_to_nibble(header[53]) << 4) | hex_to_nibble(header[54]);
