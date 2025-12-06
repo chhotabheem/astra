@@ -12,6 +12,7 @@
 #include "IBackend.h"
 #include "Span.h"
 #include "Metrics.h"
+#include <atomic>
 #include <iostream>
 #include <mutex>
 #include <unordered_map>

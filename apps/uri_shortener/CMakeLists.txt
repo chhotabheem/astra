@@ -1,82 +1,87 @@
-cmake_minimum_required(VERSION 3.25)
-project(uri_shortner)
+# URI Shortener - Domain-Driven Design
+# Pure domain code with no infrastructure dependencies
 
-find_package(Boost REQUIRED COMPONENTS system thread)
-
-# Sources
-set(URI_SHORTENER_SOURCES
-    src/UriService.cpp
-    src/RedisUriRepository.cpp
-    src/MongoUriRepository.cpp
-    src/UriController.cpp
+# -----------------------------------------------------------------------------
+# Domain Library (core business logic)
+# -----------------------------------------------------------------------------
+add_library(uri_shortener_domain STATIC
+    # Value Objects
+    domain/value_objects/ShortCode.cpp
+    domain/value_objects/OriginalUrl.cpp
+    domain/value_objects/ExpirationPolicy.cpp
+    # Entities
+    domain/entities/ShortLink.cpp
+    # Application Use Cases
+    application/use_cases/ShortenLink.cpp
+    application/use_cases/ResolveLink.cpp
+    application/use_cases/DeleteLink.cpp
+    # App
+    UriShortenerApp.cpp
 )
 
-# Application Executable
-add_executable(uri_shortner_app main.cpp ${URI_SHORTENER_SOURCES})
-
-# Include Directories
-target_include_directories(uri_shortner_app
+target_include_directories(uri_shortener_domain
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
+        ${CMAKE_CURRENT_SOURCE_DIR}
     PRIVATE
-        src
+        ${CMAKE_SOURCE_DIR}/libs/core/outcome/include
+        ${CMAKE_SOURCE_DIR}/libs/net/http/v2/server/include
+        ${CMAKE_SOURCE_DIR}/libs/net/router/include
+        ${CMAKE_SOURCE_DIR}/libs/core/observability/include
 )
 
-# Link Libraries
-target_link_libraries(uri_shortner_app
-    PRIVATE
-        astra_router
-        redisclient
-        mongoclient
-        http1.1server
+target_link_libraries(uri_shortener_domain
+    PUBLIC
         http2server
-        Boost::system
-        Boost::thread
-)
-
-# Compiler Features
-target_compile_features(uri_shortner_app PUBLIC cxx_std_17)
-
-# Testing
-enable_testing()
-astra_add_test(
-    TARGET uri_shortener_gtest
-    SOURCES tests/uri_shortener_gtest.cpp ${URI_SHORTENER_SOURCES}
-    INCLUDE_DIRS include src
-    LIBRARIES 
         astra_router
-        redisclient
-        mongoclient
-        http1.1server
-        http2server
-        Boost::system
-        Boost::thread
+        observability
 )
 
-# Load Generator
-add_executable(load_test load_test.cpp)
-target_link_libraries(load_test
+target_compile_features(uri_shortener_domain PUBLIC cxx_std_20)
+
+# -----------------------------------------------------------------------------
+# Executable
+# -----------------------------------------------------------------------------
+add_executable(uri_shortener main.cpp)
+
+target_link_libraries(uri_shortener
     PRIVATE
-        http2client
-        Boost::system
-        Boost::thread
+        uri_shortener_domain
 )
 
-# Mock Server for Load Testing
-add_executable(mock_server mock_server.cpp ${URI_SHORTENER_SOURCES})
-target_link_libraries(mock_server
+target_include_directories(uri_shortener
     PRIVATE
-        astra_router
-        http1.1server
-        http2server
-        redisclient
-        mongoclient
-        Boost::system
-        Boost::thread
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/libs/core/outcome/include
 )
-target_include_directories(mock_server
-    PRIVATE
-        include
-        src
-)
+
+# -----------------------------------------------------------------------------
+# Tests
+# -----------------------------------------------------------------------------
+if(BUILD_TESTING)
+    add_executable(uri_shortener_domain_test
+        tests/test_short_code.cpp
+        tests/test_original_url.cpp
+        tests/test_expiration_policy.cpp
+        tests/test_short_link.cpp
+        tests/test_shorten_link.cpp
+        tests/test_resolve_link.cpp
+        tests/test_delete_link.cpp
+        tests/test_app.cpp
+        tests/test_observable_repository.cpp
+    )
+
+    target_link_libraries(uri_shortener_domain_test
+        PRIVATE
+            uri_shortener_domain
+            GTest::gtest
+            GTest::gtest_main
+    )
+
+    target_include_directories(uri_shortener_domain_test
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}
+            ${CMAKE_SOURCE_DIR}/libs/core/outcome/include
+    )
+
+    gtest_discover_tests(uri_shortener_domain_test)
+endif()

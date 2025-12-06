@@ -5,6 +5,12 @@
 
 namespace astra {
 
+/// Unit type - represents "no value" for Result<void, E> equivalent
+struct Unit {
+    constexpr bool operator==(const Unit&) const noexcept { return true; }
+    constexpr bool operator!=(const Unit&) const noexcept { return false; }
+};
+
 /**
  * @brief Result<T, E> for error handling without exceptions
  * 
@@ -81,4 +87,54 @@ private:
     std::variant<T, E> m_data;
 };
 
+/**
+ * @brief Partial specialization for Result<void, E>
+ * 
+ * Uses Unit internally but provides void-like interface
+ */
+template<typename E>
+class Result<void, E> {
+public:
+    static Result Ok() {
+        return Result(Unit{});
+    }
+    
+    static Result Err(E error) {
+        return Result(std::move(error));
+    }
+    
+    [[nodiscard]] bool is_ok() const noexcept {
+        return std::holds_alternative<Unit>(m_data);
+    }
+    
+    [[nodiscard]] bool is_err() const noexcept {
+        return std::holds_alternative<E>(m_data);
+    }
+    
+    [[nodiscard]] E& error() & {
+        if (is_ok()) {
+            throw std::logic_error("Attempted to get error from ok Result");
+        }
+        return std::get<E>(m_data);
+    }
+    
+    [[nodiscard]] const E& error() const & {
+        if (is_ok()) {
+            throw std::logic_error("Attempted to get error from ok Result");
+        }
+        return std::get<E>(m_data);
+    }
+    
+    explicit operator bool() const noexcept {
+        return is_ok();
+    }
+
+private:
+    explicit Result(Unit) : m_data(Unit{}) {}
+    explicit Result(E error) : m_data(std::move(error)) {}
+    
+    std::variant<Unit, E> m_data;
+};
+
 } // namespace astra
+
