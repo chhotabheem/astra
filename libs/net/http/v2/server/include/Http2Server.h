@@ -52,12 +52,12 @@ public:
      */
     void wait_until_ready();
 
-    router::Router& router() { return router_; }
+    router::Router& router() { return m_router; }
 
 private:
     class Impl;
     std::unique_ptr<Impl> m_impl;
-    router::Router router_;
+    router::Router m_router;
 };
 
 } // namespace http2server

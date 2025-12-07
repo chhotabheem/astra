@@ -35,7 +35,7 @@ std::string send_request(int port, const std::string& method, const std::string&
 class Http1ServerTest : public Test {
 protected:
     void SetUp() override {
-        server_ = std::make_unique<http1::Server>("127.0.0.1", port_, 4);
+        server_ = std::make_unique<http1::Server>("127.0.0.1", m_port, 4);
         server_->handle([](const router::IRequest& req, router::IResponse& res) {
             if (req.path() == "/test") {
                 res.set_status(200);
@@ -64,22 +64,22 @@ protected:
         }
     }
 
-    int port_ = 8083; // Use a different port to avoid conflicts
+    int m_port = 8083; // Use a different port to avoid conflicts
     std::unique_ptr<http1::Server> server_;
     std::thread server_thread_;
 };
 
 TEST_F(Http1ServerTest, BasicRequests) {
-    auto res = send_request(port_, "GET", "/test");
+    auto res = send_request(m_port, "GET", "/test");
     EXPECT_THAT(res, HasSubstr("200 OK"));
     
-    res = send_request(port_, "GET", "/unknown");
+    res = send_request(m_port, "GET", "/unknown");
     EXPECT_THAT(res, HasSubstr("404 Not Found"));
 }
 
 TEST_F(Http1ServerTest, LargeBody) {
     std::string large_body(1024 * 1024, 'a'); // 1MB body
-    auto res = send_request(port_, "POST", "/echo", large_body);
+    auto res = send_request(m_port, "POST", "/echo", large_body);
     EXPECT_THAT(res, HasSubstr("200 OK"));
 }
 
@@ -90,7 +90,7 @@ TEST_F(Http1ServerTest, ConcurrentRequests) {
 
     for (int i = 0; i < num_threads; ++i) {
         threads.emplace_back([this, &success_count] {
-            auto res = send_request(port_, "GET", "/test");
+            auto res = send_request(m_port, "GET", "/test");
             if (res.find("200 OK") != std::string::npos) {
                 success_count++;
             }
@@ -107,7 +107,7 @@ TEST_F(Http1ServerTest, ConcurrentRequests) {
 TEST_F(Http1ServerTest, StressMemory) {
     int num_requests = 1000;
     for (int i = 0; i < num_requests; ++i) {
-        auto res = send_request(port_, "GET", "/test");
+        auto res = send_request(m_port, "GET", "/test");
         EXPECT_THAT(res, HasSubstr("200 OK"));
     }
 }
@@ -121,7 +121,7 @@ TEST_F(Http1ServerTest, HighConcurrency) {
         threads.emplace_back([this, &success_count] {
             // Each thread sends multiple requests
             for(int j=0; j<10; ++j) {
-                auto res = send_request(port_, "GET", "/test");
+                auto res = send_request(m_port, "GET", "/test");
                 if (res.find("200 OK") != std::string::npos) {
                     success_count++;
                 }

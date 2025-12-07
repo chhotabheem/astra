@@ -1,27 +1,27 @@
-#include "IoWorkerPool.h"
-#include <iostream>
+#include "ThreadPool.h"
+#include <functional>
 
-namespace astra::concurrency {
+namespace astra::execution {
 
-IoWorkerPool::IoWorkerPool(size_t num_threads, size_t max_jobs) 
+ThreadPool::ThreadPool(size_t num_threads, size_t max_jobs) 
     : m_num_threads(num_threads), m_max_jobs(max_jobs) {
 }
 
-IoWorkerPool::~IoWorkerPool() {
+ThreadPool::~ThreadPool() {
     stop();
 }
 
-void IoWorkerPool::start() {
+void ThreadPool::start() {
     if (m_running) return;
     m_running = true;
 
     m_threads.reserve(m_num_threads);
     for (size_t i = 0; i < m_num_threads; ++i) {
-        m_threads.emplace_back(&IoWorkerPool::worker_loop, this);
+        m_threads.emplace_back(&ThreadPool::worker_loop, this);
     }
 }
 
-void IoWorkerPool::stop() {
+void ThreadPool::stop() {
     if (!m_running) return;
     
     {
@@ -38,24 +38,20 @@ void IoWorkerPool::stop() {
     m_threads.clear();
 }
 
-bool IoWorkerPool::submit(Job job) {
+bool ThreadPool::submit(Job job) {
     std::unique_lock<std::mutex> lock(m_mutex);
     
     if (!m_running) return false;
-
-    // Backpressure Check
-    if (m_queue.size() >= m_max_jobs) {
-        return false; // Queue Full
-    }
+    if (m_queue.size() >= m_max_jobs) return false;
 
     m_queue.push(job);
-    lock.unlock(); // Unlock before notifying to avoid wake-up latency
+    lock.unlock();
     m_cv.notify_one();
     
     return true;
 }
 
-void IoWorkerPool::worker_loop() {
+void ThreadPool::worker_loop() {
     while (true) {
         Job job = Job::shutdown();
         
@@ -65,9 +61,7 @@ void IoWorkerPool::worker_loop() {
                 return !m_queue.empty() || !m_running; 
             });
 
-            if (!m_running && m_queue.empty()) {
-                return;
-            }
+            if (!m_running && m_queue.empty()) return;
 
             if (!m_queue.empty()) {
                 job = m_queue.front();
@@ -77,11 +71,13 @@ void IoWorkerPool::worker_loop() {
 
         if (job.type == JobType::SHUTDOWN) continue;
 
-        // Process the job
-        // In a real implementation, we would execute the callback or task
-        // For now, we just acknowledge it.
-        // TODO: Implement Job Dispatcher
+        if (job.type == JobType::TASK) {
+            try {
+                auto task = std::any_cast<std::function<void()>>(job.payload);
+                task();
+            } catch (const std::bad_any_cast&) {}
+        }
     }
 }
 
-} // namespace astra::concurrency
+} // namespace astra::execution

@@ -8,8 +8,8 @@ class RedisClientTest : public Test {
 protected:
     void SetUp() override {
         try {
-            client_ = std::make_unique<redisclient::RedisClient>("tcp://127.0.0.1:6379");
-            if (!client_->ping()) {
+            m_client = std::make_unique<redisclient::RedisClient>("tcp://127.0.0.1:6379");
+            if (!m_client->ping()) {
                 GTEST_SKIP() << "Redis server not available at tcp://127.0.0.1:6379";
             }
         } catch (const std::exception& e) {
@@ -17,33 +17,33 @@ protected:
         }
     }
 
-    std::unique_ptr<redisclient::RedisClient> client_;
+    std::unique_ptr<redisclient::RedisClient> m_client;
 };
 
 TEST_F(RedisClientTest, SetAndGet) {
-    if (!client_) return; // Skipped in SetUp
+    if (!m_client) return; // Skipped in SetUp
 
-    client_->set("test_key", "test_value");
+    m_client->set("test_key", "test_value");
     
-    auto val = client_->get("test_key");
+    auto val = m_client->get("test_key");
     ASSERT_TRUE(val.has_value());
     EXPECT_EQ(*val, "test_value");
 }
 
 TEST_F(RedisClientTest, Delete) {
-    if (!client_) return;
+    if (!m_client) return;
 
-    client_->set("test_key_del", "value");
-    bool deleted = client_->del("test_key_del");
+    m_client->set("test_key_del", "value");
+    bool deleted = m_client->del("test_key_del");
     EXPECT_TRUE(deleted);
     
-    auto val = client_->get("test_key_del");
+    auto val = m_client->get("test_key_del");
     EXPECT_FALSE(val.has_value());
 }
 
 TEST_F(RedisClientTest, GetMissing) {
-    if (!client_) return;
+    if (!m_client) return;
 
-    auto val = client_->get("non_existent_key");
+    auto val = m_client->get("non_existent_key");
     EXPECT_FALSE(val.has_value());
 }

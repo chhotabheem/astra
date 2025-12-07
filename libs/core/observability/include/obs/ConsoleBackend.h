@@ -1,13 +1,4 @@
 #pragma once
-// =============================================================================
-// obs/ConsoleBackend.h - Simple console output backend for debugging/tests
-// =============================================================================
-//
-// Usage:
-//   obs::set_backend(std::make_unique<obs::ConsoleBackend>());
-//
-// All logs, spans, and metrics are written to stderr.
-// =============================================================================
 
 #include "IBackend.h"
 #include "Span.h"
@@ -20,7 +11,6 @@
 
 namespace obs {
 
-/// Console span - prints start/end to stderr
 class ConsoleSpan : public Span {
 public:
     ConsoleSpan(std::string_view name, const Context& ctx, std::mutex& mtx)
@@ -64,7 +54,6 @@ private:
     }
     
 public:
-    
     Span& set_error(std::string_view message) override {
         std::lock_guard<std::mutex> lock(m_mutex);
         std::cerr << "[SPAN ERROR] " << m_name << " " << message << "\n";
@@ -84,7 +73,6 @@ public:
     }
     
     Context context() const override { return m_ctx; }
-    
     bool is_recording() const override { return true; }
 
 private:
@@ -94,7 +82,6 @@ private:
     std::chrono::steady_clock::time_point m_start;
 };
 
-/// Console counter - prints increments to stderr
 class ConsoleCounter : public Counter {
 public:
     ConsoleCounter(std::string_view name, std::mutex& mtx) 
@@ -112,9 +99,7 @@ public:
         std::cerr << "[COUNTER] " << m_name << " += " << delta << " (total=" << m_value << ")\n";
     }
     
-    void inc(int64_t delta, const Context&) override {
-        inc(delta);  // Ignore exemplar for console output
-    }
+    void inc(int64_t delta, const Context&) override { inc(delta); }
     
 private:
     std::string m_name;
@@ -122,7 +107,6 @@ private:
     std::atomic<int64_t> m_value;
 };
 
-/// Console histogram - prints recorded values to stderr
 class ConsoleHistogram : public Histogram {
 public:
     ConsoleHistogram(std::string_view name, std::mutex& mtx) 
@@ -133,16 +117,13 @@ public:
         std::cerr << "[HISTOGRAM] " << m_name << " = " << value << "\n";
     }
     
-    void record(double value, const Context&) override {
-        record(value);  // Ignore exemplar for console output
-    }
+    void record(double value, const Context&) override { record(value); }
     
 private:
     std::string m_name;
     std::mutex& m_mutex;
 };
 
-/// Console backend - writes all observability data to stderr
 class ConsoleBackend : public IBackend {
 public:
     ConsoleBackend() {

@@ -20,7 +20,7 @@ enable_testing()
 
 # Test executable
 add_executable(test_boost_msm
-    tests/test_boost_msm.cpp
+    tests/boost_msm_test.cpp
 )
 
 target_link_libraries(test_boost_msm

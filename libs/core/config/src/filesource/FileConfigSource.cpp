@@ -19,7 +19,7 @@ namespace config {
 
 FileConfigSource::FileConfigSource(
     std::filesystem::path config_file_path,
-    std::shared_ptr<astra::concurrency::IExecutor> executor
+    std::shared_ptr<astra::execution::IExecutor> executor
 )
     : m_config_file_path(std::move(config_file_path))
     , m_executor(std::move(executor))
@@ -28,7 +28,7 @@ FileConfigSource::FileConfigSource(
     , m_timer_fd(-1)
 {
     if (!m_executor) {
-        m_executor = std::make_shared<astra::concurrency::ThreadExecutor>();
+        m_executor = std::make_shared<astra::execution::ThreadPoolExecutor>();
     }
     
     obs::info("FileConfigSource: Initialized with file: " + m_config_file_path.string());

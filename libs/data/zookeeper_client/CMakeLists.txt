@@ -35,7 +35,7 @@ target_compile_features(zookeeperclient PUBLIC cxx_std_17)
 enable_testing()
 # GTest Integration
 astra_add_test(
-    TARGET zookeeper_gtest
-    SOURCES tests/zookeeper_gtest.cpp
+    TARGET zookeeper_test
+    SOURCES tests/zookeeper_test.cpp
     LIBRARIES zookeeperclient
 )

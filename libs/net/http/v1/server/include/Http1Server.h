@@ -21,27 +21,25 @@ public:
     Server(const std::string& address, unsigned short port, int threads = 1);
     ~Server();
 
-    // Register a handler for all requests (typically the Router dispatch)
     void handle(Handler handler);
-
     void run();
     void stop();
 
-    router::Router& router() { return router_; }
+    router::Router& router() { return m_router; }
 
 private:
     void do_accept();
     void do_session(boost::asio::ip::tcp::socket socket);
 
-    std::string address_;
-    unsigned short port_;
-    int threads_;
-    boost::asio::io_context ioc_;
-    router::Router router_; // Added router_ member
-    boost::asio::ip::tcp::acceptor acceptor_;
-    std::vector<std::thread> thread_pool_;
-    Handler handler_;
-    mutable std::mutex handler_mutex_;
+    std::string m_address;
+    unsigned short m_port;
+    int m_threads;
+    boost::asio::io_context m_ioc;
+    router::Router m_router;
+    boost::asio::ip::tcp::acceptor m_acceptor;
+    std::vector<std::thread> m_thread_pool;
+    Handler m_handler;
+    mutable std::mutex m_handler_mutex;
 };
 
 } // namespace http1

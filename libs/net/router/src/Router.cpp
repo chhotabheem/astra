@@ -10,7 +10,7 @@ Router::Router() = default;
 Router::~Router() = default;
 
 void Router::use(Middleware middleware) {
-    middlewares_.push_back(std::move(middleware));
+    m_middlewares.push_back(std::move(middleware));
 }
 
 void Router::get(std::string_view path, Handler handler) {
@@ -49,11 +49,11 @@ std::vector<std::string_view> split_path(std::string_view path) {
 
 void Router::add_route(std::string_view method, std::string_view path, Handler handler) {
     std::string method_str(method);
-    if (roots_.find(method_str) == roots_.end()) {
-        roots_[method_str] = std::make_unique<Node>();
+    if (m_roots.find(method_str) == m_roots.end()) {
+        m_roots[method_str] = std::make_unique<Node>();
     }
     
-    Node* current = roots_[method_str].get();
+    Node* current = m_roots[method_str].get();
     auto segments = split_path(path);
     
     for (const auto& segment : segments) {
@@ -80,8 +80,8 @@ void Router::add_route(std::string_view method, std::string_view path, Handler h
 
 Router::MatchResult Router::match(std::string_view method, std::string_view path) const {
     std::string method_str(method);
-    auto it = roots_.find(method_str);
-    if (it == roots_.end()) {
+    auto it = m_roots.find(method_str);
+    if (it == m_roots.end()) {
         return {nullptr, {}};
     }
     
@@ -125,8 +125,8 @@ void Router::dispatch(router::IRequest& req, router::IResponse& res) {
 }
 
 void Router::run_middleware(size_t index, router::IRequest& req, router::IResponse& res) {
-    if (index < middlewares_.size()) {
-        middlewares_[index](req, res, [this, index, &req, &res]() {
+    if (index < m_middlewares.size()) {
+        m_middlewares[index](req, res, [this, index, &req, &res]() {
             run_middleware(index + 1, req, res);
         });
     } else {

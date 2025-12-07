@@ -45,19 +45,19 @@ target_compile_features(observability PUBLIC cxx_std_17)
 # Unit Tests
 # -----------------------------------------------------------------------------
 add_executable(test_observability
-    test/test_context.cpp
-    test/test_span.cpp
-    test/test_log.cpp
-    test/test_metrics.cpp
-    test/test_thread_safety.cpp
-    test/test_console_backend.cpp
-    test/test_seda_tracing.cpp
+    test/context_test.cpp
+    test/span_test.cpp
+    test/log_test.cpp
+    test/metrics_test.cpp
+    test/thread_safety_test.cpp
+    test/console_backend_test.cpp
+    test/seda_tracing_test.cpp
 )
 
 target_link_libraries(test_observability
     PRIVATE
         observability
-        astra_concurrency
+        astra_execution
         GTest::gtest_main
 )
 

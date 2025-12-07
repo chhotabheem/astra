@@ -1,20 +1,20 @@
 cmake_minimum_required(VERSION 3.25)
 
-project(astra_concurrency)
+project(astra_execution)
 
 find_package(Threads REQUIRED)
 
-add_library(astra_concurrency
-    src/WorkerPool.cpp
-    src/IoWorkerPool.cpp
+add_library(astra_execution
+    src/StripedThreadPool.cpp
+    src/ThreadPool.cpp
 )
 
-target_include_directories(astra_concurrency
+target_include_directories(astra_execution
     PUBLIC
         include
 )
 
-target_link_libraries(astra_concurrency
+target_link_libraries(astra_execution
     PUBLIC
         Threads::Threads
         observability

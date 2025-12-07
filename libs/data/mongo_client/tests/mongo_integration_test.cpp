@@ -80,11 +80,11 @@ class MongoClientCRUDTest : public Test {
 protected:
     void SetUp() override {
         try {
-            client_.connect("mongodb://127.0.0.1:27017");
+            m_client.connect("mongodb://127.0.0.1:27017");
             // Try a simple operation to check connectivity
             auto query = bsoncxx::builder::basic::make_document();
             try {
-                client_.find("admin", "system.version", query.view());
+                m_client.find("admin", "system.version", query.view());
             } catch (const std::exception& e) {
                 GTEST_SKIP() << "MongoDB not reachable: " << e.what();
             }
@@ -93,18 +93,18 @@ protected:
         }
     }
 
-    MongoClient client_;
+    MongoClient m_client;
 };
 
 TEST_F(MongoClientCRUDTest, CRUDOperations) {
     try {
         // Insert
         auto doc = bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("test_key", "test_value"));
-        client_.insertOne("test_db", "test_collection", doc.view());
+        m_client.insertOne("test_db", "test_collection", doc.view());
 
         // Find
         auto query = bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("test_key", "test_value"));
-        auto results = client_.find("test_db", "test_collection", query.view());
+        auto results = m_client.find("test_db", "test_collection", query.view());
         // We might find more if previous tests ran, but we expect at least 1
         EXPECT_FALSE(results.empty());
 
@@ -114,11 +114,11 @@ TEST_F(MongoClientCRUDTest, CRUDOperations) {
                 bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("test_key", "updated_value"))
             )
         );
-        client_.updateMany("test_db", "test_collection", query.view(), update.view());
+        m_client.updateMany("test_db", "test_collection", query.view(), update.view());
 
         // Delete
         auto delete_filter = bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp("test_key", "updated_value"));
-        client_.deleteMany("test_db", "test_collection", delete_filter.view());
+        m_client.deleteMany("test_db", "test_collection", delete_filter.view());
         
     } catch (const std::exception& e) {
         FAIL() << "CRUD operation failed: " << e.what();

@@ -11,19 +11,19 @@ namespace net = boost::asio;
 using tcp = net::ip::tcp;
 
 Server::Server(const std::string& address, unsigned short port, int threads)
-    : address_(address), port_(port), threads_(threads), ioc_(threads), acceptor_(ioc_) {
+    : m_address(address), m_port(port), m_threads(threads), m_ioc(threads), m_acceptor(m_ioc) {
     
     auto const addr = net::ip::make_address(address);
     auto const endpoint = tcp::endpoint{addr, port};
 
-    acceptor_.open(endpoint.protocol());
-    acceptor_.set_option(net::socket_base::reuse_address(true));
-    acceptor_.bind(endpoint);
-    acceptor_.listen(net::socket_base::max_listen_connections);
+    m_acceptor.open(endpoint.protocol());
+    m_acceptor.set_option(net::socket_base::reuse_address(true));
+    m_acceptor.bind(endpoint);
+    m_acceptor.listen(net::socket_base::max_listen_connections);
 
     // Default handler: Dispatch to Router
-    handler_ = [this](router::IRequest& req, router::IResponse& res) {
-        router_.dispatch(req, res);
+    m_handler = [this](router::IRequest& req, router::IResponse& res) {
+        m_router.dispatch(req, res);
     };
 }
 
@@ -32,27 +32,27 @@ Server::~Server() {
 }
 
 void Server::handle(Handler handler) {
-    std::lock_guard<std::mutex> lock(handler_mutex_);
-    handler_ = std::move(handler);
+    std::lock_guard<std::mutex> lock(m_handler_mutex);
+    m_handler = std::move(handler);
 }
 
 void Server::run() {
     do_accept();
 
-    for (int i = 0; i < threads_ - 1; ++i) {
-        thread_pool_.emplace_back([this] {
-            ioc_.run();
+    for (int i = 0; i < m_threads - 1; ++i) {
+        m_thread_pool.emplace_back([this] {
+            m_ioc.run();
         });
     }
-    ioc_.run();
+    m_ioc.run();
 }
 
 void Server::stop() {
-    ioc_.stop();
-    for (auto& t : thread_pool_) {
+    m_ioc.stop();
+    for (auto& t : m_thread_pool) {
         if (t.joinable()) t.join();
     }
-    thread_pool_.clear();
+    m_thread_pool.clear();
 }
 
 
@@ -60,13 +60,13 @@ class Session : public std::enable_shared_from_this<Session> {
     tcp::socket socket_;
     beast::flat_buffer buffer_;
     http::request<http::string_body> req_;
-    Server::Handler handler_; // Copy of handler (std::function is cheap to copy usually, or use reference if lifetime guaranteed)
+    Server::Handler m_handler; // Copy of handler (std::function is cheap to copy usually, or use reference if lifetime guaranteed)
     // Actually Server lifetime outlives Session? Not necessarily if Server is destroyed.
     // But Handler is a function object.
     
 public:
     Session(tcp::socket socket, Server::Handler handler)
-        : socket_(std::move(socket)), handler_(std::move(handler)) {}
+        : socket_(std::move(socket)), m_handler(std::move(handler)) {}
 
     void run() {
         do_read();
@@ -124,8 +124,8 @@ private:
 
         Response response(send_lambda);
 
-        if (handler_) {
-            handler_(request, response);
+        if (m_handler) {
+            m_handler(request, response);
         } else {
             response.set_status(404);
             response.write("No handler configured");
@@ -140,14 +140,14 @@ private:
 };
 
 void Server::do_accept() {
-    acceptor_.async_accept(
-        net::make_strand(ioc_),
+    m_acceptor.async_accept(
+        net::make_strand(m_ioc),
         [this](beast::error_code ec, tcp::socket socket) {
             if (!ec) {
                 Handler handler_copy;
                 {
-                    std::lock_guard<std::mutex> lock(handler_mutex_);
-                    handler_copy = handler_;
+                    std::lock_guard<std::mutex> lock(m_handler_mutex);
+                    handler_copy = m_handler;
                 }
                 std::make_shared<Session>(std::move(socket), std::move(handler_copy))->run();
             }

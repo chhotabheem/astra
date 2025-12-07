@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 3.25)
+
+add_executable(test_striped_thread_pool striped_thread_pool_test.cpp)
+target_link_libraries(test_striped_thread_pool PRIVATE astra_execution)
+add_test(NAME striped_thread_pool_test COMMAND test_striped_thread_pool)
+
+add_executable(test_thread_pool thread_pool_test.cpp)
+target_link_libraries(test_thread_pool PRIVATE astra_execution GTest::gtest_main)
+add_test(NAME thread_pool_test COMMAND test_thread_pool)
+
+add_executable(test_job_context job_context_test.cpp)
+target_link_libraries(test_job_context PRIVATE astra_execution GTest::gtest_main)
+add_test(NAME job_context_test COMMAND test_job_context)

@@ -49,7 +49,7 @@ TEST_F(FileConfigSourceTest, FetchConfigThrowsIfFileDoesNotExist) {
 #include "IExecutor.h"
 #include <thread>
 
-class MockExecutor : public astra::concurrency::IExecutor {
+class MockExecutor : public astra::execution::IExecutor {
 public:
     void submit(std::function<void()> task) override {
         submit_count++;

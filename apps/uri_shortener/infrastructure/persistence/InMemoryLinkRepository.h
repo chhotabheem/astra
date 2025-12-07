@@ -1,6 +1,3 @@
-/// @file InMemoryLinkRepository.h
-/// @brief In-memory implementation of ILinkRepository for testing
-
 #pragma once
 
 #include "domain/ports/ILinkRepository.h"
@@ -9,10 +6,6 @@
 
 namespace url_shortener::infrastructure {
 
-/**
- * @brief In-memory link repository for testing
- * Thread-safe implementation using mutex.
- */
 class InMemoryLinkRepository : public domain::ILinkRepository {
 public:
     astra::Result<void, domain::DomainError> save(const domain::ShortLink& link) override {
@@ -50,7 +43,6 @@ public:
         return m_links.count(std::string(code.value())) > 0;
     }
 
-    // Test helpers
     size_t size() const {
         std::lock_guard<std::mutex> lock(m_mutex);
         return m_links.size();

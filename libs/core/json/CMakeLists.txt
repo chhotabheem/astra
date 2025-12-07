@@ -28,7 +28,7 @@ enable_testing()
 
 # Test executable: Writer
 add_executable(test_json_writer
-    tests/test_json_writer.cpp
+    tests/json_writer_test.cpp
 )
 
 target_link_libraries(test_json_writer
@@ -38,7 +38,7 @@ target_link_libraries(test_json_writer
 
 # Test executable: Document (Reader)
 add_executable(test_json_document
-    tests/test_json_document.cpp
+    tests/json_document_test.cpp
 )
 
 target_link_libraries(test_json_document

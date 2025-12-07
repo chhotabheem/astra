@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 namespace mongoclient {
-    MongoClient::MongoClient() : client_(nullptr) {
+    MongoClient::MongoClient() : m_client(nullptr) {
         // The mongocxx::instance constructor and destructor initialize and shut down the driver,
         // respectively. Therefore, a mongocxx::instance must be created before using the driver and
         // must remain alive for as long as the driver is in use.
@@ -24,20 +24,20 @@ namespace mongoclient {
         
         obs::info("Connecting to MongoDB: " + uri);
         mongocxx::uri mongoUri(uri);
-        client_ = std::make_unique<mongocxx::client>(mongoUri);
+        m_client = std::make_unique<mongocxx::client>(mongoUri);
         obs::info("Successfully connected to MongoDB");
     }
     
     void MongoClient::disconnect() {
         if (isConnected()) {
             obs::info("Disconnecting from MongoDB");
-            client_.reset();
+            m_client.reset();
             obs::info("Disconnected from MongoDB");
         }
     }
     
     bool MongoClient::isConnected() const {
-        return client_ != nullptr;
+        return m_client != nullptr;
     }
     
     std::optional<bsoncxx::document::value> MongoClient::findOne(
@@ -50,7 +50,7 @@ namespace mongoclient {
         }
         
         obs::debug("Querying database: " + database + ", collection: " + collection);
-        auto db = (*client_)[database];
+        auto db = (*m_client)[database];
         auto coll = db[collection];
         auto result = coll.find_one(query);
         
@@ -73,7 +73,7 @@ namespace mongoclient {
         }
 
         obs::debug("Inserting into database: " + database + ", collection: " + collection);
-        auto db = (*client_)[database];
+        auto db = (*m_client)[database];
         auto coll = db[collection];
         coll.insert_one(document);
         obs::debug("Document inserted");
@@ -89,7 +89,7 @@ namespace mongoclient {
         }
 
         obs::debug("Inserting many into database: " + database + ", collection: " + collection);
-        auto db = (*client_)[database];
+        auto db = (*m_client)[database];
         auto coll = db[collection];
         coll.insert_many(documents);
         obs::debug("Documents inserted");
@@ -106,7 +106,7 @@ namespace mongoclient {
         }
 
         obs::debug("Updating database: " + database + ", collection: " + collection);
-        auto db = (*client_)[database];
+        auto db = (*m_client)[database];
         auto coll = db[collection];
         coll.update_many(filter, update);
         obs::debug("Documents updated");
@@ -122,7 +122,7 @@ namespace mongoclient {
         }
 
         obs::debug("Deleting from database: " + database + ", collection: " + collection);
-        auto db = (*client_)[database];
+        auto db = (*m_client)[database];
         auto coll = db[collection];
         coll.delete_many(filter);
         obs::debug("Documents deleted");
@@ -138,7 +138,7 @@ namespace mongoclient {
         }
 
         obs::debug("Finding in database: " + database + ", collection: " + collection);
-        auto db = (*client_)[database];
+        auto db = (*m_client)[database];
         auto coll = db[collection];
         auto cursor = coll.find(query);
 

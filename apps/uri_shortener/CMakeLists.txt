@@ -59,15 +59,15 @@ target_include_directories(uri_shortener
 # -----------------------------------------------------------------------------
 if(BUILD_TESTING)
     add_executable(uri_shortener_domain_test
-        tests/test_short_code.cpp
-        tests/test_original_url.cpp
-        tests/test_expiration_policy.cpp
-        tests/test_short_link.cpp
-        tests/test_shorten_link.cpp
-        tests/test_resolve_link.cpp
-        tests/test_delete_link.cpp
-        tests/test_app.cpp
-        tests/test_observable_repository.cpp
+        tests/short_code_test.cpp
+        tests/original_url_test.cpp
+        tests/expiration_policy_test.cpp
+        tests/short_link_test.cpp
+        tests/shorten_link_test.cpp
+        tests/resolve_link_test.cpp
+        tests/delete_link_test.cpp
+        tests/app_test.cpp
+        tests/observable_repository_test.cpp
     )
 
     target_link_libraries(uri_shortener_domain_test

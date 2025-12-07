@@ -26,7 +26,7 @@ target_compile_features(http1.1client PUBLIC cxx_std_17)
 enable_testing()
 
 astra_add_test(
-    TARGET http1_client_gtest
-    SOURCES tests/http1_client_gtest.cpp
+    TARGET http1_client_test
+    SOURCES tests/http1_client_test.cpp
     LIBRARIES http1.1client
 )

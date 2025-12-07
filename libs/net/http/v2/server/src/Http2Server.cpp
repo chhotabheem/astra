@@ -18,7 +18,7 @@ Server::Server(const std::string& address, const std::string& port, int threads)
     
     // Default handler: Dispatch to Router
     m_impl->backend.handle("*", "/", [this](Request& req, Response& res) {
-        router_.dispatch(req, res);
+        m_router.dispatch(req, res);
     });
 }
 

@@ -1,37 +1,36 @@
-#include "WorkerPool.h"
-#include <iostream>
+#include "StripedThreadPool.h"
+#include <functional>
 
-namespace astra::concurrency {
+namespace astra::execution {
 
-WorkerPool::WorkerPool(size_t num_threads) : m_num_threads(num_threads) {
+StripedThreadPool::StripedThreadPool(size_t num_threads) : m_num_threads(num_threads) {
     m_workers.reserve(m_num_threads);
     for (size_t i = 0; i < m_num_threads; ++i) {
         m_workers.push_back(std::make_unique<Worker>());
     }
 }
 
-WorkerPool::~WorkerPool() {
+StripedThreadPool::~StripedThreadPool() {
     stop();
 }
 
-void WorkerPool::start() {
+void StripedThreadPool::start() {
     if (m_running) return;
     m_running = true;
 
     for (size_t i = 0; i < m_num_threads; ++i) {
-        m_workers[i]->thread = std::thread(&WorkerPool::worker_loop, this, i);
+        m_workers[i]->thread = std::thread(&StripedThreadPool::worker_loop, this, i);
     }
 }
 
-void WorkerPool::stop() {
+void StripedThreadPool::stop() {
     if (!m_running) return;
     m_running = false;
 
-    // Wake up all workers so they can exit
     for (auto& worker : m_workers) {
         {
             std::lock_guard<std::mutex> lock(worker->mutex);
-        } // Flush lock
+        }
         worker->cv.notify_all();
     }
 
@@ -42,10 +41,9 @@ void WorkerPool::stop() {
     }
 }
 
-bool WorkerPool::submit(Job job) {
+bool StripedThreadPool::submit(Job job) {
     if (!m_running) return false;
 
-    // Sharding Logic: Route to specific worker based on session_id
     size_t worker_index = job.session_id % m_num_threads;
     auto& worker = m_workers[worker_index];
 
@@ -57,7 +55,7 @@ bool WorkerPool::submit(Job job) {
     return true;
 }
 
-void WorkerPool::worker_loop(size_t index) {
+void StripedThreadPool::worker_loop(size_t index) {
     auto& worker = m_workers[index];
 
     while (m_running) {
@@ -68,26 +66,23 @@ void WorkerPool::worker_loop(size_t index) {
                 return !worker->queue.empty() || !m_running; 
             });
 
-            if (!m_running && worker->queue.empty()) {
-                return;
-            }
+            if (!m_running && worker->queue.empty()) return;
 
             if (!worker->queue.empty()) {
                 job = worker->queue.front();
                 worker->queue.pop_front();
             }
         }
-
-        // Process the job
-        // In a real implementation, we would dispatch based on job.type
-        // For now, we just acknowledge it.
-        // TODO: Implement Job Dispatcher (Visitor or Switch)
         
         if (job.type == JobType::SHUTDOWN) continue;
 
-        // Example processing placeholder
-        // std::cout << "Worker " << index << " processing job type " << (int)job.type << " for session " << job.session_id << std::endl;
+        if (job.type == JobType::TASK) {
+            try {
+                auto task = std::any_cast<std::function<void()>>(job.payload);
+                task();
+            } catch (const std::bad_any_cast&) {}
+        }
     }
 }
 
-} // namespace astra::concurrency
+} // namespace astra::execution

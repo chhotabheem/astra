@@ -22,9 +22,9 @@ public:
     void wait_until_ready();
 
 private:
-    std::string address_;
-    std::string port_;
-    int threads_;
+    std::string m_address;
+    std::string m_port;
+    int m_threads;
     std::atomic<bool> is_running_{false};
     nghttp2::asio_http2::server::http2 server_;
     

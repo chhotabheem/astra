@@ -14,7 +14,7 @@ class FileConfigSource : public IConfigSource {
 public:
     explicit FileConfigSource(
         std::filesystem::path config_file_path,
-        std::shared_ptr<astra::concurrency::IExecutor> executor = nullptr
+        std::shared_ptr<astra::execution::IExecutor> executor = nullptr
     );
     ~FileConfigSource() override;
     
@@ -30,7 +30,7 @@ private:
     std::filesystem::file_time_type m_last_modified;
     ChangeCallback m_callback;
     
-    std::shared_ptr<astra::concurrency::IExecutor> m_executor;
+    std::shared_ptr<astra::execution::IExecutor> m_executor;
     std::atomic<bool> m_running{false};
     std::atomic<bool> m_task_active{false};
     std::condition_variable m_stop_cv;

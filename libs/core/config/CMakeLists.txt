@@ -18,7 +18,7 @@ target_include_directories(config_impl PUBLIC
 target_link_libraries(config_impl 
     PUBLIC 
         observability
-        astra_concurrency
+        astra_execution
         outcome
     PRIVATE
         json

@@ -13,8 +13,8 @@
 
 namespace obs::test {
 
-using astra::concurrency::Job;
-using astra::concurrency::JobType;
+using astra::execution::Job;
+using astra::execution::JobType;
 
 // Helper to create Job (C++17 compatible)
 inline Job make_job(JobType type, uint64_t session_id, std::any payload, obs::Context ctx) {
@@ -120,7 +120,7 @@ TEST_F(SEDATracingTest, ContextFlowsThroughStages) {
     // Network thread receives request
     obs::Context incoming = obs::Context::create();
     
-    Job network_job = make_job(JobType::HTTP_REQUEST, 1, std::string("GET /api/data"), incoming);
+    Job network_job = make_job(JobType::TASK, 1, std::string("GET /api/data"), incoming);
     
     // Submit to worker
     worker_stage.submit(network_job);
@@ -134,7 +134,7 @@ TEST_F(SEDATracingTest, ContextFlowsThroughStages) {
     
     // Worker creates child job for IO
     obs::SpanId worker_span{99999};
-    Job io_job = make_job(JobType::DB_RESPONSE, worker_job.session_id, 
+    Job io_job = make_job(JobType::TASK, worker_job.session_id, 
                           std::string("SELECT * FROM users"), 
                           worker_job.trace_ctx.child(worker_span));
     
@@ -152,7 +152,7 @@ TEST_F(SEDATracingTest, ContextFlowsThroughStages) {
 TEST_F(SEDATracingTest, SpanPerStage) {
     obs::Context ctx = obs::Context::create();
     
-    Job job = make_job(JobType::HTTP_REQUEST, 42, std::any{}, ctx);
+    Job job = make_job(JobType::TASK, 42, std::any{}, ctx);
     
     // Network stage span
     obs::span("network_receive", job.trace_ctx);
@@ -174,7 +174,7 @@ TEST_F(SEDATracingTest, SpanPerStage) {
 TEST_F(SEDATracingTest, LogsCorrelatedWithTrace) {
     obs::Context ctx = obs::Context::create();
     
-    Job job = make_job(JobType::HTTP_REQUEST, 100, std::any{}, ctx);
+    Job job = make_job(JobType::TASK, 100, std::any{}, ctx);
     
     // All logs within this request use same context
     obs::info("Request received", job.trace_ctx);
@@ -194,7 +194,7 @@ TEST_F(SEDATracingTest, ConcurrentRequestsIsolated) {
             // Each request gets its own context
             obs::Context ctx = obs::Context::create();
             
-            Job job = make_job(JobType::HTTP_REQUEST, static_cast<uint64_t>(i), i, ctx);
+            Job job = make_job(JobType::TASK, static_cast<uint64_t>(i), i, ctx);
             
             obs::span("handle_request", job.trace_ctx);
             obs::info("Processing", job.trace_ctx);
@@ -215,7 +215,7 @@ TEST_F(SEDATracingTest, BaggagePropagatesToAllStages) {
     ctx.baggage["user_id"] = "user_42";
     ctx.baggage["request_id"] = "req_abc123";
     
-    Job job1 = make_job(JobType::HTTP_REQUEST, 1, std::any{}, ctx);
+    Job job1 = make_job(JobType::TASK, 1, std::any{}, ctx);
     
     // Simulate passing through stages
     Job job2 = job1;
@@ -231,7 +231,7 @@ TEST_F(SEDATracingTest, W3CTraceparentEndToEnd) {
     std::string incoming_header = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01";
     obs::Context ctx = obs::Context::from_traceparent(incoming_header);
     
-    Job job = make_job(JobType::HTTP_REQUEST, 1, std::any{}, ctx);
+    Job job = make_job(JobType::TASK, 1, std::any{}, ctx);
     
     // Process through stages...
     obs::SpanId new_span{0xdeadbeef};
