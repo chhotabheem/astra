@@ -2,8 +2,7 @@
 #include "Http2Request.h"
 #include "Http2Response.h"
 #include "ResponseHandle.h"
-#include "../../RequestImpl.h"
-#include "../../ResponseImpl.h"
+#include "RequestData.h"
 #include <obs/Log.h>
 #include <iostream>
 
@@ -30,17 +29,19 @@ void NgHttp2Server::handle(const std::string& method, const std::string& path, S
         }
 
         // Create context to hold request data and response handle
+        // Context owns the shared_ptr, keeping data alive until stream closes
         struct Context {
-            Request::Impl req_impl;
+            std::shared_ptr<RequestData> request_data;
             std::shared_ptr<ResponseHandle> response_handle;
             Server::Handler handler;
         };
         
         auto ctx = std::make_shared<Context>();
-        ctx->req_impl.method = req.method();
-        ctx->req_impl.path = req.uri().path;
+        ctx->request_data = std::make_shared<RequestData>();
+        ctx->request_data->method = req.method();
+        ctx->request_data->path = req.uri().path;
         for (const auto& h : req.header()) {
-            ctx->req_impl.headers[h.first] = h.second.value;
+            ctx->request_data->headers[h.first] = h.second.value;
         }
         ctx->handler = handler;
         
@@ -51,11 +52,18 @@ void NgHttp2Server::handle(const std::string& method, const std::string& path, S
         // 3. Atomic flag prevents sending to closed streams
         auto& io_ctx = res.io_service();
         ctx->response_handle = std::make_shared<ResponseHandle>(
-            [&res](std::string data) {
+            [&res](int status, std::map<std::string, std::string> headers, std::string body) {
                 // This lambda executes on io_context thread
                 // Safe to access res here
-                res.write_head(200);  // Default 200 OK
-                res.end(std::move(data));
+                
+                // Convert headers to nghttp2 format
+                nghttp2::asio_http2::header_map h;
+                for (const auto& [k, v] : headers) {
+                    h.emplace(k, nghttp2::asio_http2::header_value{v, false});
+                }
+                
+                res.write_head(status, h);
+                res.end(std::move(body));
             },
             io_ctx
         );
@@ -72,17 +80,13 @@ void NgHttp2Server::handle(const std::string& method, const std::string& path, S
 
         const_cast<nghttp2::asio_http2::server::request&>(req).on_data([ctx](const uint8_t *data, std::size_t len) {
             if (len > 0) {
-                ctx->req_impl.body.append(reinterpret_cast<const char*>(data), len);
+                ctx->request_data->body.append(reinterpret_cast<const char*>(data), len);
             } else {
-                // Request complete, create Request and Response wrappers
-                Request request;
-                request.m_impl = std::make_unique<Request::Impl>(ctx->req_impl);
+                // Request complete, create lightweight Request and Response handles
+                Request request(ctx->request_data);
+                Response response(ctx->response_handle);
                 
-                Response response;
-                response.m_impl = std::make_unique<Response::Impl>();
-                response.m_impl->response_handle = ctx->response_handle;
-                
-                // Call user handler (can now safely post to worker pool)
+                // Call user handler with references
                 ctx->handler(request, response);
             }
         });
@@ -134,5 +138,3 @@ void NgHttp2Server::wait_until_ready() {
 
 } // namespace backend
 } // namespace http2server
-
-

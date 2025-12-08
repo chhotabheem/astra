@@ -107,6 +107,10 @@ protected:
         std::shared_ptr<Histogram> get_histogram(std::string_view, std::string_view) override {
             return nullptr;
         }
+        
+        std::shared_ptr<Gauge> get_gauge(std::string_view, std::string_view) override {
+            return nullptr;
+        }
     };
     
     std::unique_ptr<ThreadSafeMockBackend> mock;

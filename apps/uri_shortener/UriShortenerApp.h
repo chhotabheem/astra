@@ -1,5 +1,5 @@
 /// @file UriShortenerApp.h
-/// @brief Main application class with factory pattern
+/// @brief Main application class with factory pattern and message-based architecture
 
 #pragma once
 
@@ -9,10 +9,16 @@
 #include "application/use_cases/ShortenLink.h"
 #include "application/use_cases/ResolveLink.h"
 #include "application/use_cases/DeleteLink.h"
+#include "UriShortenerMessageHandler.h"
+#include "ObservableMessageHandler.h"
+#include "UriShortenerRequestHandler.h"
+#include "ObservableRequestHandler.h"
+#include <StripedMessagePool.h>
 #include "IRequest.h"
 #include "IResponse.h"
 #include <memory>
 #include <string>
+#include <thread>
 
 // Forward declaration
 namespace http2server { class Server; }
@@ -29,7 +35,7 @@ enum class AppError {
  * @brief URI Shortener Application
  * 
  * Factory pattern with static create() method.
- * Owns server, repository, and use cases.
+ * Uses message-passing architecture with SEDA semantics.
  */
 class UriShortenerApp {
 public:
@@ -37,6 +43,7 @@ public:
     struct Config {
         std::string address = "0.0.0.0";
         std::string port = "8080";
+        size_t thread_count = std::thread::hardware_concurrency();
         
         // Optional: inject dependencies (for testing)
         std::shared_ptr<domain::ILinkRepository> repository;
@@ -73,26 +80,34 @@ private:
         std::shared_ptr<application::ShortenLink> shorten,
         std::shared_ptr<application::ResolveLink> resolve,
         std::shared_ptr<application::DeleteLink> del,
+        std::unique_ptr<UriShortenerMessageHandler> msg_handler,
+        std::unique_ptr<ObservableMessageHandler> obs_msg_handler,
+        std::unique_ptr<astra::execution::StripedMessagePool> pool,
+        std::unique_ptr<UriShortenerRequestHandler> req_handler,
+        std::unique_ptr<ObservableRequestHandler> obs_req_handler,
         std::unique_ptr<http2server::Server> server
     );
-
-    // HTTP Handlers
-    void handle_shorten(router::IRequest& req, router::IResponse& res);
-    void handle_resolve(router::IRequest& req, router::IResponse& res);
-    void handle_delete(router::IRequest& req, router::IResponse& res);
-    void handle_health(router::IRequest& req, router::IResponse& res);
 
     // Error mapping
     static int domain_error_to_status(domain::DomainError err);
     static std::string domain_error_to_message(domain::DomainError err);
 
+    // Domain components
     std::shared_ptr<domain::ILinkRepository> m_repo;
     std::shared_ptr<domain::ICodeGenerator> m_gen;
     std::shared_ptr<application::ShortenLink> m_shorten;
     std::shared_ptr<application::ResolveLink> m_resolve;
     std::shared_ptr<application::DeleteLink> m_delete;
+    
+    // Message-passing components (order matters for destruction)
+    std::unique_ptr<UriShortenerMessageHandler> m_msg_handler;
+    std::unique_ptr<ObservableMessageHandler> m_obs_msg_handler;
+    std::unique_ptr<astra::execution::StripedMessagePool> m_pool;
+    std::unique_ptr<UriShortenerRequestHandler> m_req_handler;
+    std::unique_ptr<ObservableRequestHandler> m_obs_req_handler;
+    
+    // HTTP server
     std::unique_ptr<http2server::Server> m_server;
 };
 
 } // namespace url_shortener
-

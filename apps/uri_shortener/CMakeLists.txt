@@ -15,6 +15,11 @@ add_library(uri_shortener_domain STATIC
     application/use_cases/ShortenLink.cpp
     application/use_cases/ResolveLink.cpp
     application/use_cases/DeleteLink.cpp
+    # Message Handlers
+    src/UriShortenerRequestHandler.cpp
+    src/UriShortenerMessageHandler.cpp
+    src/ObservableMessageHandler.cpp
+    src/ObservableRequestHandler.cpp
     # App
     UriShortenerApp.cpp
 )
@@ -22,11 +27,14 @@ add_library(uri_shortener_domain STATIC
 target_include_directories(uri_shortener_domain
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
     PRIVATE
         ${CMAKE_SOURCE_DIR}/libs/core/outcome/include
         ${CMAKE_SOURCE_DIR}/libs/net/http/v2/server/include
+        ${CMAKE_SOURCE_DIR}/libs/net/http/v2/server/src
         ${CMAKE_SOURCE_DIR}/libs/net/router/include
         ${CMAKE_SOURCE_DIR}/libs/core/observability/include
+        ${CMAKE_SOURCE_DIR}/libs/core/execution/include
 )
 
 target_link_libraries(uri_shortener_domain
@@ -34,6 +42,7 @@ target_link_libraries(uri_shortener_domain
         http2server
         astra_router
         observability
+        astra_execution
 )
 
 target_compile_features(uri_shortener_domain PUBLIC cxx_std_20)
@@ -68,6 +77,8 @@ if(BUILD_TESTING)
         tests/delete_link_test.cpp
         tests/app_test.cpp
         tests/observable_repository_test.cpp
+        tests/uri_shortener_handlers_test.cpp
+        tests/observable_handler_test.cpp
     )
 
     target_link_libraries(uri_shortener_domain_test

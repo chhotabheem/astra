@@ -1,59 +1,61 @@
 #include "Http2Request.h"
-#include "RequestImpl.h"
+#include "RequestData.h"
 
 namespace http2server {
 
-Request::Request() = default;
-
-// Move operations must be defined after Impl is complete (after RequestImpl.h include)
-Request::Request(Request&&) noexcept = default;
-Request& Request::operator=(Request&&) noexcept = default;
-
-Request::~Request() = default;
+Request::Request(std::weak_ptr<RequestData> data)
+    : m_data(std::move(data)) {
+}
 
 std::string_view Request::method() const {
-    if (!m_impl) return {};
-    return m_impl->method;
+    if (auto d = m_data.lock()) {
+        return d->method;
+    }
+    return {};
 }
 
 std::string_view Request::path() const {
-    if (!m_impl) return {};
-    return m_impl->path;
+    if (auto d = m_data.lock()) {
+        return d->path;
+    }
+    return {};
 }
 
 std::string_view Request::header(std::string_view key) const {
-    if (!m_impl) return {};
-    auto it = m_impl->headers.find(std::string(key));
-    if (it != m_impl->headers.end()) {
-        return it->second;
+    if (auto d = m_data.lock()) {
+        auto it = d->headers.find(std::string(key));
+        if (it != d->headers.end()) {
+            return it->second;
+        }
     }
-    static const std::string empty;
-    return empty;
+    return {};
 }
 
 std::string_view Request::body() const {
-    if (!m_impl) return {};
-    return m_impl->body;
-}
-
-std::string_view Request::path_param(std::string_view key) const {
-    if (!m_impl) return {};
-    auto it = m_impl->path_params.find(key);
-    if (it != m_impl->path_params.end()) {
-        return it->second;
+    if (auto d = m_data.lock()) {
+        return d->body;
     }
     return {};
 }
 
-std::string_view Request::query_param(std::string_view key) const {
-    // TODO: Implement query param parsing
-    (void)key;
+std::string_view Request::path_param(std::string_view key) const {
+    if (auto d = m_data.lock()) {
+        auto it = d->path_params.find(std::string(key));
+        if (it != d->path_params.end()) {
+            return it->second;
+        }
+    }
     return {};
 }
 
-void Request::set_path_params(std::unordered_map<std::string_view, std::string_view> params) {
-    if (m_impl) {
-        m_impl->path_params = std::move(params);
+std::string_view Request::query_param(std::string_view /*key*/) const {
+    // TODO: Implement query param parsing
+    return {};
+}
+
+void Request::set_path_params(std::unordered_map<std::string, std::string> params) {
+    if (auto d = m_data.lock()) {
+        d->path_params = std::move(params);
     }
 }
 

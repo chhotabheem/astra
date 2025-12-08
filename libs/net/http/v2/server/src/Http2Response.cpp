@@ -1,54 +1,41 @@
 #include "Http2Response.h"
-#include "ResponseImpl.h"
 #include "ResponseHandle.h"
 #include <obs/Log.h>
 
 namespace http2server {
 
-Response::Response() = default;
-
-// Move operations must be defined after Impl is complete (after ResponseImpl.h include)
-Response::Response(Response&&) noexcept = default;
-Response& Response::operator=(Response&&) noexcept = default;
-
-Response::~Response() {
-    if (m_impl && !m_impl->closed) {
-        // Ensure we close if not already closed
-        // Response data is buffered, will be sent on explicit close()
-    }
+Response::Response(std::weak_ptr<ResponseHandle> handle)
+    : m_handle(std::move(handle)) {
 }
 
 void Response::set_status(int code) noexcept {
-    if (!m_impl) return;
-    m_impl->status_code = code;
+    m_status = code;
 }
 
 void Response::set_header(std::string_view key, std::string_view value) {
-    if (!m_impl) return;
-    // Headers are sent by nghttp2 server automatically with status
-    // For now, we only support default headers
-    obs::debug("set_header called: " + std::string(key) + ": " + std::string(value));
+    m_headers[std::string(key)] = std::string(value);
 }
 
 void Response::write(std::string_view data) {
-    if (!m_impl) return;
-    m_impl->body_buffer.append(data);
+    m_body.append(data);
 }
 
 void Response::close() {
-    if (!m_impl) return;
-    if (m_impl->closed) return;
+    if (m_closed) {
+        return;  // Prevent double-send
+    }
+    m_closed = true;
     
-    // Try to get ResponseHandle
-    if (auto handle = m_impl->response_handle.lock()) {
-        // Send buffered data asynchronously
-        handle->send(std::move(m_impl->body_buffer));
-        m_impl->closed = true;
+    if (auto handle = m_handle.lock()) {
+        // Use 500 if status not explicitly set (catches missing set_status calls)
+        int status = m_status.value_or(500);
+        if (!m_status.has_value()) {
+            obs::warn("Response closed without setting status code - defaulting to 500");
+        }
+        handle->send(status, std::move(m_headers), std::move(m_body));
     } else {
-        // Stream already closed or handle expired
-        obs::debug("Cannot send response: stream already closed");
+        obs::debug("Cannot send response: stream already closed (ResponseHandle expired)");
     }
 }
 
 } // namespace http2server
-

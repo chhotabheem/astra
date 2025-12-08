@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <map>
 #include <boost/asio/io_context.hpp>
 
 namespace http2server {
@@ -31,7 +32,9 @@ namespace http2server {
  */
 class ResponseHandle : public std::enable_shared_from_this<ResponseHandle> {
 public:
-    using SendFunction = std::function<void(std::string)>;
+    using SendFunction = std::function<void(int status, 
+                                             std::map<std::string, std::string> headers,
+                                             std::string body)>;
     
     /**
      * @brief Construct a response handle
@@ -47,9 +50,11 @@ public:
      * the operation is still posted but will be dropped when executed.
      * This is safe because io_context serializes with on_close callback.
      * 
-     * @param data Response body to send
+     * @param status HTTP status code
+     * @param headers Response headers
+     * @param body Response body
      */
-    void send(std::string data);
+    void send(int status, std::map<std::string, std::string> headers, std::string body);
     
     /**
      * @brief Mark stream as closed (called by on_close callback)

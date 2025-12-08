@@ -10,17 +10,23 @@ using namespace std::chrono_literals;
 class ResponseHandleTest : public ::testing::Test {
 protected:
     boost::asio::io_context io_ctx;
-    std::string captured_data;
+    int captured_status = -1;
+    std::map<std::string, std::string> captured_headers;
+    std::string captured_body;
     bool send_called = false;
     
     void SetUp() override {
-        captured_data.clear();
+        captured_status = -1;
+        captured_headers.clear();
+        captured_body.clear();
         send_called = false;
     }
     
     auto make_send_fn() {
-        return [this](std::string data) {
-            captured_data = std::move(data);
+        return [this](int status, std::map<std::string, std::string> headers, std::string body) {
+            captured_status = status;
+            captured_headers = std::move(headers);
+            captured_body = std::move(body);
             send_called = true;
         };
     }
@@ -31,14 +37,16 @@ TEST_F(ResponseHandleTest, SendSuccess) {
     auto handle = std::make_shared<ResponseHandle>(make_send_fn(), io_ctx);
     
     // Simulate worker thread sending response
-    handle->send("test response");
+    handle->send(200, {{"Content-Type", "text/plain"}}, "test response");
     
     // Run io_context to process posted task
     io_ctx.run();
     
     // Verify send was called
     EXPECT_TRUE(send_called);
-    EXPECT_EQ(captured_data, "test response");
+    EXPECT_EQ(captured_status, 200);
+    EXPECT_EQ(captured_headers["Content-Type"], "text/plain");
+    EXPECT_EQ(captured_body, "test response");
 }
 
 TEST_F(ResponseHandleTest, SendAfterClose) {
@@ -50,14 +58,14 @@ TEST_F(ResponseHandleTest, SendAfterClose) {
     EXPECT_FALSE(handle->is_alive());
     
     // Worker tries to send after closure
-    handle->send("should be dropped");
+    handle->send(200, {}, "should be dropped");
     
     // Run io_context
     io_ctx.run();
     
     // Verify send was NOT called (response dropped)
     EXPECT_FALSE(send_called);
-    EXPECT_TRUE(captured_data.empty());
+    EXPECT_TRUE(captured_body.empty());
 }
 
 TEST_F(ResponseHandleTest, CloseAfterSendPosted) {
@@ -65,7 +73,7 @@ TEST_F(ResponseHandleTest, CloseAfterSendPosted) {
     auto handle = std::make_shared<ResponseHandle>(make_send_fn(), io_ctx);
     
     // Worker posts send (but io_context not run yet)
-    handle->send("test data");
+    handle->send(200, {}, "test data");
     
     // Stream closes before io_context runs
     handle->mark_closed();
@@ -87,7 +95,7 @@ TEST_F(ResponseHandleTest, WeakPtrExpiration) {
     
     // Worker sends
     if (auto h = weak_handle.lock()) {
-        h->send("test");
+        h->send(200, {}, "test");
     }
     
     // Run io_context to process posted task (this keeps handle alive)
@@ -123,7 +131,7 @@ TEST_F(ResponseHandleTest, IsAliveFalseAfterClose) {
 TEST_F(ResponseHandleTest, ConcurrentSends) {
     // Test multiple worker threads sending through same handle
     auto handle = std::make_shared<ResponseHandle>(
-        [](std::string) { /* no-op for this test */ }, 
+        [](int, std::map<std::string, std::string>, std::string) { /* no-op for this test */ }, 
         io_ctx
     );
     
@@ -136,7 +144,7 @@ TEST_F(ResponseHandleTest, ConcurrentSends) {
         workers.emplace_back([handle, i]() {
             for (int j = 0; j < SENDS_PER_THREAD; ++j) {
                 if (handle->is_alive()) {
-                    handle->send("data_" + std::to_string(i) + "_" + std::to_string(j));
+                    handle->send(200, {}, "data_" + std::to_string(i) + "_" + std::to_string(j));
                 }
                 std::this_thread::sleep_for(1ms);
             }

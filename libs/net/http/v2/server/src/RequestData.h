@@ -3,20 +3,21 @@
 #include <string>
 #include <map>
 #include <unordered_map>
-#include <string_view>
-#include "Http2Request.h"
 
 namespace http2server {
 
-class Request::Impl {
-public:
+/**
+ * @brief Data structure holding actual HTTP request data.
+ * 
+ * Owned by nghttp2 Context (via shared_ptr).
+ * Request holds weak_ptr to this.
+ */
+struct RequestData {
     std::string method;
     std::string path;
     std::string body;
     std::map<std::string, std::string> headers;
-    std::unordered_map<std::string_view, std::string_view> path_params;
-
-    Impl() = default;
+    std::unordered_map<std::string, std::string> path_params;
 };
 
 } // namespace http2server

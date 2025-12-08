@@ -58,6 +58,8 @@ public:
         last_histogram = std::make_shared<MockHistogram>();
         return last_histogram;
     }
+    
+    std::shared_ptr<Gauge> get_gauge(std::string_view, std::string_view) override { return nullptr; }
 };
 
 // -----------------------------------------------------------------------------

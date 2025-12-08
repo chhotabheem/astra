@@ -528,6 +528,35 @@ When a message crosses thread boundaries:
 
 ## 7. TDD Implementation Plan
 
+### Implementation Sequence
+
+| Order | Component | Dependencies | Description |
+|-------|-----------|--------------|-------------|
+| **0** | HTTP/2 Layer | None | Prerequisite: shared_ptr, Handler signature change |
+| **1** | Core Execution | Order 0 | Message, IMessageHandler, StripedMessagePool |
+| **2** | Observable Pool | Order 1 | ObservableMessagePool decorator |
+| **3** | App Handlers | Order 1 | UriMessages, RequestHandler, MessageHandler |
+| **4** | Handler Decorators | Order 3 | ObservableMessageHandler, ObservableRequestHandler |
+| **5** | Composition | Order 2, 3, 4 | Wire everything in UriShortenerApp |
+| **6** | Cleanup | Order 5 | Remove deprecated files |
+
+---
+
+### Iteration 0: HTTP/2 Layer Changes (Prerequisite)
+
+**Files to modify:**
+
+| File | Change |
+|------|--------|
+| `NgHttp2Server.cpp` | Create `shared_ptr<Request/Response>`, upcast to interface |
+| `Http2Server.h` | Handler signature to `shared_ptr<IRequest/IResponse>` |
+| `Router.h` / `Middleware.h` | Update Handler type |
+
+**Test:**
+- Existing HTTP tests should pass (API change is backward compatible if we overload)
+
+---
+
 ### Iteration 1: Core Library Foundation
 
 **Test First (write before implementation):**

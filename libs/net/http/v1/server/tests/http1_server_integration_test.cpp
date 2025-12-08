@@ -4,6 +4,7 @@
 #include <thread>
 #include <chrono>
 #include <boost/asio.hpp>
+#include <random>
 
 using namespace std::chrono_literals;
 using namespace testing;
@@ -35,36 +36,57 @@ std::string send_request(int port, const std::string& method, const std::string&
 class Http1ServerTest : public Test {
 protected:
     void SetUp() override {
-        server_ = std::make_unique<http1::Server>("127.0.0.1", m_port, 4);
-        server_->handle([](const router::IRequest& req, router::IResponse& res) {
-            if (req.path() == "/test") {
-                res.set_status(200);
-                res.write("Hello Test");
-            } else if (req.path() == "/echo") {
-                res.set_status(200);
-                res.write(req.body());
-            } else {
-                res.set_status(404);
-            }
-            res.close();
-        });
-
-        server_thread_ = std::thread([this]{
-            server_->run();
-        });
+        // Retry with different random ports to avoid collisions in parallel execution
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(20000, 60000);
         
-        // Wait for server to start
-        std::this_thread::sleep_for(100ms);
+        const int max_retries = 10;
+        for (int attempt = 0; attempt < max_retries; ++attempt) {
+            m_port = dis(gen);
+            
+            try {
+                server_ = std::make_unique<http1::Server>("127.0.0.1", m_port, 4);
+                server_->handle([](const router::IRequest& req, router::IResponse& res) {
+                    if (req.path() == "/test") {
+                        res.set_status(200);
+                        res.write("Hello Test");
+                    } else if (req.path() == "/echo") {
+                        res.set_status(200);
+                        res.write(req.body());
+                    } else {
+                        res.set_status(404);
+                    }
+                    res.close();
+                });
+
+                server_thread_ = std::thread([this]{
+                    server_->run();
+                });
+                
+                // Wait for server to start
+                std::this_thread::sleep_for(100ms);
+                return;  // Success
+            } catch (const std::exception& e) {
+                // Port likely in use, try another
+                server_.reset();
+                if (attempt == max_retries - 1) {
+                    throw;  // Give up after max retries
+                }
+            }
+        }
     }
 
     void TearDown() override {
-        server_->stop();
+        if (server_) {
+            server_->stop();
+        }
         if (server_thread_.joinable()) {
             server_thread_.join();
         }
     }
 
-    int m_port = 8083; // Use a different port to avoid conflicts
+    int m_port;
     std::unique_ptr<http1::Server> server_;
     std::thread server_thread_;
 };

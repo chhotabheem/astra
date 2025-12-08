@@ -28,7 +28,7 @@ FileConfigSource::FileConfigSource(
     , m_timer_fd(-1)
 {
     if (!m_executor) {
-        m_executor = std::make_shared<astra::execution::ThreadPoolExecutor>();
+        m_executor = astra::execution::ThreadPoolExecutor::create(1);
     }
     
     obs::info("FileConfigSource: Initialized with file: " + m_config_file_path.string());

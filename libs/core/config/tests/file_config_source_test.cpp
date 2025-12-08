@@ -4,13 +4,21 @@
 #include <fstream>
 #include <thread>
 #include <chrono>
+#include <random>
 
 namespace config {
 
 class FileConfigSourceTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        m_test_file = std::filesystem::temp_directory_path() / "test_config.yaml";
+        // Generate unique file name per test to avoid parallel test interference
+        auto* test_info = ::testing::UnitTest::GetInstance()->current_test_info();
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(10000, 99999);
+        
+        std::string unique_name = std::string(test_info->name()) + "_" + std::to_string(dis(gen)) + ".yaml";
+        m_test_file = std::filesystem::temp_directory_path() / unique_name;
         writeTestConfig("initial_config_data");
     }
     

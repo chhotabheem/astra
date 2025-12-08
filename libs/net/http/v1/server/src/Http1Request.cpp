@@ -28,7 +28,7 @@ std::string_view Request::body() const {
 }
 
 std::string_view Request::path_param(std::string_view key) const {
-    auto it = path_params_.find(key);
+    auto it = path_params_.find(std::string(key));
     if (it != path_params_.end()) {
         return it->second;
     }
@@ -41,7 +41,7 @@ std::string_view Request::query_param(std::string_view key) const {
     return {};
 }
 
-void Request::set_path_params(std::unordered_map<std::string_view, std::string_view> params) {
+void Request::set_path_params(std::unordered_map<std::string, std::string> params) {
     path_params_ = std::move(params);
 }
 

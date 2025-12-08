@@ -86,7 +86,7 @@ Router::MatchResult Router::match(std::string_view method, std::string_view path
     }
     
     Node* current = it->second.get();
-    std::unordered_map<std::string_view, std::string_view> params;
+    std::unordered_map<std::string, std::string> params;
     auto segments = split_path(path);
     
     for (const auto& segment : segments) {
@@ -97,7 +97,7 @@ Router::MatchResult Router::match(std::string_view method, std::string_view path
         if (child_it != current->children.end()) {
             current = child_it->second.get();
         } else if (current->wildcard_child) {
-            params[current->wildcard_child->param_name] = segment;
+            params[std::string(current->wildcard_child->param_name)] = std::string(segment);
             current = current->wildcard_child.get();
         } else {
             return {nullptr, {}}; // No match

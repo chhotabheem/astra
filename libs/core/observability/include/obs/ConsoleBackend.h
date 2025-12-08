@@ -124,6 +124,38 @@ private:
     std::mutex& m_mutex;
 };
 
+class ConsoleGauge : public Gauge {
+public:
+    ConsoleGauge(std::string_view name, std::mutex& mtx) 
+        : m_name(name), m_mutex(mtx), m_value(0) {}
+    
+    void set(double value) override {
+        m_value.store(static_cast<int64_t>(value));
+        std::lock_guard<std::mutex> lock(m_mutex);
+        std::cerr << "[GAUGE] " << m_name << " = " << m_value.load() << "\n";
+    }
+    
+    void inc() override { inc(1.0); }
+    void dec() override { dec(1.0); }
+    
+    void inc(double delta) override {
+        m_value.fetch_add(static_cast<int64_t>(delta));
+        std::lock_guard<std::mutex> lock(m_mutex);
+        std::cerr << "[GAUGE] " << m_name << " += " << delta << " (now=" << m_value.load() << ")\n";
+    }
+    
+    void dec(double delta) override {
+        m_value.fetch_sub(static_cast<int64_t>(delta));
+        std::lock_guard<std::mutex> lock(m_mutex);
+        std::cerr << "[GAUGE] " << m_name << " -= " << delta << " (now=" << m_value.load() << ")\n";
+    }
+    
+private:
+    std::string m_name;
+    std::mutex& m_mutex;
+    std::atomic<int64_t> m_value;
+};
+
 class ConsoleBackend : public IBackend {
 public:
     ConsoleBackend() {
@@ -174,6 +206,17 @@ public:
         m_histograms[key] = hist;
         return hist;
     }
+    
+    std::shared_ptr<Gauge> get_gauge(std::string_view name, std::string_view) override {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        auto key = std::string(name);
+        if (auto it = m_gauges.find(key); it != m_gauges.end()) {
+            return it->second;
+        }
+        auto gauge = std::make_shared<ConsoleGauge>(name, m_mutex);
+        m_gauges[key] = gauge;
+        return gauge;
+    }
 
 private:
     static const char* level_str(Level level) {
@@ -191,6 +234,7 @@ private:
     std::mutex m_mutex;
     std::unordered_map<std::string, std::shared_ptr<ConsoleCounter>> m_counters;
     std::unordered_map<std::string, std::shared_ptr<ConsoleHistogram>> m_histograms;
+    std::unordered_map<std::string, std::shared_ptr<ConsoleGauge>> m_gauges;
 };
 
 } // namespace obs

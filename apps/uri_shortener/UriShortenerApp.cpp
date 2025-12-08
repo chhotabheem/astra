@@ -1,5 +1,5 @@
 /// @file UriShortenerApp.cpp
-/// @brief UriShortenerApp implementation
+/// @brief UriShortenerApp implementation with message-based architecture
 
 #include "UriShortenerApp.h"
 #include "infrastructure/persistence/InMemoryLinkRepository.h"
@@ -18,6 +18,11 @@ UriShortenerApp::UriShortenerApp(
     std::shared_ptr<application::ShortenLink> shorten,
     std::shared_ptr<application::ResolveLink> resolve,
     std::shared_ptr<application::DeleteLink> del,
+    std::unique_ptr<UriShortenerMessageHandler> msg_handler,
+    std::unique_ptr<ObservableMessageHandler> obs_msg_handler,
+    std::unique_ptr<astra::execution::StripedMessagePool> pool,
+    std::unique_ptr<UriShortenerRequestHandler> req_handler,
+    std::unique_ptr<ObservableRequestHandler> obs_req_handler,
     std::unique_ptr<http2server::Server> server
 )
     : m_repo(std::move(repo))
@@ -25,9 +30,20 @@ UriShortenerApp::UriShortenerApp(
     , m_shorten(std::move(shorten))
     , m_resolve(std::move(resolve))
     , m_delete(std::move(del))
+    , m_msg_handler(std::move(msg_handler))
+    , m_obs_msg_handler(std::move(obs_msg_handler))
+    , m_pool(std::move(pool))
+    , m_req_handler(std::move(req_handler))
+    , m_obs_req_handler(std::move(obs_req_handler))
     , m_server(std::move(server)) {}
 
-UriShortenerApp::~UriShortenerApp() = default;
+UriShortenerApp::~UriShortenerApp() {
+    // Stop pool before destruction
+    if (m_pool) {
+        m_pool->stop();
+    }
+}
+
 UriShortenerApp::UriShortenerApp(UriShortenerApp&&) noexcept = default;
 UriShortenerApp& UriShortenerApp::operator=(UriShortenerApp&&) noexcept = default;
 
@@ -46,10 +62,8 @@ astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(const Config& c
     // Create repository with observability wrapper
     std::shared_ptr<domain::ILinkRepository> repo;
     if (config.repository) {
-        // Use provided (already wrapped or test mock)
         repo = config.repository;
     } else {
-        // Create InMemory and wrap with observability
         auto inner = std::make_shared<infrastructure::InMemoryLinkRepository>();
         repo = std::make_shared<infrastructure::ObservableLinkRepository>(inner);
     }
@@ -65,135 +79,64 @@ astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(const Config& c
 
     // Create HTTP server
     auto server = std::make_unique<http2server::Server>(config.address, config.port);
+    
+    // Create message handler chain
+    // Handler processes synchronously (no pool back-reference needed)
+    auto inner_msg_handler = std::make_unique<UriShortenerMessageHandler>(
+        shorten, resolve, del);
+    
+    // Create observable wrapper
+    auto obs_msg_handler = std::make_unique<ObservableMessageHandler>(*inner_msg_handler);
+    
+    // Create pool with observable handler
+    size_t thread_count = config.thread_count > 0 ? config.thread_count : 4;
+    auto pool = std::make_unique<astra::execution::StripedMessagePool>(
+        thread_count, *obs_msg_handler);
+    
+    // Create request handler chain
+    auto req_handler = std::make_unique<UriShortenerRequestHandler>(*pool);
+    auto obs_req_handler = std::make_unique<ObservableRequestHandler>(*req_handler);
+    
+    // Start the pool
+    pool->start();
 
-    // Create app instance (routes registered in run())
     return astra::Result<UriShortenerApp, AppError>::Ok(UriShortenerApp(
         std::move(repo),
         std::move(gen),
         std::move(shorten),
         std::move(resolve),
         std::move(del),
+        std::move(inner_msg_handler),
+        std::move(obs_msg_handler),
+        std::move(pool),
+        std::move(req_handler),
+        std::move(obs_req_handler),
         std::move(server)
     ));
 }
 
 int UriShortenerApp::run() {
-    // Register routes (using this pointer, not captured reference)
-    m_server->router().get("/health", [this](router::IRequest& req, router::IResponse& res) {
-        handle_health(req, res);
-    });
+    // Register single unified handler that delegates to message-based flow
     m_server->router().post("/shorten", [this](router::IRequest& req, router::IResponse& res) {
-        handle_shorten(req, res);
+        m_obs_req_handler->handle(req, res);
     });
     m_server->router().get("/:code", [this](router::IRequest& req, router::IResponse& res) {
-        handle_resolve(req, res);
+        m_obs_req_handler->handle(req, res);
     });
     m_server->router().del("/:code", [this](router::IRequest& req, router::IResponse& res) {
-        handle_delete(req, res);
+        m_obs_req_handler->handle(req, res);
+    });
+    m_server->router().get("/health", [](router::IRequest& /*req*/, router::IResponse& res) {
+        res.set_status(200);
+        res.set_header("Content-Type", "application/json");
+        res.write(R"({"status": "ok"})");
+        res.close();
     });
 
-    std::cout << "URI Shortener listening on port...\n";
+    std::cout << "URI Shortener listening on port " << "...\n";
+    std::cout << "Using message-based architecture with " << m_pool->thread_count() << " workers\n";
     m_server->run();
     return 0;
-}
-
-// =============================================================================
-// HTTP Handlers
-// =============================================================================
-
-void UriShortenerApp::handle_shorten(router::IRequest& req, router::IResponse& res) {
-    // Parse JSON body: {"url": "https://example.com"}
-    auto body = req.body();
-    // Simple JSON extraction (minimal)
-    auto url_start = body.find("\"url\"");
-    if (url_start == std::string_view::npos) {
-        res.set_status(400);
-        res.set_header("Content-Type", "application/json");
-        res.write(R"({"error": "Missing 'url' field"})");
-        res.close();
-        return;
-    }
-    
-    auto value_start = body.find(':', url_start);
-    auto quote_start = body.find('"', value_start);
-    auto quote_end = body.find('"', quote_start + 1);
-    if (quote_start == std::string_view::npos || quote_end == std::string_view::npos) {
-        res.set_status(400);
-        res.set_header("Content-Type", "application/json");
-        res.write(R"({"error": "Invalid JSON"})");
-        res.close();
-        return;
-    }
-    
-    std::string url(body.substr(quote_start + 1, quote_end - quote_start - 1));
-    
-    application::ShortenLink::Input input{.original_url = url};
-    auto result = m_shorten->execute(input);
-    
-    res.set_header("Content-Type", "application/json");
-    if (result.is_err()) {
-        res.set_status(domain_error_to_status(result.error()));
-        res.write("{\"error\": \"" + domain_error_to_message(result.error()) + "\"}");
-    } else {
-        auto output = result.value();
-        res.set_status(201);
-        res.write("{\"short_code\": \"" + output.short_code + "\", \"original_url\": \"" + output.original_url + "\"}");
-    }
-    res.close();
-}
-
-void UriShortenerApp::handle_resolve(router::IRequest& req, router::IResponse& res) {
-    auto code = req.path_param("code");
-    if (code.empty()) {
-        res.set_status(400);
-        res.set_header("Content-Type", "application/json");
-        res.write(R"({"error": "Missing code"})");
-        res.close();
-        return;
-    }
-
-    application::ResolveLink::Input input{.short_code = std::string(code)};
-    auto result = m_resolve->execute(input);
-
-    res.set_header("Content-Type", "application/json");
-    if (result.is_err()) {
-        res.set_status(domain_error_to_status(result.error()));
-        res.write("{\"error\": \"" + domain_error_to_message(result.error()) + "\"}");
-    } else {
-        res.set_status(200);
-        res.write("{\"original_url\": \"" + result.value().original_url + "\"}");
-    }
-    res.close();
-}
-
-void UriShortenerApp::handle_delete(router::IRequest& req, router::IResponse& res) {
-    auto code = req.path_param("code");
-    if (code.empty()) {
-        res.set_status(400);
-        res.set_header("Content-Type", "application/json");
-        res.write(R"({"error": "Missing code"})");
-        res.close();
-        return;
-    }
-
-    application::DeleteLink::Input input{.short_code = std::string(code)};
-    auto result = m_delete->execute(input);
-
-    res.set_header("Content-Type", "application/json");
-    if (result.is_err()) {
-        res.set_status(domain_error_to_status(result.error()));
-        res.write("{\"error\": \"" + domain_error_to_message(result.error()) + "\"}");
-    } else {
-        res.set_status(204);  // No Content
-    }
-    res.close();
-}
-
-void UriShortenerApp::handle_health(router::IRequest& /*req*/, router::IResponse& res) {
-    res.set_status(200);
-    res.set_header("Content-Type", "application/json");
-    res.write(R"({"status": "ok"})");
-    res.close();
 }
 
 // =============================================================================
@@ -238,4 +181,3 @@ std::string UriShortenerApp::domain_error_to_message(domain::DomainError err) {
 }
 
 } // namespace url_shortener
-

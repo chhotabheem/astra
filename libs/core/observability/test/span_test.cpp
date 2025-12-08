@@ -88,6 +88,7 @@ public:
     void log(Level, std::string_view, const Context&) override {}
     std::shared_ptr<Counter> get_counter(std::string_view, std::string_view) override { return nullptr; }
     std::shared_ptr<Histogram> get_histogram(std::string_view, std::string_view) override { return nullptr; }
+    std::shared_ptr<Gauge> get_gauge(std::string_view, std::string_view) override { return nullptr; }
 };
 
 // -----------------------------------------------------------------------------

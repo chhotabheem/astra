@@ -5,13 +5,21 @@
 #include <thread>
 #include <chrono>
 #include <atomic>
+#include <random>
 
 namespace config {
 
 class InotifyFileWatcherTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        m_test_file = std::filesystem::temp_directory_path() / "inotify_test_config.json";
+        // Generate unique file name per test to avoid parallel test interference
+        auto* test_info = ::testing::UnitTest::GetInstance()->current_test_info();
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(10000, 99999);
+        
+        std::string unique_name = std::string("inotify_") + test_info->name() + "_" + std::to_string(dis(gen)) + ".json";
+        m_test_file = std::filesystem::temp_directory_path() / unique_name;
         writeTestFile(validConfig());
     }
     

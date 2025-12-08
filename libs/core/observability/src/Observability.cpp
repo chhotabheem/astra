@@ -18,8 +18,9 @@ namespace {
     std::unique_ptr<IBackend> g_backend;
     std::atomic<bool> g_initialized{false};
     
-    // Cached counters and histograms
+    // Cached counters, gauges, and histograms
     std::unordered_map<std::string, std::shared_ptr<Counter>> g_counters;
+    std::unordered_map<std::string, std::shared_ptr<Gauge>> g_gauges;
     std::unordered_map<std::string, std::shared_ptr<Histogram>> g_histograms;
     
     // Null implementations for when no backend
@@ -36,7 +37,17 @@ namespace {
         void record(double, const Context&) override {}
     };
     
+    class NullGauge : public Gauge {
+    public:
+        void set(double) override {}
+        void inc() override {}
+        void dec() override {}
+        void inc(double) override {}
+        void dec(double) override {}
+    };
+    
     static NullCounter g_null_counter;
+    static NullGauge g_null_gauge;
     static NullHistogram g_null_histogram;
 }
 
@@ -44,6 +55,7 @@ void set_backend(std::unique_ptr<IBackend> backend) {
     std::lock_guard<std::mutex> lock(g_backend_mutex);
     g_backend = std::move(backend);
     g_counters.clear();
+    g_gauges.clear();
     g_histograms.clear();
     g_initialized.store(true);
 }
@@ -55,6 +67,7 @@ void shutdown() {
         g_backend.reset();
     }
     g_counters.clear();
+    g_gauges.clear();
     g_histograms.clear();
     g_initialized.store(false);
 }
@@ -130,6 +143,26 @@ Histogram& histogram(std::string_view name, std::string_view description) {
         return *h;
     }
     return g_null_histogram;
+}
+
+Gauge& gauge(std::string_view name, std::string_view description) {
+    std::lock_guard<std::mutex> lock(g_backend_mutex);
+    if (!g_backend) {
+        return g_null_gauge;
+    }
+    
+    std::string key(name);
+    auto it = g_gauges.find(key);
+    if (it != g_gauges.end()) {
+        return *it->second;
+    }
+    
+    auto g = g_backend->get_gauge(name, description);
+    if (g) {
+        g_gauges[key] = g;
+        return *g;
+    }
+    return g_null_gauge;
 }
 
 } // namespace obs

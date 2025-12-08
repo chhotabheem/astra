@@ -23,7 +23,7 @@ public:
     
     struct MatchResult {
         Handler handler;
-        std::unordered_map<std::string_view, std::string_view> params;
+        std::unordered_map<std::string, std::string> params;
     };
     
     [[nodiscard]] MatchResult match(std::string_view method, std::string_view path) const;
@@ -33,7 +33,7 @@ private:
     struct Node {
         std::unordered_map<std::string_view, std::unique_ptr<Node>> children;
         std::unique_ptr<Node> wildcard_child;
-        std::string_view param_name;
+        std::string param_name;
         Handler handler;
     };
 

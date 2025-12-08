@@ -79,6 +79,10 @@ public:
         return nullptr;
     }
     
+    std::shared_ptr<Gauge> get_gauge(std::string_view, std::string_view) override {
+        return nullptr;
+    }
+    
     // Helper methods for assertions
     void reset() {
         span_count = 0;

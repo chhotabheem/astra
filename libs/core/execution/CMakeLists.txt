@@ -5,8 +5,9 @@ project(astra_execution)
 find_package(Threads REQUIRED)
 
 add_library(astra_execution
-    src/StripedThreadPool.cpp
     src/ThreadPool.cpp
+    src/StripedMessagePool.cpp
+    src/ObservableMessagePool.cpp
 )
 
 target_include_directories(astra_execution

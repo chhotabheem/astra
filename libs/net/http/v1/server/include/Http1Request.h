@@ -19,13 +19,13 @@ public:
     [[nodiscard]] std::string_view query_param(std::string_view key) const override;
 
     // Internal setter for Router
-    void set_path_params(std::unordered_map<std::string_view, std::string_view> params) override;
+    void set_path_params(std::unordered_map<std::string, std::string> params) override;
 
 private:
     boost::beast::http::request<boost::beast::http::string_body> req_;
     mutable std::string method_str_; // Cache for string_view if needed
     mutable std::string path_str_;
-    std::unordered_map<std::string_view, std::string_view> path_params_;
+    std::unordered_map<std::string, std::string> path_params_;
 };
 
 } // namespace http1

@@ -167,6 +167,49 @@ private:
 };
 
 // =============================================================================
+// OTelGauge - Wraps OTel UpDownCounter (closest to gauge semantics)
+// =============================================================================
+class OTelGauge : public Gauge {
+public:
+    explicit OTelGauge(nostd::unique_ptr<metrics_api::UpDownCounter<int64_t>> counter)
+        : m_counter(std::move(counter)), m_value(0) {}
+    
+    void set(double value) override {
+        // UpDownCounter doesn't have set(), so we simulate with add/subtract
+        // This is not perfect but works for our use case
+        int64_t int_val = static_cast<int64_t>(value);
+        int64_t diff = int_val - m_value.load();
+        m_value.store(int_val);
+        if (m_counter && diff != 0) {
+            m_counter->Add(diff);
+        }
+    }
+    
+    void inc() override { inc(1.0); }
+    void dec() override { dec(1.0); }
+    
+    void inc(double value) override {
+        int64_t int_val = static_cast<int64_t>(value);
+        m_value.fetch_add(int_val);
+        if (m_counter) {
+            m_counter->Add(int_val);
+        }
+    }
+    
+    void dec(double value) override {
+        int64_t int_val = static_cast<int64_t>(value);
+        m_value.fetch_sub(int_val);
+        if (m_counter) {
+            m_counter->Add(-int_val);
+        }
+    }
+
+private:
+    nostd::unique_ptr<metrics_api::UpDownCounter<int64_t>> m_counter;
+    std::atomic<int64_t> m_value;
+};
+
+// =============================================================================
 // OTelBackend Implementation
 // =============================================================================
 OTelBackend::OTelBackend(const OTelConfig& config) : m_config(config) {
@@ -274,6 +317,16 @@ std::shared_ptr<Counter> OTelBackend::get_counter(std::string_view name, std::st
         std::string(name), 
         std::string(desc));
     return std::make_shared<OTelCounter>(std::move(counter));
+}
+
+std::shared_ptr<Gauge> OTelBackend::get_gauge(std::string_view name, std::string_view desc) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    if (m_shutdown || !m_meter) return nullptr;
+    
+    auto updown_counter = m_meter->CreateInt64UpDownCounter(
+        std::string(name),
+        std::string(desc));
+    return std::make_shared<OTelGauge>(std::move(updown_counter));
 }
 
 std::shared_ptr<Histogram> OTelBackend::get_histogram(std::string_view name, std::string_view desc) {
