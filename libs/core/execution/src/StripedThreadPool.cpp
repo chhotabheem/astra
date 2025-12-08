@@ -1,5 +1,6 @@
 #include "StripedThreadPool.h"
 #include <functional>
+#include <optional>
 
 namespace astra::execution {
 
@@ -49,7 +50,7 @@ bool StripedThreadPool::submit(Job job) {
 
     {
         std::lock_guard<std::mutex> lock(worker->mutex);
-        worker->queue.push_back(job);
+        worker->queue.push_back(std::move(job));
     }
     worker->cv.notify_one();
     return true;
@@ -59,7 +60,7 @@ void StripedThreadPool::worker_loop(size_t index) {
     auto& worker = m_workers[index];
 
     while (m_running) {
-        Job job = Job::shutdown();
+        std::optional<Job> job;
         {
             std::unique_lock<std::mutex> lock(worker->mutex);
             worker->cv.wait(lock, [&] { 
@@ -69,19 +70,17 @@ void StripedThreadPool::worker_loop(size_t index) {
             if (!m_running && worker->queue.empty()) return;
 
             if (!worker->queue.empty()) {
-                job = worker->queue.front();
+                job = std::move(worker->queue.front());
                 worker->queue.pop_front();
             }
         }
         
-        if (job.type == JobType::SHUTDOWN) continue;
+        if (!job) continue;
 
-        if (job.type == JobType::TASK) {
-            try {
-                auto task = std::any_cast<std::function<void()>>(job.payload);
-                task();
-            } catch (const std::bad_any_cast&) {}
-        }
+        try {
+            auto task = std::any_cast<std::function<void()>>(job->payload);
+            task();
+        } catch (const std::bad_any_cast&) {}
     }
 }
 

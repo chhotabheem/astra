@@ -1,5 +1,6 @@
 #include "ThreadPool.h"
 #include <functional>
+#include <optional>
 
 namespace astra::execution {
 
@@ -44,7 +45,7 @@ bool ThreadPool::submit(Job job) {
     if (!m_running) return false;
     if (m_queue.size() >= m_max_jobs) return false;
 
-    m_queue.push(job);
+    m_queue.push(std::move(job));
     lock.unlock();
     m_cv.notify_one();
     
@@ -53,7 +54,7 @@ bool ThreadPool::submit(Job job) {
 
 void ThreadPool::worker_loop() {
     while (true) {
-        Job job = Job::shutdown();
+        std::optional<Job> job;
         
         {
             std::unique_lock<std::mutex> lock(m_mutex);
@@ -64,19 +65,17 @@ void ThreadPool::worker_loop() {
             if (!m_running && m_queue.empty()) return;
 
             if (!m_queue.empty()) {
-                job = m_queue.front();
+                job = std::move(m_queue.front());
                 m_queue.pop();
             }
         }
 
-        if (job.type == JobType::SHUTDOWN) continue;
+        if (!job) continue;
 
-        if (job.type == JobType::TASK) {
-            try {
-                auto task = std::any_cast<std::function<void()>>(job.payload);
-                task();
-            } catch (const std::bad_any_cast&) {}
-        }
+        try {
+            auto task = std::any_cast<std::function<void()>>(job->payload);
+            task();
+        } catch (const std::bad_any_cast&) {}
     }
 }
 

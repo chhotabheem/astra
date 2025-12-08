@@ -7,8 +7,7 @@
 namespace astra::execution {
 
 enum class JobType {
-    TASK,
-    SHUTDOWN
+    TASK
 };
 
 struct Job {
@@ -16,10 +15,7 @@ struct Job {
     uint64_t session_id;
     std::any payload;
     obs::Context trace_ctx;
-    
-    static Job shutdown() {
-        return Job{JobType::SHUTDOWN, 0, {}, obs::Context{}};
-    }
+
 };
 
 } // namespace astra::execution
