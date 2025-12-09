@@ -1,6 +1,3 @@
-cmake_minimum_required(VERSION 3.25)
-project(zookeeperclient)
-
 # Try to find the Zookeeper C library
 find_path(ZOOKEEPER_INCLUDE_DIR zookeeper/zookeeper.h)
 find_library(ZOOKEEPER_LIBRARY zookeeper_mt)
@@ -24,9 +21,14 @@ target_include_directories(zookeeperclient
 
 if (NOT ZOOKEEPER_MOCK)
     target_include_directories(zookeeperclient PRIVATE ${ZOOKEEPER_INCLUDE_DIR})
-    target_link_libraries(zookeeperclient PRIVATE ${ZOOKEEPER_LIBRARY})
+    target_link_libraries(zookeeperclient 
+        PRIVATE 
+            astra_sanitizers
+            ${ZOOKEEPER_LIBRARY}
+    )
     target_compile_definitions(zookeeperclient PRIVATE HAS_ZOOKEEPER)
 else()
+    target_link_libraries(zookeeperclient PRIVATE astra_sanitizers)
     target_compile_definitions(zookeeperclient PRIVATE USE_ZOOKEEPER_MOCK)
 endif()
 

@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.25)
-
 # nghttp2-asio is built by parent http2/CMakeLists.txt
 
 find_package(Boost REQUIRED COMPONENTS system thread chrono)
@@ -30,14 +28,15 @@ target_include_directories(http2server
 
 # Link libraries
 target_link_libraries(http2server 
-    PUBLIC
-        astra_router
-    PRIVATE 
+    PRIVATE
+        astra_sanitizers
         Boost::system 
         Boost::thread 
         Boost::chrono
         nghttp2_asio
         observability
+    PUBLIC
+        astra_router
 )
 
 # Add compile definition for nghttp2

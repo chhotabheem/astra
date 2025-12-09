@@ -1,6 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
-
-# Outcome library (header-only)
+# Header-only outcome library wrapper-only)
 add_library(outcome INTERFACE)
 target_include_directories(outcome INTERFACE include/)
 target_compile_features(outcome INTERFACE cxx_std_17)

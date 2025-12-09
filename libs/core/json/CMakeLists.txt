@@ -1,8 +1,3 @@
-cmake_minimum_required(VERSION 3.25)
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 # Find Boost
 find_package(Boost REQUIRED)
 
@@ -20,6 +15,7 @@ target_include_directories(json
 
 target_link_libraries(json
     PRIVATE
+        astra_sanitizers
         Boost::headers
 )
 

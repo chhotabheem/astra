@@ -1,8 +1,3 @@
-cmake_minimum_required(VERSION 3.25)
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 # Create interface library (Boost MSM is header-only)
 add_library(boost_msm INTERFACE)
 

@@ -1,7 +1,3 @@
-cmake_minimum_required(VERSION 3.25)
-
-project(astra_execution)
-
 find_package(Threads REQUIRED)
 
 add_library(astra_execution
@@ -16,8 +12,10 @@ target_include_directories(astra_execution
 )
 
 target_link_libraries(astra_execution
-    PUBLIC
+    PRIVATE
+        astra_sanitizers
         Threads::Threads
+    PUBLIC
         observability
 )
 

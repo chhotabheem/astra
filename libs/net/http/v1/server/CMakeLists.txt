@@ -1,6 +1,3 @@
-cmake_minimum_required(VERSION 3.25)
-project(http1.1server)
-
 find_package(Boost REQUIRED COMPONENTS system thread)
 
 set(HTTP1_1SERVER_SOURCES
@@ -20,9 +17,11 @@ target_include_directories(http1.1server
 )
 
 target_link_libraries(http1.1server
-    PUBLIC
+    PRIVATE
+        astra_sanitizers
         Boost::system
         Boost::thread
+    PUBLIC
         astra_router
 )
 

@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.20)
-
 # -----------------------------------------------------------------------------
 # Find pre-installed OpenTelemetry C++ SDK
 # -----------------------------------------------------------------------------
@@ -27,6 +25,7 @@ target_include_directories(observability
 # Link OTel (PRIVATE - consumers don't see OTel headers)
 target_link_libraries(observability
     PRIVATE
+        astra_sanitizers
         opentelemetry-cpp::api
         opentelemetry-cpp::sdk
         opentelemetry-cpp::logs

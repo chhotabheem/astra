@@ -38,6 +38,8 @@ target_include_directories(uri_shortener_domain
 )
 
 target_link_libraries(uri_shortener_domain
+    PRIVATE
+        astra_sanitizers
     PUBLIC
         http2server
         astra_router

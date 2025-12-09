@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.25)
-
 add_executable(test_thread_pool thread_pool_test.cpp)
 target_link_libraries(test_thread_pool PRIVATE astra_execution GTest::gtest_main)
 add_test(NAME thread_pool_test COMMAND test_thread_pool)

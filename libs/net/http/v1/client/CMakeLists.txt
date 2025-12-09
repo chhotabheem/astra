@@ -1,6 +1,3 @@
-cmake_minimum_required(VERSION 3.25)
-project(http1.1client)
-
 find_package(Boost REQUIRED COMPONENTS system thread)
 
 add_library(http1.1client 
@@ -16,7 +13,8 @@ target_include_directories(http1.1client
 )
 
 target_link_libraries(http1.1client
-    PUBLIC
+    PRIVATE
+        astra_sanitizers
         Boost::system
         Boost::thread
 )

@@ -1,6 +1,3 @@
-cmake_minimum_required(VERSION 3.25)
-project(hfsm)
-
 # FetchContent removed in favor of manual download due to container git issues
 # include(FetchContent)
 # ...

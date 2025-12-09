@@ -67,15 +67,15 @@ def main():
         res["time"] = time.time() - start
         results[preset] = res
 
-    # Valgrind
-    print("Running valgrind...", flush=True)
-    valgrind_status = "SKIPPED"
-    build_dir = PROJECT_ROOT / "build" / "gcc-debug"
-    if build_dir.exists():
-        if run(f"ctest -T memcheck --test-dir {build_dir}", LOG_DIR / "valgrind.log") != 0:
-            valgrind_status = "FAILED"
-        else:
-            valgrind_status = "PASSED"
+    # Valgrind (disabled)
+    # print("Running valgrind...", flush=True)
+    valgrind_status = "DISABLED"
+    # build_dir = PROJECT_ROOT / "build" / "gcc-debug"
+    # if build_dir.exists():
+    #     if run(f"ctest -T memcheck --test-dir {build_dir}", LOG_DIR / "valgrind.log") != 0:
+    #         valgrind_status = "FAILED"
+    #     else:
+    #         valgrind_status = "PASSED"
 
     # Report
     print()

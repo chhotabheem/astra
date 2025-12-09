@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.25)
-
 # Sources
 set(HTTP2CLIENT_SOURCES
     src/Http2Client.cpp
@@ -25,13 +23,13 @@ target_include_directories(http2client
 # Link libraries
 # Note: nghttp2_asio is expected to be available from the parent project or http2server
 target_link_libraries(http2client 
-    PUBLIC
+    PRIVATE
+        astra_sanitizers
+        nghttp2_asio
         observability
         Boost::system
         Boost::thread
         Boost::chrono
-    PRIVATE
-        nghttp2_asio
 )
 
 # Example executable

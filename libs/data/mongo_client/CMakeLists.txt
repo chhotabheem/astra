@@ -1,7 +1,3 @@
-cmake_minimum_required(VERSION 3.25)
-project(MongoClient)
-
-set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 enable_testing()
@@ -22,10 +18,12 @@ target_include_directories(mongoclient
 
 # Link libraries
 target_link_libraries(mongoclient
-    PUBLIC
-        observability
+    PRIVATE
+        astra_sanitizers
         mongocxx_static
         bsoncxx_static
+    PUBLIC
+        observability
 )
 
 # Test executable
