@@ -7,7 +7,7 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
-#include <obs/Log.h>
+#include <Log.h>
 
 namespace http2client {
 

@@ -137,7 +137,7 @@ A message-passing pool where:
 #pragma once
 #include <any>
 #include <cstdint>
-#include <obs/Context.h>
+#include <Context.h>
 
 namespace astra::execution {
 
@@ -458,7 +458,7 @@ Observability is added via decorators, NOT inline in business code.
 
 #pragma once
 #include "IMessageHandler.h"
-#include <obs/Span.h>
+#include <Span.h>
 
 namespace astra::execution {
 

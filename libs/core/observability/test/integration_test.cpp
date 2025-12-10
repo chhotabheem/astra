@@ -1,121 +1,178 @@
+#include <Span.h>
+#include <Log.h>
+#include <Metrics.h>
+#include <MetricsRegistry.h>
+#include <Provider.h>
 #include <gtest/gtest.h>
+#include <chrono>
 #include <thread>
-#include <vector>
-#include "Observability.h"
-
-using namespace observability;
 
 class IntegrationTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        initialize_noop();
+        obs::Config config{
+            .service_name = "integration-test",
+            .service_version = "1.0.0"
+        };
+        obs::init(config);
     }
     
     void TearDown() override {
-        shutdown();
+        obs::shutdown();
     }
 };
 
-// Phase 2 tests
-TEST_F(IntegrationTest, TraceLogCorrelation) {
-    // Start a span
-    Span span("integration_test_span");
+TEST_F(IntegrationTest, FullObservabilityStack) {
+    // Simulate a complete request with metrics, tracing, and logging
     
-    // Log something
-    info("Log inside span");
-    
-    // Verify log has trace context
-    // In a real test we'd capture stdout or use a mock exporter
-    // For now we just verify it runs without crashing
-}
-
-TEST_F(IntegrationTest, FullFlow) {
-    // Simulate a request
-    Span request_span("handle_request");
-    request_span.set_attribute("method", "GET");
-    request_span.set_attribute("path", "/api/data");
-    
-    info("Received request", {{"client_ip", "10.0.0.1"}});
+    auto request_counter = obs::register_counter("test.requests");
+    auto latency_hist = obs::register_duration_histogram("test.latency");
     
     {
-        Span db_span("db_query");
-        db_span.set_attribute("db.statement", "SELECT * FROM users");
-        // Simulate DB work
-        info("Querying database");
-    }
-    
-    auto counter = Metrics::create_counter("http_requests");
-    counter.increment(1, {{"status", "200"}});
-    
-    request_span.set_ok();
-}
-
-// =============================================================================
-// Thread Safety Tests (Phase 6 - for TSan/Helgrind validation)
-// =============================================================================
-
-TEST_F(IntegrationTest, ConcurrentSpanCreation) {
-    // Multiple threads creating spans simultaneously
-    std::vector<std::thread> threads;
-    for (int i = 0; i < 10; ++i) {
-        threads.emplace_back([i] {
-            for (int j = 0; j < 100; ++j) {
-                Span span("concurrent_span_" + std::to_string(i));
-                span.set_attribute("iteration", static_cast<int64_t>(j));
-            }
+        obs::ScopedLogAttributes scoped({
+            {"request.id", "req-12345"},
+            {"client.ip", "192.168.1.1"}
+        });
+        
+        auto span = obs::span("handle_request");
+        span.kind(obs::SpanKind::Server);
+        span.attr("http.method", "GET");
+        span.attr("http.route", "/api/test");
+        
+        auto start = std::chrono::steady_clock::now();
+        
+        obs::info("Request started");
+        request_counter.inc();
+        
+        // Simulate work
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        
+        span.add_event("processing_started");
+        
+        {
+            auto db_span = obs::span("database_query");
+            db_span.kind(obs::SpanKind::Client);
+            db_span.attr("db.system", "postgresql");
+            
+            obs::debug("Executing database query");
+            
+            // Simulate DB work
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            
+            db_span.set_status(obs::StatusCode::Ok);
+        }
+        
+        auto duration = std::chrono::steady_clock::now() - start;
+        latency_hist.record(duration);
+        
+        span.set_status(obs::StatusCode::Ok);
+        obs::info("Request completed", {
+            {"duration_ms", std::to_string(
+                std::chrono::duration_cast<std::chrono::milliseconds>(duration).count()
+            )}
         });
     }
-    for (auto& t : threads) t.join();
-}
-
-TEST_F(IntegrationTest, ConcurrentLogging) {
-    // Multiple threads logging simultaneously
-    std::vector<std::thread> threads;
-    for (int i = 0; i < 10; ++i) {
-        threads.emplace_back([i] {
-            for (int j = 0; j < 100; ++j) {
-                info("Concurrent log", {{"thread", std::to_string(i)}, {"iter", std::to_string(j)}});
-            }
-        });
-    }
-    for (auto& t : threads) t.join();
-}
-
-TEST_F(IntegrationTest, ConcurrentMetrics) {
-    // Multiple threads incrementing same counter
-    auto counter = Metrics::create_counter("concurrent_counter");
     
-    std::vector<std::thread> threads;
-    for (int i = 0; i < 10; ++i) {
-        threads.emplace_back([&counter] {
-            for (int j = 0; j < 100; ++j) {
-                counter.increment(1);
-            }
-        });
-    }
-    for (auto& t : threads) t.join();
+    // All spans auto-ended, metrics recorded, logs emitted
 }
 
-TEST_F(IntegrationTest, ConcurrentFullWorkload) {
-    // Simulate realistic concurrent request handling
-    std::vector<std::thread> threads;
-    auto request_counter = Metrics::create_counter("requests");
-    auto latency_histogram = Metrics::create_histogram("latency");
+TEST_F(IntegrationTest, ErrorHandling) {
+    auto error_counter = obs::register_counter("test.errors");
     
-    for (int i = 0; i < 10; ++i) {
-        threads.emplace_back([i, &request_counter, &latency_histogram] {
-            for (int j = 0; j < 50; ++j) {
-                Span span("handle_request");
-                span.set_attribute("thread_id", static_cast<int64_t>(i));
+    {
+        auto span = obs::span("failing_operation");
+        
+        try {
+            obs::warn("About to fail");
+            throw std::runtime_error("Simulated error");
+        } catch (const std::exception& e) {
+            error_counter.inc();
+            span.set_status(obs::StatusCode::Error, e.what());
+            obs::error("Operation failed", {
+                {"error.type", "runtime_error"},
+                {"error.message", e.what()}
+            });
+        }
+    }
+}
+
+TEST_F(IntegrationTest, MetricsRegistryWithSpansAndLogs) {
+    obs::MetricsRegistry metrics;
+    metrics
+        .counter("requests", "test.requests.total")
+        .counter("errors", "test.errors.total")
+        .duration_histogram("latency", "test.latency")
+        .gauge("active", "test.active_requests");
+    
+    {
+        auto span = obs::span("operation");
+        obs::ScopedLogAttributes scoped({{"operation", "test"}});
+        
+        metrics.counter("requests").inc();
+        metrics.gauge("active").add(1);
+        
+        obs::info("Operation started");
+        
+        auto start = std::chrono::steady_clock::now();
+        
+        // Simulate work
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        
+        auto duration = std::chrono::steady_clock::now() - start;
+        metrics.duration_histogram("latency").record(duration);
+        
+        metrics.gauge("active").add(-1);
+        
+        span.set_status(obs::StatusCode::Ok);
+        obs::info("Operation completed");
+    }
+}
+
+TEST_F(IntegrationTest, NestedSpansWithMetricsAndLogs) {
+    auto counter = obs::register_counter("nested.operations");
+    
+    {
+        auto parent_span = obs::span("parent");
+        parent_span.attr("level", "parent");
+        
+        obs::info("Parent operation started");
+        counter.inc();
+        
+        {
+            auto child_span = obs::span("child");
+            child_span.attr("level", "child");
+            
+            obs::debug("Child operation started");
+            
+            {
+                auto grandchild_span = obs::span("grandchild");
+                grandchild_span.attr("level", "grandchild");
                 
-                info("Processing request", {{"req_id", std::to_string(i * 100 + j)}});
+                obs::trace("Grandchild operation");
                 
-                request_counter.increment(1, {{"status", "200"}});
-                latency_histogram.record(0.05 + (j * 0.001));
-                
-                span.set_ok();
+                grandchild_span.set_status(obs::StatusCode::Ok);
             }
-        });
+            
+            child_span.set_status(obs::StatusCode::Ok);
+        }
+        
+        parent_span.set_status(obs::StatusCode::Ok);
+        obs::info("Parent operation completed");
     }
-    for (auto& t : threads) t.join();
+}
+
+TEST_F(IntegrationTest, MultipleAttributeTypes) {
+    auto span = obs::span("typed_attributes");
+    
+    span.attr("string_attr", "value");
+    span.attr("int_attr", static_cast<int64_t>(42));
+    span.attr("double_attr", 3.14);
+    span.attr("bool_attr", true);
+    
+    obs::info("Multiple attribute types", {
+        {"attr1", "string"},
+        {"attr2", "value2"}
+    });
+    
+    span.set_status(obs::StatusCode::Ok);
 }

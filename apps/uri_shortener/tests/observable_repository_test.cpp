@@ -5,16 +5,21 @@
 #include "infrastructure/observability/ObservableLinkRepository.h"
 #include "infrastructure/persistence/InMemoryLinkRepository.h"
 #include "domain/entities/ShortLink.h"
-#include <obs/ConsoleBackend.h>
-#include <obs/Observability.h>
+#include <Provider.h>
+#include <Config.h>
 
 namespace url_shortener::test {
 
 class ObservableLinkRepositoryTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        // Must set backend before using any obs functions
-        obs::set_backend(std::make_unique<obs::ConsoleBackend>());
+        // Initialize observability with Provider pattern
+        obs::Config obs_config{
+            .service_name = "uri_shortener_test",
+            .service_version = "1.0.0",
+            .environment = "test"
+        };
+        obs::init(obs_config);
         
         m_inner = std::make_shared<infrastructure::InMemoryLinkRepository>();
         m_repo = std::make_shared<infrastructure::ObservableLinkRepository>(m_inner);

@@ -2,9 +2,9 @@
 
 #include <IMessageHandler.h>
 #include "UriMessages.h"
-#include <obs/Span.h>
-#include <obs/Metrics.h>
-#include <obs/Log.h>
+#include <Span.h>
+#include <MetricsRegistry.h>
+#include <Log.h>
 #include <memory>
 
 namespace url_shortener {
@@ -26,10 +26,7 @@ public:
 
 private:
     astra::execution::IMessageHandler& m_inner;
-    
-    obs::Counter& m_messages_processed;
-    obs::Counter& m_messages_failed;
-    obs::Histogram& m_processing_time;
+    obs::MetricsRegistry m_metrics;
     
     std::string get_message_type(const UriPayload& payload);
 };

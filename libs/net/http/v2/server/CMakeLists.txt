@@ -57,6 +57,7 @@ astra_add_test(
         tests/response_handle_test.cpp
         tests/request_handle_test.cpp
         tests/response_integration_test.cpp
+        tests/handler_signature_test.cpp
     LIBRARIES http2server
     INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
 )

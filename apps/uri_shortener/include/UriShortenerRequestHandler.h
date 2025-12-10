@@ -4,7 +4,7 @@
 #include <StripedMessagePool.h>
 #include <IRequest.h>
 #include <IResponse.h>
-#include <obs/Context.h>
+#include <Context.h>
 
 namespace url_shortener {
 

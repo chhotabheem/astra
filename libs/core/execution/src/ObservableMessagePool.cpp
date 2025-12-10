@@ -1,5 +1,5 @@
 #include "ObservableMessagePool.h"
-#include <obs/Log.h>
+#include <Log.h>
 
 namespace astra::execution {
 
@@ -8,8 +8,10 @@ namespace astra::execution {
 // =============================================================================
 ObservableMessagePool::ObservableMessagePool(StripedMessagePool& pool)
     : m_pool(pool)
-    , m_submitted(obs::counter("message_pool.submitted", "Messages submitted to pool"))
-    , m_queue_depth(obs::gauge("message_pool.queue_depth", "Current queue depth")) {
+{
+    m_metrics
+        .counter("submitted", "message_pool.submitted")
+        .gauge("queue_depth", "message_pool.queue_depth");
 }
 
 void ObservableMessagePool::start() {
@@ -23,8 +25,8 @@ void ObservableMessagePool::stop() {
 }
 
 bool ObservableMessagePool::submit(Message msg) {
-    m_submitted.inc();
-    m_queue_depth.inc();
+    m_metrics.counter("submitted").inc();
+    m_metrics.gauge("queue_depth").add(1);
     
     // Add timestamp for latency measurement
     auto now = std::chrono::steady_clock::now();
@@ -41,16 +43,18 @@ bool ObservableMessagePool::submit(Message msg) {
 // =============================================================================
 // ObservableHandlerWrapper
 // =============================================================================
-ObservableHandlerWrapper::ObservableHandlerWrapper(IMessageHandler& inner, obs::Gauge& queue_depth)
+ObservableHandlerWrapper::ObservableHandlerWrapper(IMessageHandler& inner, obs::Gauge queue_depth)
     : m_inner(inner)
-    , m_delivered(obs::counter("message_pool.delivered", "Messages delivered to handler"))
-    , m_queue_depth(queue_depth)
-    , m_latency(obs::histogram("message_pool.latency_ms", "Message delivery latency in ms")) {
+    , m_queue_depth(std::move(queue_depth))
+{
+    m_metrics
+        .counter("delivered", "message_pool.delivered")
+        .duration_histogram("latency", "message_pool.latency");
 }
 
 void ObservableHandlerWrapper::handle(Message& msg) {
     // Decrement queue depth
-    m_queue_depth.dec();
+    m_queue_depth.add(-1);
     
     auto start = std::chrono::steady_clock::now();
     
@@ -58,11 +62,10 @@ void ObservableHandlerWrapper::handle(Message& msg) {
     m_inner.handle(msg);
     
     // Record metrics
-    m_delivered.inc();
+    m_metrics.counter("delivered").inc();
     
-    auto end = std::chrono::steady_clock::now();
-    auto latency_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    m_latency.record(static_cast<double>(latency_ms));
+    auto duration = std::chrono::steady_clock::now() - start;
+    m_metrics.duration_histogram("latency").record(duration);
 }
 
 } // namespace astra::execution

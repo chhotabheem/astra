@@ -7,5 +7,7 @@ target_include_directories(hfsm INTERFACE include)
 
 enable_testing()
 add_executable(test_hfsm_unit tests/hfsm_test.cpp)
-target_link_libraries(test_hfsm_unit PRIVATE hfsm)
-add_test(NAME hfsm_unit_tests COMMAND test_hfsm_unit)
+target_link_libraries(test_hfsm_unit PRIVATE hfsm GTest::gtest_main)
+
+include(GoogleTest)
+gtest_discover_tests(test_hfsm_unit)

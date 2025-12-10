@@ -1,5 +1,5 @@
 #include "MongoClient.h"
-#include <obs/Log.h>
+#include <Log.h>
 #include <stdexcept>
 
 namespace mongoclient {

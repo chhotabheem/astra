@@ -1,6 +1,6 @@
 #pragma once
 #include "observability/IConfigLogger.h"
-#include <obs/Log.h>
+#include <Log.h>
 
 namespace config {
 

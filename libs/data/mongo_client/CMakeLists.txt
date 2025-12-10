@@ -20,10 +20,10 @@ target_include_directories(mongoclient
 target_link_libraries(mongoclient
     PRIVATE
         astra_sanitizers
-        mongocxx_static
-        bsoncxx_static
     PUBLIC
         observability
+        mongocxx_static
+        bsoncxx_static
 )
 
 # Test executable

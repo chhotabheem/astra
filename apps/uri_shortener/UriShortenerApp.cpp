@@ -6,8 +6,8 @@
 #include "infrastructure/observability/ObservableLinkRepository.h"
 #include "infrastructure/generators/RandomCodeGenerator.h"
 #include "Http2Server.h"
-#include <obs/ConsoleBackend.h>
-#include <obs/Observability.h>
+#include <Provider.h>
+#include <Config.h>
 #include <iostream>
 
 namespace url_shortener {
@@ -56,8 +56,16 @@ astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(const Config& c
         return astra::Result<UriShortenerApp, AppError>::Err(AppError::InvalidConfig);
     }
 
-    // Initialize observability backend
-    obs::set_backend(std::make_unique<obs::ConsoleBackend>());
+    // Initialize observability with Provider pattern
+    obs::Config obs_config{
+        .service_name = "uri_shortener",
+        .service_version = "1.0.0",
+        .environment = "development",
+        .otlp_endpoint = "http://localhost:4317"
+    };
+    if (!obs::init(obs_config)) {
+        std::cerr << "Warning: observability initialization failed\n";
+    }
 
     // Create repository with observability wrapper
     std::shared_ptr<domain::ILinkRepository> repo;

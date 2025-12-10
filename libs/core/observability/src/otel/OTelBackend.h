@@ -7,8 +7,8 @@
 // =============================================================================
 
 #include <obs/IBackend.h>
-#include <obs/Span.h>
-#include <obs/Metrics.h>
+#include <Span.h>
+#include <Metrics.h>
 
 // OpenTelemetry headers (internal only)
 #include <opentelemetry/trace/provider.h>

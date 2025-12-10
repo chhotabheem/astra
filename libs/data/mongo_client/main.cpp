@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "MongoClient.h"
-#include <obs/Log.h>
+#include <Log.h>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/json.hpp>
 #include <mongocxx/client.hpp>

@@ -1,6 +1,6 @@
 #pragma once
 #include "observability/IConfigMetrics.h"
-#include <obs/Metrics.h>
+#include <Metrics.h>
 
 namespace config {
 

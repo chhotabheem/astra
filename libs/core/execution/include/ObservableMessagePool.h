@@ -2,7 +2,7 @@
 
 #include "StripedMessagePool.h"
 #include "IMessageHandler.h"
-#include <obs/Metrics.h>
+#include <MetricsRegistry.h>
 #include <chrono>
 
 namespace astra::execution {
@@ -32,9 +32,7 @@ public:
 
 private:
     StripedMessagePool& m_pool;
-    
-    obs::Counter& m_submitted;
-    obs::Gauge& m_queue_depth;
+    obs::MetricsRegistry m_metrics;
 };
 
 /**
@@ -47,15 +45,14 @@ private:
  */
 class ObservableHandlerWrapper : public IMessageHandler {
 public:
-    ObservableHandlerWrapper(IMessageHandler& inner, obs::Gauge& queue_depth);
+    ObservableHandlerWrapper(IMessageHandler& inner, obs::Gauge queue_depth);
     
     void handle(Message& msg) override;
 
 private:
     IMessageHandler& m_inner;
-    obs::Counter& m_delivered;
-    obs::Gauge& m_queue_depth;
-    obs::Histogram& m_latency;
+    obs::Gauge m_queue_depth;  // Shared with pool (lightweight wrapper)
+    obs::MetricsRegistry m_metrics;
 };
 
 } // namespace astra::execution

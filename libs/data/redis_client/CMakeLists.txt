@@ -55,6 +55,7 @@ target_include_directories(redisclient
 target_link_libraries(redisclient
     PRIVATE
         astra_sanitizers
+    PUBLIC
         redis++::redis++
 )
 

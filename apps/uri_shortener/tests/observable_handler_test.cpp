@@ -4,8 +4,8 @@
 #include "UriMessages.h"
 #include <IMessageHandler.h>
 #include <Message.h>
-#include <obs/Span.h>
-#include <obs/Context.h>
+#include <Span.h>
+#include <Context.h>
 #include <atomic>
 
 using namespace url_shortener;

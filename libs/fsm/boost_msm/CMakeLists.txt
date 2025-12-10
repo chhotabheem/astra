@@ -21,7 +21,9 @@ add_executable(test_boost_msm
 target_link_libraries(test_boost_msm
     PRIVATE
         boost_msm
+        GTest::gtest_main
 )
 
 # Add tests
-add_test(NAME boost_msm_basic_test COMMAND test_boost_msm)
+include(GoogleTest)
+gtest_discover_tests(test_boost_msm)

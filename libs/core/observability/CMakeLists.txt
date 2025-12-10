@@ -9,9 +9,13 @@ message(STATUS "Found OpenTelemetry C++ SDK: ${opentelemetry-cpp_VERSION}")
 # Static because OpenTelemetry static libs weren't built with -fPIC
 # -----------------------------------------------------------------------------
 add_library(observability STATIC
+    src/Provider.cpp
+    src/ProviderImpl.cpp
+    src/Metrics.cpp
+    src/MetricsRegistry.cpp
     src/Context.cpp
-    src/Observability.cpp
-    src/otel/OTelBackend.cpp
+    src/Span.cpp
+    src/Log.cpp
 )
 
 target_include_directories(observability
@@ -44,13 +48,24 @@ target_compile_features(observability PUBLIC cxx_std_17)
 # Unit Tests
 # -----------------------------------------------------------------------------
 add_executable(test_observability
-    test/context_test.cpp
+    test/provider_test.cpp
+    test/metrics_test.cpp
+    test/attributes_test.cpp
+    test/metrics_registry_test.cpp
+    test/safety_test.cpp
     test/span_test.cpp
     test/log_test.cpp
-    test/metrics_test.cpp
-    test/thread_safety_test.cpp
-    test/console_backend_test.cpp
-    test/seda_tracing_test.cpp
+    test/logging_test.cpp
+    test/tracing_test.cpp
+    test/integration_test.cpp
+    # Extended test suites
+    test/provider_extended_test.cpp
+    test/metrics_extended_test.cpp
+    test/span_extended_test.cpp
+    test/context_extended_test.cpp
+    test/log_extended_test.cpp
+    test/thread_safety_extended_test.cpp
+    test/integration_extended_test.cpp
 )
 
 target_link_libraries(test_observability
@@ -60,5 +75,6 @@ target_link_libraries(test_observability
         GTest::gtest_main
 )
 
-add_test(NAME observability_tests COMMAND test_observability)
+include(GoogleTest)
+gtest_discover_tests(test_observability)
 

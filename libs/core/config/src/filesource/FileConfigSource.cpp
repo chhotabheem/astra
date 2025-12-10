@@ -1,5 +1,5 @@
 #include "filesource/FileConfigSource.h"
-#include <obs/Log.h>
+#include <Log.h>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>

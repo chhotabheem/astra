@@ -1,9 +1,9 @@
 #pragma once
 
 #include "UriShortenerRequestHandler.h"
-#include <obs/Span.h>
-#include <obs/Metrics.h>
-#include <obs/Log.h>
+#include <Span.h>
+#include <MetricsRegistry.h>
+#include <Log.h>
 
 namespace url_shortener {
 
@@ -23,9 +23,7 @@ public:
 
 private:
     UriShortenerRequestHandler& m_inner;
-    
-    obs::Counter& m_requests_total;
-    obs::Histogram& m_request_latency;
+    obs::MetricsRegistry m_metrics;
 };
 
 } // namespace url_shortener

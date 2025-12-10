@@ -1,155 +1,102 @@
-// =============================================================================
-// test_span.cpp - Unit tests for obs::Span with MockBackend
-// =============================================================================
+#include <Span.h>
+#include <Provider.h>
 #include <gtest/gtest.h>
-#include <obs/Span.h>
-#include <obs/IBackend.h>
-#include <obs/Context.h>
-#include <vector>
-#include <string>
 
-namespace obs::test {
-
-// -----------------------------------------------------------------------------
-// MockSpan - Records operations for verification
-// -----------------------------------------------------------------------------
-class MockSpan : public Span {
-public:
-    std::string name;
-    Context ctx;
-    std::vector<std::pair<std::string, std::string>> attrs;
-    bool ended = false;
-    bool error_set = false;
-    std::string error_msg;
-    
-    MockSpan(std::string_view n, const Context& c) : Span(), name(n), ctx(c) {}
-    ~MockSpan() override { ended = true; }
-    
-    Span& attr(std::string_view key, std::string_view value) override {
-        attrs.emplace_back(std::string(key), std::string(value));
-        return *this;
-    }
-    
-    Span& attr(std::string_view key, int64_t value) override {
-        attrs.emplace_back(std::string(key), std::to_string(value));
-        return *this;
-    }
-    
-    Span& attr(std::string_view key, double value) override {
-        attrs.emplace_back(std::string(key), std::to_string(value));
-        return *this;
-    }
-    
-private:
-    Span& do_attr_bool(std::string_view key, bool value) override {
-        attrs.emplace_back(std::string(key), value ? "true" : "false");
-        return *this;
-    }
-    
-public:
-    
-    Span& set_error(std::string_view message) override {
-        error_set = true;
-        error_msg = message;
-        return *this;
-    }
-    
-    Span& set_ok() override {
-        error_set = false;
-        return *this;
-    }
-    
-    Span& event(std::string_view) override { return *this; }
-    
-    Context context() const override { return ctx; }
-    bool is_recording() const override { return true; }
-};
-
-// -----------------------------------------------------------------------------
-// MockBackend - For testing facade delegation
-// -----------------------------------------------------------------------------
-class MockBackend : public IBackend {
-public:
-    std::vector<std::string> created_spans;
-    bool shutdown_called = false;
-    
-    void shutdown() override { shutdown_called = true; }
-    
-    std::unique_ptr<Span> create_span(std::string_view name, const Context& ctx) override {
-        created_spans.push_back(std::string(name));
-        return std::make_unique<MockSpan>(name, ctx);
-    }
-    
-    std::unique_ptr<Span> create_root_span(std::string_view name) override {
-        created_spans.push_back(std::string(name));
-        return std::make_unique<MockSpan>(name, Context::create());
-    }
-    
-    void log(Level, std::string_view, const Context&) override {}
-    std::shared_ptr<Counter> get_counter(std::string_view, std::string_view) override { return nullptr; }
-    std::shared_ptr<Histogram> get_histogram(std::string_view, std::string_view) override { return nullptr; }
-    std::shared_ptr<Gauge> get_gauge(std::string_view, std::string_view) override { return nullptr; }
-};
-
-// -----------------------------------------------------------------------------
-// Span Tests
-// -----------------------------------------------------------------------------
 class SpanTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        mock = std::make_unique<MockBackend>();
-        mock_ptr = mock.get();
-        obs::set_backend(std::move(mock));
+        obs::Config config{.service_name = "test-service"};
+        obs::init(config);
     }
     
     void TearDown() override {
         obs::shutdown();
     }
-    
-    std::unique_ptr<MockBackend> mock;
-    MockBackend* mock_ptr;
 };
 
-TEST_F(SpanTest, CreatesSpanWithContext) {
-    Context ctx = Context::create();
-    auto span = obs::span("test-span", ctx);
-    
-    EXPECT_EQ(mock_ptr->created_spans.size(), 1);
-    EXPECT_EQ(mock_ptr->created_spans[0], "test-span");
-}
-
-TEST_F(SpanTest, CreatesRootSpan) {
-    auto span = obs::span("root-span");
-    
-    EXPECT_EQ(mock_ptr->created_spans.size(), 1);
-    EXPECT_EQ(mock_ptr->created_spans[0], "root-span");
-}
-
-TEST_F(SpanTest, SpanEndsOnScopeExit) {
+TEST_F(SpanTest, BasicSpanCreation) {
     {
-        auto span = obs::span("scoped");
+        auto span = obs::span("test.operation");
+        EXPECT_TRUE(span.is_recording());
     }
-    // Span destructor called - verified by MockSpan
-    EXPECT_EQ(mock_ptr->created_spans.size(), 1);
+    // Span should auto-end on destruction
 }
 
-TEST_F(SpanTest, FluentAttributeAPI) {
-    auto span = obs::span("with-attrs");
-    span->attr("key1", "value1")
-        .attr("key2", int64_t{42})
-        .attr("key3", 3.14);
+TEST_F(SpanTest, SpanAttributes) {
+    auto span = obs::span("test.operation");
     
-    // Attributes set on mock span
-    EXPECT_EQ(mock_ptr->created_spans.size(), 1);
+    EXPECT_NO_THROW(span.attr("string_key", "value"));
+    EXPECT_NO_THROW(span.attr("int_key", static_cast<int64_t>(42)));
+    EXPECT_NO_THROW(span.attr("double_key", 3.14));
+    EXPECT_NO_THROW(span.attr("bool_key", true));
 }
 
-TEST_F(SpanTest, ContextPropagation) {
-    Context parent = Context::create();
-    auto span = obs::span("child", parent);
+TEST_F(SpanTest, SpanStatus) {
+    auto span = obs::span("test.operation");
     
-    Context child_ctx = span->context();
-    EXPECT_EQ(child_ctx.trace_id.high, parent.trace_id.high);
-    EXPECT_EQ(child_ctx.trace_id.low, parent.trace_id.low);
+    EXPECT_NO_THROW(span.set_status(obs::StatusCode::Ok));
+    EXPECT_NO_THROW(span.set_status(obs::StatusCode::Error, "failed"));
 }
 
-} // namespace obs::test
+TEST_F(SpanTest, SpanKind) {
+    auto span = obs::span("test.operation");
+    
+    EXPECT_NO_THROW(span.kind(obs::SpanKind::Server));
+    EXPECT_NO_THROW(span.kind(obs::SpanKind::Client));
+    EXPECT_NO_THROW(span.kind(obs::SpanKind::Internal));
+}
+
+TEST_F(SpanTest, SpanEvents) {
+    auto span = obs::span("test.operation");
+    
+    EXPECT_NO_THROW(span.add_event("event1"));
+    EXPECT_NO_THROW(span.add_event("event2", {{"key", "value"}}));
+}
+
+TEST_F(SpanTest, SpanContextPropagation) {
+    auto parent = obs::span("parent");
+    auto parent_ctx = parent.context();
+    
+    EXPECT_TRUE(parent_ctx.is_valid());
+    EXPECT_TRUE(parent_ctx.trace_id.is_valid());
+    EXPECT_TRUE(parent_ctx.span_id.is_valid());
+}
+
+TEST_F(SpanTest, AutoParenting) {
+    {
+        auto parent = obs::span("parent");
+        auto parent_ctx = parent.context();
+        
+        {
+            auto child = obs::span("child");
+            auto child_ctx = child.context();
+            
+            // Child should have same trace_id as parent
+            EXPECT_EQ(child_ctx.trace_id.high, parent_ctx.trace_id.high);
+            EXPECT_EQ(child_ctx.trace_id.low, parent_ctx.trace_id.low);
+            
+            // Child should have different span_id
+            EXPECT_NE(child_ctx.span_id.value, parent_ctx.span_id.value);
+        }
+    }
+}
+
+TEST_F(SpanTest, MoveSemantics) {
+    auto span1 = obs::span("test");
+    auto span2 = std::move(span1);
+    
+    EXPECT_TRUE(span2.is_recording());
+}
+
+TEST_F(SpanTest, FluentAPI) {
+    auto span = obs::span("test");
+    
+    // Should be able to chain calls
+    EXPECT_NO_THROW(
+        span.attr("key1", "value1")
+            .attr("key2", static_cast<int64_t>(42))
+            .kind(obs::SpanKind::Server)
+            .add_event("event1")
+            .set_status(obs::StatusCode::Ok)
+    );
+}

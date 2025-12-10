@@ -30,6 +30,7 @@ add_executable(test_json_writer
 target_link_libraries(test_json_writer
     PRIVATE
         json
+        GTest::gtest_main
 )
 
 # Test executable: Document (Reader)
@@ -40,8 +41,10 @@ add_executable(test_json_document
 target_link_libraries(test_json_document
     PRIVATE
         json
+        GTest::gtest_main
 )
 
 # Add tests
-add_test(NAME json_writer_test COMMAND test_json_writer)
-add_test(NAME json_document_test COMMAND test_json_document)
+include(GoogleTest)
+gtest_discover_tests(test_json_writer)
+gtest_discover_tests(test_json_document)

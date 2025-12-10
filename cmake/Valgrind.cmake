@@ -1,5 +1,7 @@
 # Valgrind Verification Targets
 # Defines: test_memcheck, test_helgrind, test_massif, test_callgrind, test_cachegrind, test_valgrind_all
+#
+# IMPORTANT: Call `setup_valgrind_memcheck()` BEFORE `include(CTest)` for proper configuration.
 
 find_program(MEMORYCHECK_COMMAND valgrind)
 
@@ -8,8 +10,9 @@ if(NOT MEMORYCHECK_COMMAND)
     return()
 endif()
 
-# Default options for standard CTest MemCheck
-set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full --error-exitcode=1")
+# Set the memory check command for CTest (must be set before include(CTest))
+set(MEMORYCHECK_COMMAND ${MEMORYCHECK_COMMAND} CACHE FILEPATH "Path to the memory checking command")
+set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full --error-exitcode=1" CACHE STRING "Valgrind options for memory checking")
 
 # 1. MemCheck (Memory Leaks)
 add_custom_target(test_memcheck

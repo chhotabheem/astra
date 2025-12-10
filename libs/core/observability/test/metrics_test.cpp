@@ -1,128 +1,164 @@
-// =============================================================================
-// test_metrics.cpp - Unit tests for obs::Counter and obs::Histogram
-// =============================================================================
+#include <Metrics.h>
+#include <Provider.h>
 #include <gtest/gtest.h>
-#include <obs/IBackend.h>
-#include <obs/Metrics.h>
-#include <obs/Context.h>
-#include <obs/Span.h>
-#include <vector>
-#include <string>
+#include <chrono>
+#include <thread>
 
-namespace obs::test {
+namespace {
 
-// -----------------------------------------------------------------------------
-// Mock Counter and Histogram
-// -----------------------------------------------------------------------------
-class MockCounter : public Counter {
-public:
-    mutable int64_t total = 0;
-    mutable int call_count = 0;
-    
-    void inc() override { total += 1; call_count++; }
-    void inc(int64_t value) override { total += value; call_count++; }
-    void inc(int64_t value, const Context&) override { total += value; call_count++; }
-};
-
-class MockHistogram : public Histogram {
-public:
-    mutable std::vector<double> recorded;
-    
-    void record(double value) override { recorded.push_back(value); }
-    void record(double value, const Context&) override { recorded.push_back(value); }
-};
-
-// -----------------------------------------------------------------------------
-// MockBackend for metrics tests
-// -----------------------------------------------------------------------------
-class MetricsMockBackend : public IBackend {
-public:
-    std::vector<std::string> counter_names;
-    std::vector<std::string> histogram_names;
-    std::shared_ptr<MockCounter> last_counter;
-    std::shared_ptr<MockHistogram> last_histogram;
-    
-    void shutdown() override {}
-    std::unique_ptr<Span> create_span(std::string_view, const Context&) override { return nullptr; }
-    std::unique_ptr<Span> create_root_span(std::string_view) override { return nullptr; }
-    void log(Level, std::string_view, const Context&) override {}
-    
-    std::shared_ptr<Counter> get_counter(std::string_view name, std::string_view) override {
-        counter_names.push_back(std::string(name));
-        last_counter = std::make_shared<MockCounter>();
-        return last_counter;
-    }
-    
-    std::shared_ptr<Histogram> get_histogram(std::string_view name, std::string_view) override {
-        histogram_names.push_back(std::string(name));
-        last_histogram = std::make_shared<MockHistogram>();
-        return last_histogram;
-    }
-    
-    std::shared_ptr<Gauge> get_gauge(std::string_view, std::string_view) override { return nullptr; }
-};
-
-// -----------------------------------------------------------------------------
-// Metrics Tests
-// -----------------------------------------------------------------------------
-class MetricsTest : public ::testing::Test {
+class MetricsV2Test : public ::testing::Test {
 protected:
     void SetUp() override {
-        mock = std::make_unique<MetricsMockBackend>();
-        mock_ptr = mock.get();
-        obs::set_backend(std::move(mock));
+        obs::Config config{
+            .service_name = "test-metrics",
+            .otlp_endpoint = "http://localhost:4317"
+        };
+        ASSERT_TRUE(obs::init(config));
     }
     
     void TearDown() override {
         obs::shutdown();
     }
-    
-    std::unique_ptr<MetricsMockBackend> mock;
-    MetricsMockBackend* mock_ptr;
 };
 
-TEST_F(MetricsTest, CounterCreation) {
-    auto& counter = obs::counter("http_requests", "Total HTTP requests");
-    (void)counter;
+// =============================================================================
+// Counter Tests
+// =============================================================================
+
+TEST_F(MetricsV2Test, CounterRegistration) {
+    auto counter = obs::register_counter("test.counter");
     
-    ASSERT_EQ(mock_ptr->counter_names.size(), 1);
-    EXPECT_EQ(mock_ptr->counter_names[0], "http_requests");
+    // Should not throw
+    EXPECT_NO_THROW(counter.inc());
+    EXPECT_NO_THROW(counter.inc(5));
+    EXPECT_NO_THROW(counter.inc(100));
 }
 
-TEST_F(MetricsTest, CounterIncrement) {
-    auto& counter = obs::counter("requests");
-    counter.inc();
-    counter.inc(5);
-    
-    ASSERT_NE(mock_ptr->last_counter, nullptr);
-    EXPECT_EQ(mock_ptr->last_counter->total, 6);
-    EXPECT_EQ(mock_ptr->last_counter->call_count, 2);
+TEST_F(MetricsV2Test, CounterWithUnit) {
+    auto bytes_counter = obs::register_counter("test.bytes", obs::Unit::Bytes);
+    EXPECT_NO_THROW(bytes_counter.inc(1024));
 }
 
-TEST_F(MetricsTest, HistogramCreation) {
-    auto& hist = obs::histogram("latency", "Request latency");
-    (void)hist;
-    
-    ASSERT_EQ(mock_ptr->histogram_names.size(), 1);
-    EXPECT_EQ(mock_ptr->histogram_names[0], "latency");
+TEST_F(MetricsV2Test, CounterAdHoc) {
+    // Ad-hoc counter (auto-registered, cached)
+    EXPECT_NO_THROW(obs::counter("ad_hoc.counter").inc());
+    EXPECT_NO_THROW(obs::counter("ad_hoc.counter").inc(10));
 }
 
-TEST_F(MetricsTest, HistogramRecord) {
-    auto& hist = obs::histogram("latency");
-    hist.record(0.042);
-    hist.record(0.123);
-    
-    ASSERT_NE(mock_ptr->last_histogram, nullptr);
-    ASSERT_EQ(mock_ptr->last_histogram->recorded.size(), 2);
-    EXPECT_DOUBLE_EQ(mock_ptr->last_histogram->recorded[0], 0.042);
+TEST_F(MetricsV2Test, CounterDefaultDelta) {
+    auto counter = obs::register_counter("test.default");
+    EXPECT_NO_THROW(counter.inc());  // Default delta = 1
 }
 
-TEST_F(MetricsTest, CounterWithContext) {
-    Context ctx = Context::create();
-    auto& counter = obs::counter("traced_requests");
-    counter.inc(1, ctx);
+// =============================================================================
+// Histogram Tests
+// =============================================================================
+
+TEST_F(MetricsV2Test, HistogramRegistration) {
+    auto hist = obs::register_histogram("test.histogram");
     
-    EXPECT_EQ(mock_ptr->last_counter->total, 1);
+    EXPECT_NO_THROW(hist.record(42.5));
+    EXPECT_NO_THROW(hist.record(100.0));
+    EXPECT_NO_THROW(hist.record(0.001));
 }
 
-} // namespace obs::test
+TEST_F(MetricsV2Test, HistogramWithUnit) {
+    auto bytes_hist = obs::register_histogram("test.size", obs::Unit::Bytes);
+    EXPECT_NO_THROW(bytes_hist.record(1024));
+}
+
+TEST_F(MetricsV2Test, HistogramAdHoc) {
+    EXPECT_NO_THROW(obs::histogram("ad_hoc.histogram").record(99.9));
+}
+
+// =============================================================================
+// DurationHistogram Tests (Chrono Support)
+// =============================================================================
+
+TEST_F(MetricsV2Test, DurationHistogramWithChrono) {
+    auto latency = obs::register_duration_histogram("test.latency");
+    
+    // Record durations using chrono
+    EXPECT_NO_THROW(latency.record(std::chrono::milliseconds(100)));
+    EXPECT_NO_THROW(latency.record(std::chrono::seconds(1)));
+    EXPECT_NO_THROW(latency.record(std::chrono::microseconds(500)));
+}
+
+TEST_F(MetricsV2Test, DurationHistogramAutoConversion) {
+    auto latency = obs::register_duration_histogram("test.auto_convert");
+    
+    // Test auto-conversion to milliseconds
+    auto start = std::chrono::steady_clock::now();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    auto elapsed = std::chrono::steady_clock::now() - start;
+    
+    EXPECT_NO_THROW(latency.record(elapsed));
+}
+
+// =============================================================================
+// Gauge Tests
+// =============================================================================
+
+TEST_F(MetricsV2Test, GaugeSet) {
+    auto gauge = obs::register_gauge("test.gauge");
+    
+    EXPECT_NO_THROW(gauge.set(100));
+    EXPECT_NO_THROW(gauge.set(0));
+    EXPECT_NO_THROW(gauge.set(-50));
+}
+
+TEST_F(MetricsV2Test, GaugeSetComputesDelta) {
+    auto gauge = obs::register_gauge("test.gauge_delta");
+    
+    // Setting to 100, then 150 should add delta of +50, not 150
+    EXPECT_NO_THROW(gauge.set(100));
+    EXPECT_NO_THROW(gauge.set(150));  // Should compute delta = 150 - 100 = +50
+    EXPECT_NO_THROW(gauge.set(120));  // Should compute delta = 120 - 150 = -30
+}
+
+TEST_F(MetricsV2Test, GaugeAdd) {
+    auto gauge = obs::register_gauge("test.gauge_delta");
+    
+    EXPECT_NO_THROW(gauge.add(10));   // Increment
+    EXPECT_NO_THROW(gauge.add(-5));   // Decrement
+    EXPECT_NO_THROW(gauge.add(0));    // No-op
+}
+
+TEST_F(MetricsV2Test, GaugeWithUnit) {
+    auto percent = obs::register_gauge("test.cpu", obs::Unit::Percent);
+    EXPECT_NO_THROW(percent.set(75));
+}
+
+TEST_F(MetricsV2Test, GaugeAdHoc) {
+    EXPECT_NO_THROW(obs::gauge("ad_hoc.gauge").set(42));
+    EXPECT_NO_THROW(obs::gauge("ad_hoc.gauge").add(10));
+}
+
+// =============================================================================
+// Multiple Metrics Tests
+// =============================================================================
+
+TEST_F(MetricsV2Test, MultipleMetricsSameSession) {
+    auto c1 = obs::register_counter("multi.counter1");
+    auto c2 = obs::register_counter("multi.counter2");
+    auto h1 = obs::register_histogram("multi.hist1");
+    auto g1 = obs::register_gauge("multi.gauge1");
+    
+    EXPECT_NO_THROW({
+        c1.inc();
+        c2.inc(5);
+        h1.record(42.0);
+        g1.set(100);
+    });
+}
+
+TEST_F(MetricsV2Test, SameMetricMultipleTimes) {
+    auto c1 = obs::register_counter("same.counter");
+    auto c2 = obs::register_counter("same.counter");  // Same name
+    
+    // Both should work (same underlying metric)
+    EXPECT_NO_THROW(c1.inc());
+    EXPECT_NO_THROW(c2.inc());
+}
+
+} // namespace

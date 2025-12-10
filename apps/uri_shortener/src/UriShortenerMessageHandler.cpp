@@ -1,6 +1,6 @@
 #include "UriShortenerMessageHandler.h"
 #include <Message.h>
-#include <obs/Log.h>
+#include <Log.h>
 #include <any>
 #include "application/use_cases/ShortenLink.h"
 #include "application/use_cases/ResolveLink.h"

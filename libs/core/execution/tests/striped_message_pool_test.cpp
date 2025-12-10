@@ -2,7 +2,7 @@
 #include "StripedMessagePool.h"
 #include "IMessageHandler.h"
 #include "Message.h"
-#include <obs/Span.h>
+#include <Span.h>
 #include <thread>
 #include <chrono>
 #include <atomic>

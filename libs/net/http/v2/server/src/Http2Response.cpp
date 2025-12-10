@@ -1,6 +1,6 @@
 #include "Http2Response.h"
 #include "ResponseHandle.h"
-#include <obs/Log.h>
+#include <Log.h>
 
 namespace http2server {
 
