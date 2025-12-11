@@ -16,6 +16,7 @@
 #include <StripedMessagePool.h>
 #include "IRequest.h"
 #include "IResponse.h"
+#include "uri_shortener.pb.h"
 #include <memory>
 #include <string>
 #include <thread>
@@ -36,26 +37,25 @@ enum class AppError {
  * 
  * Factory pattern with static create() method.
  * Uses message-passing architecture with SEDA semantics.
+ * Accepts proto config from uri_shortener::Config.
  */
 class UriShortenerApp {
 public:
-    /// Configuration for the application
-    struct Config {
-        std::string address = "0.0.0.0";
-        std::string port = "8080";
-        size_t thread_count = std::thread::hardware_concurrency();
-        
-        // Optional: inject dependencies (for testing)
+    /// Optional overrides for testing (inject dependencies)
+    struct Overrides {
         std::shared_ptr<domain::ILinkRepository> repository;
         std::shared_ptr<domain::ICodeGenerator> code_generator;
     };
 
     /**
-     * @brief Factory method - creates and configures the app
-     * @param config Application configuration
+     * @brief Factory method - creates and configures the app from proto config
+     * @param config Protobuf configuration (loaded from JSON)
+     * @param overrides Optional dependency overrides for testing
      * @return Ok(App) on success, Err(AppError) on failure
      */
-    [[nodiscard]] static astra::Result<UriShortenerApp, AppError> create(const Config& config);
+    [[nodiscard]] static astra::Result<UriShortenerApp, AppError> create(
+        const uri_shortener::Config& config,
+        const Overrides& overrides = {});
 
     /**
      * @brief Run the application (blocking)

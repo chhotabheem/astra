@@ -1,18 +1,49 @@
 /// @file main.cpp
-/// @brief URI Shortener entry point
+/// @brief URI Shortener entry point - loads config from proto and starts app
 
 #include "UriShortenerApp.h"
-#include <iostream>
+#include "config/ProtoConfigLoader.h"
+#include <Provider.h>
+#include <Log.h>
+#include <cstdlib>
 
-int main() {
-    url_shortener::UriShortenerApp::Config config{
-        .address = "0.0.0.0",
-        .port = "8080"
-    };
+int main(int argc, char* argv[]) {
+    // Bootstrap: minimal observability for startup errors
+    // (Will be re-initialized with full config later in UriShortenerApp::create)
+    obs::InitParams bootstrap_obs;
+    bootstrap_obs.service_name = "uri-shortener";
+    bootstrap_obs.service_version = "1.0.0";
+    bootstrap_obs.environment = "bootstrap";
+    obs::init(bootstrap_obs);
 
-    auto result = url_shortener::UriShortenerApp::create(config);
+    // Determine config path
+    std::string config_path = "config/default.json";
+    if (argc > 1) {
+        config_path = argv[1];
+    }
+    if (const char* env_config = std::getenv("URI_SHORTENER_CONFIG")) {
+        config_path = env_config;
+    }
+
+    obs::info("Loading config", {{"path", config_path}});
+
+    // Load proto config
+    auto load_result = uri_shortener::ProtoConfigLoader::loadFromFile(config_path);
+    if (!load_result.success) {
+        obs::error("Failed to load config", 
+            {{"path", config_path}, {"error", load_result.error}});
+        return 1;
+    }
+
+    if (load_result.migrated) {
+        obs::info("Config migrated", 
+            {{"schema_version", std::to_string(load_result.config.schema_version())}});
+    }
+
+    // Create app with proto config (this re-initializes obs with full config)
+    auto result = url_shortener::UriShortenerApp::create(load_result.config);
     if (result.is_err()) {
-        std::cerr << "Failed to start URI Shortener\n";
+        obs::error("Failed to start URI Shortener", {});
         return 1;
     }
 

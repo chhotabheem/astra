@@ -1,13 +1,12 @@
+# Config library - now provides only file watching infrastructure
+# Main configuration is handled by app-specific proto config (ProtoConfigLoader)
+
 add_library(config INTERFACE)
 target_include_directories(config INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-
-
+# Implementation: FileConfigSource for file watching (reusable infrastructure)
 add_library(config_impl STATIC 
-    src/ConfigValidator.cpp
     src/filesource/FileConfigSource.cpp
-    src/parsers/JsonConfigParser.cpp
-    src/ConfigProvider.cpp
 )
 target_include_directories(config_impl PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -16,7 +15,6 @@ target_include_directories(config_impl PUBLIC
 target_link_libraries(config_impl 
     PRIVATE
         astra_sanitizers
-        json
     PUBLIC 
         observability
         astra_execution

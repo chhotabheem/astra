@@ -1,9 +1,12 @@
 #pragma once
 #include <string>
+#include <string_view>
 
 namespace obs {
 
-struct Config {
+/// Initialization parameters for the observability library.
+/// Apps populate this struct and pass to obs::init().
+struct InitParams {
     std::string service_name;
     std::string service_version{"1.0.0"};
     std::string environment{"production"};
@@ -12,5 +15,8 @@ struct Config {
     bool enable_tracing{true};
     bool enable_logging{true};
 };
+
+// Backward compatibility alias - deprecated, use InitParams instead
+using Config = InitParams;
 
 } // namespace obs

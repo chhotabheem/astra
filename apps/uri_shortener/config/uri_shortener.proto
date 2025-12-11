@@ -1,0 +1,117 @@
+syntax = "proto3";
+package uri_shortener;
+
+// =============================================================================
+// BOOTSTRAP CONFIG (immutable after startup)
+// =============================================================================
+
+message ServerConfig {
+    string address = 1;
+    uint32 port = 2;
+}
+
+message ThreadingConfig {
+    uint32 worker_threads = 1;
+    uint32 io_service_threads = 2;
+}
+
+message DatabaseConfig {
+    string mongodb_uri = 1;
+    string redis_uri = 2;
+}
+
+message ServiceConfig {
+    string name = 1;
+    string environment = 2;
+}
+
+message BootstrapConfig {
+    ServerConfig server = 1;
+    ThreadingConfig threading = 2;
+    DatabaseConfig database = 3;
+    ServiceConfig service = 4;
+}
+
+// =============================================================================
+// OPERATIONAL CONFIG (hot-reloadable tuning)
+// =============================================================================
+
+message LoggingConfig {
+    string level = 1;
+    string format = 2;
+    bool enable_access_logs = 3;
+}
+
+message TimeoutsConfig {
+    int32 request_ms = 1;
+    int32 database_ms = 2;
+    int32 http_client_ms = 3;
+}
+
+message ConnectionPoolsConfig {
+    uint32 mongodb_pool_size = 1;
+    uint32 redis_pool_size = 2;
+    uint32 http2_max_connections = 3;
+}
+
+message ObservabilityConfig {
+    bool metrics_enabled = 1;
+    bool tracing_enabled = 2;
+    bool logging_enabled = 3;
+    double tracing_sample_rate = 4;
+    string otlp_endpoint = 5;
+    string service_version = 6;
+}
+
+message OperationalConfig {
+    LoggingConfig logging = 1;
+    TimeoutsConfig timeouts = 2;
+    ConnectionPoolsConfig connection_pools = 3;
+    ObservabilityConfig observability = 4;
+}
+
+// =============================================================================
+// RUNTIME CONFIG (frequently changed at runtime)
+// =============================================================================
+
+message RateLimitingConfig {
+    int32 global_rps_limit = 1;
+    int32 per_user_rps_limit = 2;
+    int32 burst_size = 3;
+}
+
+message CircuitBreakerConfig {
+    int32 mongodb_threshold = 1;
+    int32 mongodb_timeout_sec = 2;
+    int32 redis_threshold = 3;
+    int32 redis_timeout_sec = 4;
+}
+
+message FeatureFlagsConfig {
+    bool enable_caching = 1;
+    bool enable_url_preview = 2;
+    bool compression_enabled = 3;
+}
+
+message BackpressureConfig {
+    uint32 worker_queue_max = 1;
+    uint32 io_queue_max = 2;
+}
+
+message RuntimeConfig {
+    RateLimitingConfig rate_limiting = 1;
+    CircuitBreakerConfig circuit_breaker = 2;
+    FeatureFlagsConfig feature_flags = 3;
+    BackpressureConfig backpressure = 4;
+}
+
+// =============================================================================
+// TOP-LEVEL CONFIG
+// =============================================================================
+
+message Config {
+    int32 schema_version = 1;
+    BootstrapConfig bootstrap = 2;
+    OperationalConfig operational = 3;
+    RuntimeConfig runtime = 4;
+}

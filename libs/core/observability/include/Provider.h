@@ -10,8 +10,8 @@ class Provider {
 public:
     static Provider& instance();
     
-    // Fix #8: Return bool to indicate success/failure
-    bool init(const Config& config);
+    // Initialize with parameters. Returns bool to indicate success/failure.
+    bool init(const InitParams& params);
     bool shutdown();
     
     // Public alias for accessing implementation (needed by Metrics.cpp)
@@ -28,7 +28,8 @@ private:
 };
 
 // Convenience functions
-bool init(const Config& config);
+bool init(const InitParams& params);
 bool shutdown();
 
 } // namespace obs
+

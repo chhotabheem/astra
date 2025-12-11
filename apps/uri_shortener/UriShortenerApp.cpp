@@ -8,7 +8,7 @@
 #include "Http2Server.h"
 #include <Provider.h>
 #include <Config.h>
-#include <iostream>
+#include <Log.h>
 
 namespace url_shortener {
 
@@ -47,37 +47,61 @@ UriShortenerApp::~UriShortenerApp() {
 UriShortenerApp::UriShortenerApp(UriShortenerApp&&) noexcept = default;
 UriShortenerApp& UriShortenerApp::operator=(UriShortenerApp&&) noexcept = default;
 
-astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(const Config& config) {
+astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(
+        const uri_shortener::Config& config,
+        const Overrides& overrides) {
+    
+    // Extract bootstrap config
+    const auto& bootstrap = config.bootstrap();
+    std::string address = bootstrap.has_server() ? bootstrap.server().address() : "0.0.0.0";
+    std::string port = bootstrap.has_server() ? std::to_string(bootstrap.server().port()) : "8080";
+    size_t thread_count = bootstrap.has_threading() ? bootstrap.threading().worker_threads() : 4;
+    
     // Validate config
-    if (config.address.empty()) {
+    if (address.empty()) {
         return astra::Result<UriShortenerApp, AppError>::Err(AppError::InvalidConfig);
     }
-    if (config.port.empty()) {
+    if (port.empty() || port == "0") {
         return astra::Result<UriShortenerApp, AppError>::Err(AppError::InvalidConfig);
     }
 
-    // Initialize observability with Provider pattern
-    obs::Config obs_config{
-        .service_name = "uri_shortener",
-        .service_version = "1.0.0",
-        .environment = "development",
-        .otlp_endpoint = "http://localhost:4317"
-    };
-    if (!obs::init(obs_config)) {
-        std::cerr << "Warning: observability initialization failed\n";
+    // Initialize observability from proto config (C++17 compatible - no designated initializers)
+    obs::InitParams obs_params;
+    if (bootstrap.has_service()) {
+        obs_params.service_name = bootstrap.service().name();
+        obs_params.environment = bootstrap.service().environment();
+    } else {
+        obs_params.service_name = "uri_shortener";
+        obs_params.environment = "development";
+    }
+    
+    if (config.has_operational() && config.operational().has_observability()) {
+        const auto& obs_config = config.operational().observability();
+        obs_params.service_version = obs_config.service_version();
+        obs_params.otlp_endpoint = obs_config.otlp_endpoint();
+        obs_params.enable_metrics = obs_config.metrics_enabled();
+        obs_params.enable_tracing = obs_config.tracing_enabled();
+        obs_params.enable_logging = obs_config.logging_enabled();
+    } else {
+        obs_params.service_version = "1.0.0";
+        obs_params.otlp_endpoint = "http://localhost:4317";
+    }
+    
+    if (!obs::init(obs_params)) {
+        obs::warn("Observability initialization failed");
     }
 
     // Create repository with observability wrapper
     std::shared_ptr<domain::ILinkRepository> repo;
-    if (config.repository) {
-        repo = config.repository;
+    if (overrides.repository) {
+        repo = overrides.repository;
     } else {
         auto inner = std::make_shared<infrastructure::InMemoryLinkRepository>();
         repo = std::make_shared<infrastructure::ObservableLinkRepository>(inner);
     }
     
-    auto gen = config.code_generator
-        ? config.code_generator
+    auto gen = overrides.code_generator
+        ? overrides.code_generator
         : std::make_shared<infrastructure::RandomCodeGenerator>();
 
     // Create use cases
@@ -86,10 +110,9 @@ astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(const Config& c
     auto del = std::make_shared<application::DeleteLink>(repo);
 
     // Create HTTP server
-    auto server = std::make_unique<http2server::Server>(config.address, config.port);
+    auto server = std::make_unique<http2server::Server>(address, port);
     
     // Create message handler chain
-    // Handler processes synchronously (no pool back-reference needed)
     auto inner_msg_handler = std::make_unique<UriShortenerMessageHandler>(
         shorten, resolve, del);
     
@@ -97,7 +120,6 @@ astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(const Config& c
     auto obs_msg_handler = std::make_unique<ObservableMessageHandler>(*inner_msg_handler);
     
     // Create pool with observable handler
-    size_t thread_count = config.thread_count > 0 ? config.thread_count : 4;
     auto pool = std::make_unique<astra::execution::StripedMessagePool>(
         thread_count, *obs_msg_handler);
     
@@ -141,8 +163,8 @@ int UriShortenerApp::run() {
         res.close();
     });
 
-    std::cout << "URI Shortener listening on port " << "...\n";
-    std::cout << "Using message-based architecture with " << m_pool->thread_count() << " workers\n";
+    obs::info("URI Shortener listening");
+    obs::info("Using message-based architecture", {{"workers", std::to_string(m_pool->thread_count())}});
     m_server->run();
     return 0;
 }

@@ -12,15 +12,15 @@
 namespace obs {
 
 // Convenience initialization functions
-// Usage:
-//   obs::Config config{
-//       .service_name = "my_service",
-//       .otlp_endpoint = "http://localhost:4317"
-//   };
-//   obs::init(config);
+// Usage (C++17):
+//   obs::InitParams params;
+//   params.service_name = "my_service";
+//   params.otlp_endpoint = "http://localhost:4317";
+//   obs::init(params);
 //   
 //   auto span = obs::span("operation");
 //   obs::info("Log message");
 //   
 
 } // namespace obs
+

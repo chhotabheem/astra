@@ -43,7 +43,7 @@ constexpr uint32_t MAX_GAUGES = 256;
  */
 class ProviderImpl {
 public:
-    bool init(const Config& config);
+    bool init(const InitParams& params);
     bool shutdown();
     
     // Metric registration (called at startup, returns ID)

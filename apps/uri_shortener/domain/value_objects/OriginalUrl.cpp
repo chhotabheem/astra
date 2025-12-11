@@ -8,17 +8,22 @@ namespace url_shortener::domain {
 
 namespace {
 
+/// C++17 compatible starts_with helper
+bool starts_with(std::string_view str, std::string_view prefix) {
+    return str.size() >= prefix.size() && str.substr(0, prefix.size()) == prefix;
+}
+
 /// Check if URL starts with valid scheme
 bool has_valid_scheme(std::string_view url) {
-    return url.starts_with("http://") || url.starts_with("https://");
+    return starts_with(url, "http://") || starts_with(url, "https://");
 }
 
 /// Get the part after the scheme
 std::string_view get_authority_and_path(std::string_view url) {
-    if (url.starts_with("https://")) {
+    if (starts_with(url, "https://")) {
         return url.substr(8);
     }
-    if (url.starts_with("http://")) {
+    if (starts_with(url, "http://")) {
         return url.substr(7);
     }
     return {};

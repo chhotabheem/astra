@@ -12,8 +12,8 @@ Provider::Provider() : m_impl(std::make_unique<ProviderImpl>()) {}
 
 Provider::~Provider() = default;
 
-bool Provider::init(const Config& config) {
-    return m_impl->init(config);
+bool Provider::init(const InitParams& params) {
+    return m_impl->init(params);
 }
 
 bool Provider::shutdown() {
@@ -24,8 +24,8 @@ Provider::Impl& Provider::impl() {
     return *m_impl;
 }
 
-bool init(const Config& config) {
-    return Provider::instance().init(config);
+bool init(const InitParams& params) {
+    return Provider::instance().init(params);
 }
 
 bool shutdown() {
