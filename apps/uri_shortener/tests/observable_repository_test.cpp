@@ -2,9 +2,9 @@
 /// @brief Tests for ObservableLinkRepository decorator
 
 #include <gtest/gtest.h>
-#include "infrastructure/observability/ObservableLinkRepository.h"
-#include "infrastructure/persistence/InMemoryLinkRepository.h"
-#include "domain/entities/ShortLink.h"
+#include "ObservableLinkRepository.h"
+#include "InMemoryLinkRepository.h"
+#include "ShortLink.h"
 #include <Provider.h>
 #include <Config.h>
 

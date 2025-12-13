@@ -37,6 +37,7 @@ target_link_libraries(http2server
         observability
     PUBLIC
         astra_router
+        astra_execution
 )
 
 # Add compile definition for nghttp2

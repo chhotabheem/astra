@@ -2,10 +2,10 @@
 /// @brief TDD tests for ShortLink entity (Aggregate Root)
 
 #include <gtest/gtest.h>
-#include "domain/entities/ShortLink.h"
-#include "domain/value_objects/ShortCode.h"
-#include "domain/value_objects/OriginalUrl.h"
-#include "domain/value_objects/ExpirationPolicy.h"
+#include "ShortLink.h"
+#include "ShortCode.h"
+#include "OriginalUrl.h"
+#include "ExpirationPolicy.h"
 #include <chrono>
 
 namespace url_shortener::domain::test {

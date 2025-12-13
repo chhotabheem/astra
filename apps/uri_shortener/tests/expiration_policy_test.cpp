@@ -2,7 +2,7 @@
 /// @brief TDD tests for ExpirationPolicy value object
 
 #include <gtest/gtest.h>
-#include "domain/value_objects/ExpirationPolicy.h"
+#include "ExpirationPolicy.h"
 #include <chrono>
 
 namespace url_shortener::domain::test {

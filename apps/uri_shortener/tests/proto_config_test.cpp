@@ -277,6 +277,34 @@ TEST(OperationalConfigTest, CanSetServiceVersion) {
 }
 
 // =============================================================================
+// RESILIENCE CONFIG TESTS
+// =============================================================================
+
+TEST(OperationalConfigTest, ResilienceConfigDefaults) {
+    ResilienceConfig resilience;
+    EXPECT_EQ(resilience.max_concurrent_requests(), 0);
+}
+
+TEST(OperationalConfigTest, CanSetMaxConcurrentRequests) {
+    ResilienceConfig resilience;
+    resilience.set_max_concurrent_requests(500);
+    EXPECT_EQ(resilience.max_concurrent_requests(), 500);
+}
+
+TEST(OperationalConfigTest, OperationalHasResilienceField) {
+    OperationalConfig operational;
+    EXPECT_FALSE(operational.has_resilience());
+    operational.mutable_resilience();
+    EXPECT_TRUE(operational.has_resilience());
+}
+
+TEST(OperationalConfigTest, CanSetResilienceThroughOperational) {
+    OperationalConfig operational;
+    operational.mutable_resilience()->set_max_concurrent_requests(1000);
+    EXPECT_EQ(operational.resilience().max_concurrent_requests(), 1000);
+}
+
+// =============================================================================
 // RUNTIME CONFIG TESTS
 // =============================================================================
 
@@ -557,6 +585,23 @@ TEST(JsonParsingTest, ParsesObservabilityConfig) {
     EXPECT_DOUBLE_EQ(config.operational().observability().tracing_sample_rate(), 0.5);
     EXPECT_EQ(config.operational().observability().otlp_endpoint(), "http://otel-collector:4317");
     EXPECT_EQ(config.operational().observability().service_version(), "2.0.0");
+}
+
+TEST(JsonParsingTest, ParsesResilienceConfig) {
+    const char* json = R"({
+        "operational": {
+            "resilience": {
+                "max_concurrent_requests": 500
+            }
+        }
+    })";
+    
+    Config config;
+    auto status = google::protobuf::util::JsonStringToMessage(json, &config);
+    
+    EXPECT_TRUE(status.ok()) << status.message();
+    EXPECT_TRUE(config.operational().has_resilience());
+    EXPECT_EQ(config.operational().resilience().max_concurrent_requests(), 500);
 }
 
 TEST(JsonParsingTest, IgnoresUnknownFieldsWithOption) {

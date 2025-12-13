@@ -3,8 +3,8 @@
 
 #include <gtest/gtest.h>
 #include "UriShortenerApp.h"
-#include "infrastructure/persistence/InMemoryLinkRepository.h"
-#include "infrastructure/generators/RandomCodeGenerator.h"
+#include "InMemoryLinkRepository.h"
+#include "RandomCodeGenerator.h"
 
 namespace url_shortener::test {
 

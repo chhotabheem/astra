@@ -63,11 +63,16 @@ message ObservabilityConfig {
     string service_version = 6;
 }
 
+message ResilienceConfig {
+    uint32 max_concurrent_requests = 1;
+}
+
 message OperationalConfig {
     LoggingConfig logging = 1;
     TimeoutsConfig timeouts = 2;
     ConnectionPoolsConfig connection_pools = 3;
     ObservabilityConfig observability = 4;
+    ResilienceConfig resilience = 5;
 }
 
 // =============================================================================

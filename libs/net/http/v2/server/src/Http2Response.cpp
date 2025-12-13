@@ -22,19 +22,24 @@ void Response::write(std::string_view data) {
 
 void Response::close() {
     if (m_closed) {
-        return;  // Prevent double-send
+        return;
     }
     m_closed = true;
     
     if (auto handle = m_handle.lock()) {
-        // Use 500 if status not explicitly set (catches missing set_status calls)
         int status = m_status.value_or(500);
         if (!m_status.has_value()) {
             obs::warn("Response closed without setting status code - defaulting to 500");
         }
         handle->send(status, std::move(m_headers), std::move(m_body));
     } else {
-        obs::debug("Cannot send response: stream already closed (ResponseHandle expired)");
+        obs::debug("Cannot send response: stream already closed");
+    }
+}
+
+void Response::add_scoped_resource(std::unique_ptr<astra::execution::IScopedResource> resource) {
+    if (auto handle = m_handle.lock()) {
+        handle->add_scoped_resource(std::move(resource));
     }
 }
 

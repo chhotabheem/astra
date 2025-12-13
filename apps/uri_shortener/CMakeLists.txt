@@ -19,29 +19,30 @@ target_compile_features(uri_shortener_config PUBLIC cxx_std_17)
 # Domain Library (core business logic)
 # -----------------------------------------------------------------------------
 add_library(uri_shortener_domain STATIC
-    # Value Objects
-    domain/value_objects/ShortCode.cpp
-    domain/value_objects/OriginalUrl.cpp
-    domain/value_objects/ExpirationPolicy.cpp
-    # Entities
-    domain/entities/ShortLink.cpp
-    # Application Use Cases
-    application/use_cases/ShortenLink.cpp
-    application/use_cases/ResolveLink.cpp
-    application/use_cases/DeleteLink.cpp
-    # Message Handlers
-    src/UriShortenerRequestHandler.cpp
-    src/UriShortenerMessageHandler.cpp
-    src/ObservableMessageHandler.cpp
-    src/ObservableRequestHandler.cpp
-    # App
-    UriShortenerApp.cpp
+    # Domain - Value Objects and Entities
+    domain/src/ShortCode.cpp
+    domain/src/OriginalUrl.cpp
+    domain/src/ExpirationPolicy.cpp
+    domain/src/ShortLink.cpp
+    # Service - Use Cases
+    service/src/ShortenLink.cpp
+    service/src/ResolveLink.cpp
+    service/src/DeleteLink.cpp
+    # Service - Message Handlers
+    service/src/UriShortenerRequestHandler.cpp
+    service/src/UriShortenerMessageHandler.cpp
+    service/src/ObservableMessageHandler.cpp
+    service/src/ObservableRequestHandler.cpp
+    # Service - App
+    service/src/UriShortenerApp.cpp
 )
 
 target_include_directories(uri_shortener_domain
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/domain/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/service/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/config/include
     PRIVATE
         ${CMAKE_SOURCE_DIR}/libs/core/outcome/include
         ${CMAKE_SOURCE_DIR}/libs/net/http/v2/server/include
@@ -49,6 +50,7 @@ target_include_directories(uri_shortener_domain
         ${CMAKE_SOURCE_DIR}/libs/net/router/include
         ${CMAKE_SOURCE_DIR}/libs/core/observability/include
         ${CMAKE_SOURCE_DIR}/libs/core/execution/include
+        ${CMAKE_SOURCE_DIR}/libs/core/resilience/include
 )
 
 target_link_libraries(uri_shortener_domain
@@ -60,6 +62,7 @@ target_link_libraries(uri_shortener_domain
         astra_router
         observability
         astra_execution
+        resilience
 )
 
 target_compile_features(uri_shortener_domain PUBLIC cxx_std_17)
@@ -156,6 +159,7 @@ if(BUILD_TESTING)
     target_include_directories(proto_config_loader_test
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}
+            ${CMAKE_CURRENT_SOURCE_DIR}/config/include
     )
 
     gtest_discover_tests(proto_config_loader_test)
@@ -175,6 +179,7 @@ if(BUILD_TESTING)
     target_include_directories(config_migrator_test
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}
+            ${CMAKE_CURRENT_SOURCE_DIR}/config/include
     )
 
     gtest_discover_tests(config_migrator_test)

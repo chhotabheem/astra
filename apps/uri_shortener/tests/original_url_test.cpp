@@ -2,7 +2,7 @@
 /// @brief TDD tests for OriginalUrl value object
 
 #include <gtest/gtest.h>
-#include "domain/value_objects/OriginalUrl.h"
+#include "OriginalUrl.h"
 
 namespace url_shortener::domain::test {
 

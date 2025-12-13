@@ -3,6 +3,7 @@
 #include <boost/asio/io_context.hpp>
 #include <thread>
 #include <chrono>
+#include <IScopedResource.h>
 
 using namespace http2server;
 using namespace std::chrono_literals;
@@ -167,4 +168,83 @@ TEST_F(ResponseHandleTest, ConcurrentSends) {
     
     // No crashes = success
     SUCCEED();
+}
+
+// =============================================================================
+// IScopedResource Cleanup Tests
+// =============================================================================
+
+namespace {
+class TestScopedResource : public astra::execution::IScopedResource {
+public:
+    explicit TestScopedResource(bool& destroyed_flag) 
+        : m_destroyed_flag(destroyed_flag) {}
+    
+    ~TestScopedResource() override {
+        m_destroyed_flag = true;
+    }
+    
+private:
+    bool& m_destroyed_flag;
+};
+}
+
+TEST_F(ResponseHandleTest, ScopedResourceReleasedOnDestruction) {
+    bool resource_destroyed = false;
+    
+    {
+        auto handle = std::make_shared<ResponseHandle>(make_send_fn(), io_ctx);
+        handle->add_scoped_resource(std::make_unique<TestScopedResource>(resource_destroyed));
+        
+        EXPECT_FALSE(resource_destroyed);
+    }
+    
+    EXPECT_TRUE(resource_destroyed) << "Scoped resource must be released when handle is destroyed";
+}
+
+TEST_F(ResponseHandleTest, MultipleScopedResourcesReleasedOnDestruction) {
+    bool resource1_destroyed = false;
+    bool resource2_destroyed = false;
+    bool resource3_destroyed = false;
+    
+    {
+        auto handle = std::make_shared<ResponseHandle>(make_send_fn(), io_ctx);
+        handle->add_scoped_resource(std::make_unique<TestScopedResource>(resource1_destroyed));
+        handle->add_scoped_resource(std::make_unique<TestScopedResource>(resource2_destroyed));
+        handle->add_scoped_resource(std::make_unique<TestScopedResource>(resource3_destroyed));
+        
+        EXPECT_FALSE(resource1_destroyed);
+        EXPECT_FALSE(resource2_destroyed);
+        EXPECT_FALSE(resource3_destroyed);
+    }
+    
+    EXPECT_TRUE(resource1_destroyed);
+    EXPECT_TRUE(resource2_destroyed);
+    EXPECT_TRUE(resource3_destroyed);
+}
+
+TEST_F(ResponseHandleTest, ScopedResourceReleasedInReverseOrder) {
+    std::vector<int> destruction_order;
+    
+    class OrderedResource : public astra::execution::IScopedResource {
+    public:
+        OrderedResource(int id, std::vector<int>& order) : m_id(id), m_order(order) {}
+        ~OrderedResource() override { m_order.push_back(m_id); }
+    private:
+        int m_id;
+        std::vector<int>& m_order;
+    };
+    
+    {
+        auto handle = std::make_shared<ResponseHandle>(make_send_fn(), io_ctx);
+        handle->add_scoped_resource(std::make_unique<OrderedResource>(1, destruction_order));
+        handle->add_scoped_resource(std::make_unique<OrderedResource>(2, destruction_order));
+        handle->add_scoped_resource(std::make_unique<OrderedResource>(3, destruction_order));
+    }
+    
+    // Vector destruction is in forward order (FIFO)
+    ASSERT_EQ(destruction_order.size(), 3);
+    EXPECT_EQ(destruction_order[0], 1);
+    EXPECT_EQ(destruction_order[1], 2);
+    EXPECT_EQ(destruction_order[2], 3);
 }

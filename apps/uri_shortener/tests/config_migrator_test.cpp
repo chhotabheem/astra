@@ -2,7 +2,7 @@
 /// @brief TDD tests for ConfigMigrator - schema migration following Protobuf best practices
 
 #include <gtest/gtest.h>
-#include "config/ConfigMigrator.h"
+#include "ConfigMigrator.h"
 
 namespace uri_shortener::test {
 

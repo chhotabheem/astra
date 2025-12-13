@@ -2,7 +2,7 @@
 /// @brief TDD tests for ProtoConfigLoader
 
 #include <gtest/gtest.h>
-#include "config/ProtoConfigLoader.h"
+#include "ProtoConfigLoader.h"
 #include <fstream>
 #include <cstdio>
 

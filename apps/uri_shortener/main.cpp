@@ -2,7 +2,7 @@
 /// @brief URI Shortener entry point - loads config from proto and starts app
 
 #include "UriShortenerApp.h"
-#include "config/ProtoConfigLoader.h"
+#include "ProtoConfigLoader.h"
 #include <Provider.h>
 #include <Log.h>
 #include <cstdlib>

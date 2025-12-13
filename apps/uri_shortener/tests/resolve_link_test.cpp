@@ -2,10 +2,10 @@
 /// @brief TDD tests for ResolveLink use case
 
 #include <gtest/gtest.h>
-#include "application/use_cases/ResolveLink.h"
-#include "application/use_cases/ShortenLink.h"
-#include "domain/ports/ILinkRepository.h"
-#include "domain/ports/ICodeGenerator.h"
+#include "ResolveLink.h"
+#include "ShortenLink.h"
+#include "ILinkRepository.h"
+#include "ICodeGenerator.h"
 #include <memory>
 #include <map>
 

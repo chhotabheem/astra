@@ -2,7 +2,7 @@
 /// @brief TDD tests for ShortCode value object
 
 #include <gtest/gtest.h>
-#include "domain/value_objects/ShortCode.h"
+#include "ShortCode.h"
 
 namespace url_shortener::domain::test {
 

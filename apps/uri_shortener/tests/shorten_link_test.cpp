@@ -2,9 +2,9 @@
 /// @brief TDD tests for ShortenLink use case
 
 #include <gtest/gtest.h>
-#include "application/use_cases/ShortenLink.h"
-#include "domain/ports/ILinkRepository.h"
-#include "domain/ports/ICodeGenerator.h"
+#include "ShortenLink.h"
+#include "ILinkRepository.h"
+#include "ICodeGenerator.h"
 #include <memory>
 
 namespace url_shortener::application::test {
