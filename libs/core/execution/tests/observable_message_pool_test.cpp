@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "ObservableMessagePool.h"
-#include "StripedMessagePool.h"
+#include "StickyQueue.h"
 #include "IMessageHandler.h"
 #include "Message.h"
 #include <thread>
@@ -33,7 +33,7 @@ protected:
 };
 
 TEST_F(ObservableMessagePoolTest, SubmitIncrementsCounter) {
-    StripedMessagePool core(2, handler);
+    StickyQueue core(2, handler);
     ObservableMessagePool pool(core);
     
     pool.start();
@@ -48,7 +48,7 @@ TEST_F(ObservableMessagePoolTest, SubmitIncrementsCounter) {
 }
 
 TEST_F(ObservableMessagePoolTest, DelegatesStartStop) {
-    StripedMessagePool core(2, handler);
+    StickyQueue core(2, handler);
     ObservableMessagePool pool(core);
     
     pool.start();
@@ -88,11 +88,9 @@ TEST_F(ObservableMessagePoolTest, HandlerWrapperDecrementsQueueDepth) {
     EXPECT_EQ(handler.m_count, 3);
 }
 
-TEST_F(ObservableMessagePoolTest, ThreadCountDelegates) {
-    StripedMessagePool core(8, handler);
+TEST_F(ObservableMessagePoolTest, WorkerCountDelegates) {
+    StickyQueue core(8, handler);
     ObservableMessagePool pool(core);
     
-    EXPECT_EQ(pool.thread_count(), 8);
+    EXPECT_EQ(pool.worker_count(), 8);
 }
-
-

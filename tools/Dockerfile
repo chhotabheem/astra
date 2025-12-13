@@ -75,9 +75,47 @@ RUN chmod +x /tmp/build-opentelemetry.sh && \
     /tmp/build-opentelemetry.sh && \
     rm /tmp/build-opentelemetry.sh
 
+# -----------------------------------------------------------------------------
+# Build Google Test (for unit testing)
+# -----------------------------------------------------------------------------
+COPY versions.env /tmp/
+COPY scripts/build-googletest.sh /tmp/
+RUN chmod +x /tmp/build-googletest.sh && \
+    /tmp/build-googletest.sh && \
+    rm /tmp/build-googletest.sh
+
+# -----------------------------------------------------------------------------
+# Build MongoDB C++ Driver (uses system C driver)
+# -----------------------------------------------------------------------------
+COPY scripts/build-mongo-cxx-driver.sh /tmp/
+RUN chmod +x /tmp/build-mongo-cxx-driver.sh && \
+    /tmp/build-mongo-cxx-driver.sh && \
+    rm /tmp/build-mongo-cxx-driver.sh
+
+# -----------------------------------------------------------------------------
+# Build redis-plus-plus (uses system hiredis)
+# -----------------------------------------------------------------------------
+COPY scripts/build-redis-plus-plus.sh /tmp/
+RUN chmod +x /tmp/build-redis-plus-plus.sh && \
+    /tmp/build-redis-plus-plus.sh && \
+    rm /tmp/build-redis-plus-plus.sh
+
+# -----------------------------------------------------------------------------
+# Build nghttp2-asio with Boost 1.88 compatibility patch
+# -----------------------------------------------------------------------------
+COPY scripts/boost-1.88-compat.patch /tmp/
+COPY scripts/build-nghttp2-asio.sh /tmp/
+RUN chmod +x /tmp/build-nghttp2-asio.sh && \
+    /tmp/build-nghttp2-asio.sh && \
+    rm /tmp/build-nghttp2-asio.sh /tmp/boost-1.88-compat.patch
+
+# Cleanup versions.env from /tmp
+RUN rm -f /tmp/versions.env
+
 WORKDIR /app
 
-# Pre-installed: MongoDB C (2.1.2), OpenTelemetry C++ (v1.24.0)
+# Pre-installed: MongoDB C (2.1.2), OpenTelemetry C++ (v1.24.0),
+#                GoogleTest, MongoDB C++, redis++, nghttp2-asio
 
 COPY scripts/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

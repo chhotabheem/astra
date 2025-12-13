@@ -9,11 +9,12 @@
 namespace http2server {
 namespace backend {
 
-NgHttp2Server::NgHttp2Server(const std::string& address, const std::string& port, int threads)
-    : m_address(address), m_port(port), m_threads(threads),
+NgHttp2Server::NgHttp2Server(const http2server::Config& config)
+    : m_config(config),
       ready_future_(ready_promise_.get_future().share()) {
-    server_.num_threads(m_threads);
-    obs::info("NgHttp2Server initialized with " + std::to_string(m_threads) + " threads");
+    int threads = m_config.thread_count() > 0 ? m_config.thread_count() : 1;
+    server_.num_threads(threads);
+    obs::info("NgHttp2Server initialized with " + std::to_string(threads) + " threads");
 }
 
 NgHttp2Server::~NgHttp2Server() {
@@ -94,12 +95,15 @@ void NgHttp2Server::handle(const std::string& method, const std::string& path, S
 }
 
 void NgHttp2Server::run() {
-    obs::info("Server starting on " + m_address + ":" + m_port);
+    std::string address = m_config.address();
+    std::string port = std::to_string(m_config.port());
+    
+    obs::info("Server starting on " + address + ":" + port);
     
     boost::system::error_code ec;
     
     // Start server in async mode - this creates acceptors and returns immediately
-    if (server_.listen_and_serve(ec, m_address, m_port, true /*asynchronous*/)) {
+    if (server_.listen_and_serve(ec, address, port, true /*asynchronous*/)) {
         obs::error("Server failed to start: " + ec.message());
         return;
     }

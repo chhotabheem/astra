@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package execution;
+
+// SharedQueue configuration (single queue, multiple workers)
+message SharedQueueConfig {
+    uint32 num_workers = 1;
+    uint32 max_queue_size = 2;
+}
+
+// StickyQueue configuration (per-worker queues with session affinity)
+message StickyQueueConfig {
+    uint32 num_workers = 1;
+}
+
+// Combined execution configuration
+message Config {
+    SharedQueueConfig shared_queue = 1;
+    StickyQueueConfig sticky_queue = 2;
+}

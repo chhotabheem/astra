@@ -1,6 +1,6 @@
-# First build nghttp2-asio (shared dependency)
-add_subdirectory(nghttp2)
+# nghttp2-asio is pre-installed in Docker image
+find_package(Libnghttp2Asio REQUIRED)
 
-# Then build server and client
+# Build server and client
 add_subdirectory(server)
 add_subdirectory(client)

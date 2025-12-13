@@ -35,11 +35,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    if (load_result.migrated) {
-        obs::info("Config migrated", 
-            {{"schema_version", std::to_string(load_result.config.schema_version())}});
-    }
-
     // Create app with proto config (this re-initializes obs with full config)
     auto result = url_shortener::UriShortenerApp::create(load_result.config);
     if (result.is_err()) {

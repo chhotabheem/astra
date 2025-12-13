@@ -22,7 +22,7 @@ public:
 
 class ClientImpl {
 public:
-    ClientImpl(const ClientConfig& config);
+    ClientImpl(const http2client::Config& config);
     ~ClientImpl();
 
     void submit(const std::string& method, const std::string& path, 
@@ -37,15 +37,7 @@ private:
     void start_io_service();
     void stop_io_service();
 
-    // Helper to handle retries
-    void schedule_retry(const std::string& method, const std::string& path, 
-                        const std::string& body, 
-                        const std::map<std::string, std::string>& headers,
-                        ResponseHandler handler,
-                        int retries_remaining,
-                        const Error& last_error);
-
-    ClientConfig m_config;
+    http2client::Config m_config;
     boost::asio::io_context m_io_context;
     std::unique_ptr<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>> m_work;
     std::thread m_io_thread;

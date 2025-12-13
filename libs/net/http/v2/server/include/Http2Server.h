@@ -4,6 +4,7 @@
 #include <memory>
 #include <functional>
 #include "Router.h"
+#include "http2server.pb.h"
 
 namespace http2server {
 
@@ -14,12 +15,9 @@ class Server {
 public:
     /**
      * @brief Construct a new Server object
-     * 
-     * @param address The address to bind to (e.g., "0.0.0.0" or "127.0.0.1")
-     * @param port The port to listen on
-     * @param threads Number of worker threads (default: 1)
+     * @param config Proto-generated server configuration
      */
-    explicit Server(const std::string& address, const std::string& port, int threads = 1);
+    explicit Server(const http2server::Config& config);
     ~Server();
 
     // Prevent copying
@@ -30,7 +28,6 @@ public:
 
     /**
      * @brief Register a handler for a specific method and path
-     * 
      * @param method HTTP method (GET, POST, etc.)
      * @param path URL path
      * @param handler The callback function

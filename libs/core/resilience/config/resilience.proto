@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package resilience;
+
+// Retry policy configuration
+message RetryPolicy {
+    uint32 max_attempts = 1;
+    uint32 initial_delay_ms = 2;
+    uint32 max_delay_ms = 3;
+    double backoff_multiplier = 4;
+    repeated uint32 retryable_status_codes = 5;
+}
+
+// Circuit breaker configuration
+message CircuitBreakerPolicy {
+    uint32 failure_threshold = 1;      // Failures before opening
+    uint32 success_threshold = 2;      // Successes to close
+    uint32 half_open_max_calls = 3;    // Calls allowed in half-open
+    uint32 open_duration_ms = 4;       // Time in open state
+}
+
+// Load shedder configuration
+message LoadShedderPolicy {
+    uint32 max_concurrent_requests = 1;
+    string name = 2;
+}
+
+// Rate limiting configuration
+message RateLimitingPolicy {
+    uint32 global_rps_limit = 1;
+    uint32 per_user_rps_limit = 2;
+    uint32 burst_size = 3;
+}
+
+// Combined resilience configuration
+message Config {
+    RetryPolicy retry = 1;
+    CircuitBreakerPolicy circuit_breaker = 2;
+    LoadShedderPolicy load_shedder = 3;
+    RateLimitingPolicy rate_limiting = 4;
+}

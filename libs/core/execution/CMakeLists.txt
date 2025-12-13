@@ -1,8 +1,8 @@
 find_package(Threads REQUIRED)
 
 add_library(astra_execution
-    src/ThreadPool.cpp
-    src/StripedMessagePool.cpp
+    src/SharedQueue.cpp
+    src/StickyQueue.cpp
     src/ObservableMessagePool.cpp
 )
 

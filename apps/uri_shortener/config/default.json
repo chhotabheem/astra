@@ -3,66 +3,75 @@
     "bootstrap": {
         "server": {
             "address": "0.0.0.0",
-            "port": 8080
+            "port": 8080,
+            "thread_count": 2,
+            "max_connections": 1000,
+            "request_timeout_ms": 5000,
+            "max_concurrent_streams": 100,
+            "initial_window_size": 65535
         },
-        "threading": {
-            "worker_threads": 4,
-            "io_service_threads": 2
+        "execution": {
+            "shared_queue": {
+                "num_workers": 4,
+                "max_queue_size": 10000
+            },
+            "sticky_queue": {
+                "num_workers": 2
+            }
         },
-        "database": {
-            "mongodb_uri": "mongodb://localhost:27017",
-            "redis_uri": "redis://localhost:6379"
+        "observability": {
+            "service_name": "uri-shortener",
+            "service_version": "1.0.0",
+            "environment": "development",
+            "otlp_endpoint": "http://localhost:4317",
+            "tracing_enabled": true,
+            "metrics_enabled": true,
+            "logging_enabled": true,
+            "trace_sample_rate": 0.1,
+            "log_level": "INFO"
+        },
+        "dataservice": {
+            "client": {
+                "host": "localhost",
+                "port": 8081,
+                "connect_timeout_ms": 1000,
+                "request_timeout_ms": 3000,
+                "pool_size": 10,
+                "max_concurrent_streams": 100,
+                "initial_window_size": 65535
+            },
+            "resilience": {
+                "retry": {
+                    "max_attempts": 3,
+                    "initial_delay_ms": 100,
+                    "max_delay_ms": 2000,
+                    "backoff_multiplier": 2.0,
+                    "retryable_status_codes": [
+                        503,
+                        504
+                    ]
+                },
+                "circuit_breaker": {
+                    "failure_threshold": 5,
+                    "success_threshold": 2,
+                    "half_open_max_calls": 3,
+                    "open_duration_ms": 30000
+                },
+                "load_shedder": {
+                    "max_concurrent_requests": 1000,
+                    "name": "dataservice-client"
+                }
+            }
         },
         "service": {
             "name": "uri-shortener",
             "environment": "development"
         }
     },
-    "operational": {
-        "logging": {
-            "level": "INFO",
-            "format": "json",
-            "enable_access_logs": true
-        },
-        "timeouts": {
-            "request_ms": 5000,
-            "database_ms": 2000,
-            "http_client_ms": 3000
-        },
-        "connection_pools": {
-            "mongodb_pool_size": 10,
-            "redis_pool_size": 5,
-            "http2_max_connections": 100
-        },
-        "observability": {
-            "metrics_enabled": true,
-            "tracing_enabled": true,
-            "logging_enabled": true,
-            "tracing_sample_rate": 0.1,
-            "otlp_endpoint": "http://localhost:4317",
-            "service_version": "1.0.0"
-        }
-    },
     "runtime": {
-        "rate_limiting": {
-            "global_rps_limit": 100000,
-            "per_user_rps_limit": 1000,
-            "burst_size": 5000
-        },
-        "circuit_breaker": {
-            "mongodb_threshold": 5,
-            "mongodb_timeout_sec": 30,
-            "redis_threshold": 3,
-            "redis_timeout_sec": 30
-        },
-        "feature_flags": {
-            "enable_caching": true,
-            "enable_url_preview": false,
-            "compression_enabled": true
-        },
-        "backpressure": {
-            "worker_queue_max": 10000,
-            "io_queue_max": 5000
+        "load_shedder": {
+            "max_concurrent_requests": 10000,
+            "name": "uri-shortener"
         }
     }
 }

@@ -13,7 +13,7 @@
 #include "ObservableMessageHandler.h"
 #include "UriShortenerRequestHandler.h"
 #include "ObservableRequestHandler.h"
-#include <StripedMessagePool.h>
+#include <StickyQueue.h>
 #include "IRequest.h"
 #include "IResponse.h"
 #include "uri_shortener.pb.h"
@@ -83,7 +83,7 @@ private:
         std::shared_ptr<application::DeleteLink> del,
         std::unique_ptr<UriShortenerMessageHandler> msg_handler,
         std::unique_ptr<ObservableMessageHandler> obs_msg_handler,
-        std::unique_ptr<astra::execution::StripedMessagePool> pool,
+        std::unique_ptr<astra::execution::StickyQueue> pool,
         std::unique_ptr<UriShortenerRequestHandler> req_handler,
         std::unique_ptr<ObservableRequestHandler> obs_req_handler,
         std::unique_ptr<http2server::Server> server,
@@ -104,7 +104,7 @@ private:
     // Message-passing components (order matters for destruction)
     std::unique_ptr<UriShortenerMessageHandler> m_msg_handler;
     std::unique_ptr<ObservableMessageHandler> m_obs_msg_handler;
-    std::unique_ptr<astra::execution::StripedMessagePool> m_pool;
+    std::unique_ptr<astra::execution::StickyQueue> m_pool;
     std::unique_ptr<UriShortenerRequestHandler> m_req_handler;
     std::unique_ptr<ObservableRequestHandler> m_obs_req_handler;
     

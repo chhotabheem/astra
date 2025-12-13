@@ -1,5 +1,4 @@
 add_subdirectory(execution)
-add_subdirectory(config)
 add_subdirectory(observability)
 add_subdirectory(outcome)
 add_subdirectory(json)

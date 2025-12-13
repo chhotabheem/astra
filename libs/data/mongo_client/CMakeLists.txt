@@ -2,8 +2,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 enable_testing()
 
-# Add MongoDB Driver
-add_subdirectory(mongodriver)
+# MongoDB drivers are pre-installed in Docker image
+find_package(mongoc REQUIRED)
+find_package(bson REQUIRED)
+find_package(bsoncxx REQUIRED)
+find_package(mongocxx REQUIRED)
 
 # Create library
 add_library(mongoclient STATIC
@@ -22,8 +25,8 @@ target_link_libraries(mongoclient
         astra_sanitizers
     PUBLIC
         observability
-        mongocxx_static
-        bsoncxx_static
+        mongo::mongocxx_static
+        mongo::bsoncxx_static
 )
 
 # Test executable

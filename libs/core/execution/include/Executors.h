@@ -1,39 +1,39 @@
 #pragma once
 
 #include "IExecutor.h"
-#include "ThreadPool.h"
-#include "Job.h"
+#include "SharedQueue.h"
+#include "ISharedQueue.h"
 #include <functional>
 #include <memory>
 
 namespace astra::execution {
 
-class ThreadPoolExecutor : public IExecutor {
+class SharedQueueExecutor : public IExecutor {
 public:
-    // Takes exclusive ownership of the pool
-    explicit ThreadPoolExecutor(std::unique_ptr<IThreadPool> pool)
-        : m_pool(std::move(pool)) {}
+    // Takes exclusive ownership of the queue
+    explicit SharedQueueExecutor(std::unique_ptr<ISharedQueue> queue)
+        : m_queue(std::move(queue)) {}
 
-    // Factory for convenience - creates and starts a pool
-    static std::unique_ptr<ThreadPoolExecutor> create(size_t num_threads = 4) {
-        auto pool = std::make_unique<ThreadPool>(num_threads);
-        pool->start();
-        return std::make_unique<ThreadPoolExecutor>(std::move(pool));
+    // Factory for convenience - creates and starts a queue
+    static std::unique_ptr<SharedQueueExecutor> create(size_t num_workers = 4) {
+        auto queue = std::make_unique<SharedQueue>(num_workers);
+        queue->start();
+        return std::make_unique<SharedQueueExecutor>(std::move(queue));
     }
 
-    ~ThreadPoolExecutor() override {
-        if (m_pool) {
-            m_pool->stop();
+    ~SharedQueueExecutor() override {
+        if (m_queue) {
+            m_queue->stop();
         }
     }
 
     void submit(std::function<void()> task) override {
-        Job job{JobType::TASK, 0, std::move(task), obs::Context{}};
-        m_pool->submit(std::move(job));
+        Message msg{0, obs::Context{}, std::move(task)};
+        m_queue->submit(std::move(msg));
     }
 
 private:
-    std::unique_ptr<IThreadPool> m_pool;
+    std::unique_ptr<ISharedQueue> m_queue;
 };
 
 class InlineExecutor : public IExecutor {

@@ -7,7 +7,7 @@
 
 namespace url_shortener {
 
-UriShortenerRequestHandler::UriShortenerRequestHandler(astra::execution::StripedMessagePool& pool)
+UriShortenerRequestHandler::UriShortenerRequestHandler(astra::execution::StickyQueue& pool)
     : m_pool(pool) {
 }
 

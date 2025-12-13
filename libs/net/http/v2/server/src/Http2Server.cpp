@@ -7,14 +7,14 @@ namespace http2server {
 
 class Server::Impl {
 public:
-    Impl(const std::string& address, const std::string& port, int threads)
-        : backend(address, port, threads) {}
+    Impl(const http2server::Config& config)
+        : backend(config) {}
     
     backend::NgHttp2Server backend;
 };
 
-Server::Server(const std::string& address, const std::string& port, int threads)
-    : m_impl(std::make_unique<Impl>(address, port, threads)) {
+Server::Server(const http2server::Config& config)
+    : m_impl(std::make_unique<Impl>(config)) {
     
     // Default handler: Dispatch to Router
     m_impl->backend.handle("*", "/", [this](Request& req, Response& res) {
@@ -41,4 +41,3 @@ void Server::wait_until_ready() {
 }
 
 } // namespace http2server
-

@@ -28,7 +28,7 @@ enable_testing()
 # Testing (CTest generates DartConfiguration.tcl needed for memcheck)
 include(CTest)
 include(GoogleTest)
-include(AddGoogleTest) # Handles GTest dependency
+find_package(GTest REQUIRED)  # Pre-installed in Docker image
 include(AddAstraTest)
 include(Sanitizers)
 

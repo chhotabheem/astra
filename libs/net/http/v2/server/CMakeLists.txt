@@ -1,4 +1,8 @@
-# nghttp2-asio is built by parent http2/CMakeLists.txt
+# nghttp2-asio is pre-installed in Docker image
+
+# Protobuf generation
+find_package(Protobuf REQUIRED)
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS config/http2server.proto)
 
 find_package(Boost REQUIRED COMPONENTS system thread chrono)
 
@@ -9,6 +13,7 @@ set(HTTP2SERVER_SOURCES
     src/Http2Response.cpp
     src/ResponseHandle.cpp
     src/backend/nghttp2/NgHttp2Server.cpp
+    ${PROTO_SRCS}
 )
 
 # Create the library
@@ -21,31 +26,32 @@ target_compile_features(http2server PUBLIC cxx_std_17)
 target_include_directories(http2server
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
         $<INSTALL_INTERFACE:include>
     PRIVATE
         src
 )
 
 # Link libraries
+find_package(OpenSSL REQUIRED)
 target_link_libraries(http2server 
+    PUBLIC
+        protobuf::libprotobuf
+        astra_router
+        astra_execution
     PRIVATE
         astra_sanitizers
         Boost::system 
         Boost::thread 
         Boost::chrono
         nghttp2_asio
+        OpenSSL::SSL
+        OpenSSL::Crypto
         observability
-    PUBLIC
-        astra_router
-        astra_execution
 )
 
 # Add compile definition for nghttp2
 target_compile_definitions(http2server PRIVATE HAS_NGHTTP2)
-
-# Example executable
-add_executable(simple_server examples/simple_server.cpp)
-target_link_libraries(simple_server PRIVATE http2server astra_router)
 
 # Enable testing
 enable_testing()

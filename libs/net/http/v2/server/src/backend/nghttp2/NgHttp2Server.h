@@ -11,7 +11,7 @@ namespace backend {
 
 class NgHttp2Server {
 public:
-    NgHttp2Server(const std::string& address, const std::string& port, int threads);
+    NgHttp2Server(const http2server::Config& config);
     ~NgHttp2Server();
 
     void handle(const std::string& method, const std::string& path, Server::Handler handler);
@@ -22,9 +22,7 @@ public:
     void wait_until_ready();
 
 private:
-    std::string m_address;
-    std::string m_port;
-    int m_threads;
+    http2server::Config m_config;
     std::atomic<bool> is_running_{false};
     nghttp2::asio_http2::server::http2 server_;
     
@@ -35,4 +33,3 @@ private:
 
 } // namespace backend
 } // namespace http2server
-

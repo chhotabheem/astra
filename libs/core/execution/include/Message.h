@@ -7,15 +7,16 @@
 namespace astra::execution {
 
 /**
- * @brief Message to be delivered by StripedMessagePool.
+ * @brief Message for queue-based delivery.
  * 
- * Unlike Job (which is executed), Message is delivered to IMessageHandler.
- * The handler decides what to do with the payload.
+ * Used by both SharedQueue and StickyQueue:
+ * - SharedQueue: workers consume from shared queue
+ * - StickyQueue: same session_id routes to same worker
  * 
  * Fields:
- * - session_id: Used for session affinity (same session → same worker)
+ * - session_id: Used for routing (StickyQueue uses for affinity)
  * - trace_ctx: Observability context propagated across thread boundaries
- * - payload: Type-erased payload (application casts to its variant type)
+ * - payload: Type-erased payload (can be data or std::function<void()>)
  */
 struct Message {
     uint64_t session_id;

@@ -1,21 +1,17 @@
-add_executable(test_thread_pool thread_pool_test.cpp)
-target_link_libraries(test_thread_pool PRIVATE astra_execution GTest::gtest_main)
-
-add_executable(test_job_context job_context_test.cpp)
-target_link_libraries(test_job_context PRIVATE astra_execution GTest::gtest_main)
+add_executable(test_shared_queue shared_queue_test.cpp)
+target_link_libraries(test_shared_queue PRIVATE astra_execution GTest::gtest_main)
 
 add_executable(test_executor executor_test.cpp)
 target_link_libraries(test_executor PRIVATE astra_execution GTest::gtest_main)
 
-add_executable(striped_message_pool_test striped_message_pool_test.cpp)
-target_link_libraries(striped_message_pool_test PRIVATE astra_execution GTest::gtest_main)
+add_executable(sticky_queue_test sticky_queue_test.cpp)
+target_link_libraries(sticky_queue_test PRIVATE astra_execution GTest::gtest_main)
 
 add_executable(observable_message_pool_test observable_message_pool_test.cpp)
 target_link_libraries(observable_message_pool_test PRIVATE astra_execution GTest::gtest_main)
 
 include(GoogleTest)
-gtest_discover_tests(test_thread_pool)
-gtest_discover_tests(test_job_context)
+gtest_discover_tests(test_shared_queue)
 gtest_discover_tests(test_executor)
-gtest_discover_tests(striped_message_pool_test)
+gtest_discover_tests(sticky_queue_test)
 gtest_discover_tests(observable_message_pool_test)

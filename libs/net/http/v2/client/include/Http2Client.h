@@ -4,34 +4,16 @@
 #include <functional>
 #include <memory>
 #include <map>
-#include <chrono>
 #include "Http2ClientResponse.h"
+#include "http2client.pb.h"
 
 namespace http2client {
-
-/**
- * @brief Configuration for the HTTP/2 Client
- */
-struct ClientConfig {
-    std::string host;
-    std::string port;
-    int threads = 1;
-    
-    // Timeouts
-    std::chrono::milliseconds connect_timeout{5000};  // 5 seconds default
-    std::chrono::milliseconds request_timeout{10000}; // 10 seconds default
-
-    // Retry Policy
-    int max_retries = 3; // Number of retries for failed requests (network errors or 5xx)
-    std::chrono::milliseconds retry_interval{1000}; // Delay between retries
-    bool retry_on_server_error = true; // Retry on 5xx status codes
-};
 
 /**
  * @brief Error information passed to callbacks
  */
 struct Error {
-    int code = 0; // 0 = Success, Non-zero = Error (e.g., timeout, connection refused)
+    int code = 0;
     std::string message;
     
     operator bool() const { return code != 0; }
@@ -46,9 +28,9 @@ class Client {
 public:
     /**
      * @brief Construct a new Client object
-     * @param config Client configuration
+     * @param config Proto-generated client configuration
      */
-    explicit Client(const ClientConfig& config);
+    explicit Client(const http2client::Config& config);
     ~Client();
 
     // Prevent copying to ensure resource safety
@@ -89,8 +71,7 @@ public:
     bool is_connected() const;
 
 private:
-    // Internal implementation details
-    std::unique_ptr<ClientImpl> m_impl; // Pimpl idiom
+    std::unique_ptr<ClientImpl> m_impl;
 };
 
 } // namespace http2client

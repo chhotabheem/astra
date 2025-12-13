@@ -62,7 +62,7 @@ TEST(MongoClientTest, DisconnectWhenNotConnected) {
 TEST(MongoClientTest, QueryWithoutConnectionThrows) {
     MongoClient client;
     auto query = bsoncxx::builder::basic::make_document();
-    EXPECT_THROW(client.findOne("test_db", "test_collection", query.view()), std::runtime_error);
+    EXPECT_THROW((void)client.findOne("test_db", "test_collection", query.view()), std::runtime_error);
 }
 
 TEST(MongoClientTest, MultipleClientInstances) {
@@ -84,7 +84,7 @@ protected:
             // Try a simple operation to check connectivity
             auto query = bsoncxx::builder::basic::make_document();
             try {
-                m_client.find("admin", "system.version", query.view());
+                (void)m_client.find("admin", "system.version", query.view());
             } catch (const std::exception& e) {
                 GTEST_SKIP() << "MongoDB not reachable: " << e.what();
             }

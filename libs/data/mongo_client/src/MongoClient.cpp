@@ -56,11 +56,11 @@ namespace mongoclient {
         
         if (result) {
             obs::debug("Document found");
+            return std::optional<bsoncxx::document::value>(std::move(*result));
         } else {
             obs::debug("No document found");
+            return std::nullopt;
         }
-        
-        return result;
     }
 
     void MongoClient::insertOne(

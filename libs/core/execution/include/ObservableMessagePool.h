@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StripedMessagePool.h"
+#include "StickyQueue.h"
 #include "IMessageHandler.h"
 #include <MetricsRegistry.h>
 #include <chrono>
@@ -8,9 +8,9 @@
 namespace astra::execution {
 
 /**
- * @brief Observable decorator for StripedMessagePool.
+ * @brief Observable decorator for StickyQueue.
  * 
- * Wraps a StripedMessagePool and adds observability:
+ * Wraps a StickyQueue and adds observability:
  * - Counter: message_pool.submitted
  * - Counter: message_pool.delivered
  * - Gauge: message_pool.queue_depth
@@ -22,16 +22,16 @@ public:
      * @brief Construct observable pool wrapper.
      * @param pool The underlying pool to wrap
      */
-    explicit ObservableMessagePool(StripedMessagePool& pool);
+    explicit ObservableMessagePool(StickyQueue& pool);
     
     void start();
     void stop();
     bool submit(Message msg);
     
-    [[nodiscard]] size_t thread_count() const { return m_pool.thread_count(); }
+    [[nodiscard]] size_t worker_count() const { return m_pool.worker_count(); }
 
 private:
-    StripedMessagePool& m_pool;
+    StickyQueue& m_pool;
     obs::MetricsRegistry m_metrics;
 };
 

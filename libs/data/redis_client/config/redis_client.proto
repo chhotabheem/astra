@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package redis_client;
+
+// Redis client configuration
+message Config {
+    string host = 1;
+    uint32 port = 2;
+    string password = 3;
+    uint32 db = 4;                     // Database index (0-15)
+    uint32 connect_timeout_ms = 5;
+    uint32 socket_timeout_ms = 6;
+    uint32 pool_size = 7;
+    
+    // TLS
+    bool tls_enabled = 8;
+    string tls_cert_path = 9;
+}

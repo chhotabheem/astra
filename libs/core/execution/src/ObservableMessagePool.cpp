@@ -6,7 +6,7 @@ namespace astra::execution {
 // =============================================================================
 // ObservableMessagePool
 // =============================================================================
-ObservableMessagePool::ObservableMessagePool(StripedMessagePool& pool)
+ObservableMessagePool::ObservableMessagePool(StickyQueue& pool)
     : m_pool(pool)
 {
     m_metrics

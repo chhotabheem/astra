@@ -5,24 +5,21 @@
 namespace astra::execution {
 
 /**
- * @brief Interface for handling messages delivered by StripedMessagePool.
+ * @brief Interface for handling messages delivered by StickyQueue.
  * 
- * Unlike task execution (pool runs the task), message handling is:
- * - Pool delivers message to handler
- * - Handler decides what to do with the message
- * - Handler can dispatch based on payload type using std::visit
+ * StickyQueue delivers messages to handler. Handler:
+ * - Casts msg.payload to application-specific type
+ * - Dispatches based on payload type (e.g., using std::visit)
+ * - Processes the message
  */
 class IMessageHandler {
 public:
     virtual ~IMessageHandler() = default;
     
     /**
-     * @brief Handle a message delivered by the pool.
+     * @brief Handle a message delivered by the queue.
      * 
-     * Called on worker thread. Handler should:
-     * 1. Cast msg.payload to application-specific variant type
-     * 2. Use std::visit to dispatch based on variant type
-     * 3. Process the message accordingly
+     * Called on worker thread.
      * 
      * @param msg The message to handle (non-const for move semantics)
      */

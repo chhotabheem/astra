@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package http1client;
+
+// HTTP/1.1 client configuration
+message Config {
+    string host = 1;
+    uint32 port = 2;
+    uint32 connect_timeout_ms = 3;
+    uint32 request_timeout_ms = 4;
+    bool keep_alive = 5;
+    uint32 max_connections = 6;
+}

@@ -23,7 +23,7 @@ UriShortenerApp::UriShortenerApp(
     std::shared_ptr<application::DeleteLink> del,
     std::unique_ptr<UriShortenerMessageHandler> msg_handler,
     std::unique_ptr<ObservableMessageHandler> obs_msg_handler,
-    std::unique_ptr<astra::execution::StripedMessagePool> pool,
+    std::unique_ptr<astra::execution::StickyQueue> pool,
     std::unique_ptr<UriShortenerRequestHandler> req_handler,
     std::unique_ptr<ObservableRequestHandler> obs_req_handler,
     std::unique_ptr<http2server::Server> server,
@@ -60,7 +60,8 @@ astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(
     const auto& bootstrap = config.bootstrap();
     std::string address = bootstrap.has_server() ? bootstrap.server().address() : "0.0.0.0";
     std::string port = bootstrap.has_server() ? std::to_string(bootstrap.server().port()) : "8080";
-    size_t thread_count = bootstrap.has_threading() ? bootstrap.threading().worker_threads() : 4;
+    size_t thread_count = (bootstrap.has_execution() && bootstrap.execution().has_shared_queue()) 
+        ? bootstrap.execution().shared_queue().num_workers() : 4;
     
     // Validate config
     if (address.empty()) {
@@ -80,8 +81,8 @@ astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(
         obs_params.environment = "development";
     }
     
-    if (config.has_operational() && config.operational().has_observability()) {
-        const auto& obs_config = config.operational().observability();
+    if (bootstrap.has_observability()) {
+        const auto& obs_config = bootstrap.observability();
         obs_params.service_version = obs_config.service_version();
         obs_params.otlp_endpoint = obs_config.otlp_endpoint();
         obs_params.enable_metrics = obs_config.metrics_enabled();
@@ -114,8 +115,8 @@ astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(
     auto resolve = std::make_shared<application::ResolveLink>(repo);
     auto del = std::make_shared<application::DeleteLink>(repo);
 
-    // Create HTTP server
-    auto server = std::make_unique<http2server::Server>(address, port);
+    // Create HTTP server from proto config
+    auto server = std::make_unique<http2server::Server>(bootstrap.server());
     
     // Create message handler chain
     auto inner_msg_handler = std::make_unique<UriShortenerMessageHandler>(
@@ -125,7 +126,7 @@ astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(
     auto obs_msg_handler = std::make_unique<ObservableMessageHandler>(*inner_msg_handler);
     
     // Create pool with observable handler
-    auto pool = std::make_unique<astra::execution::StripedMessagePool>(
+    auto pool = std::make_unique<astra::execution::StickyQueue>(
         thread_count, *obs_msg_handler);
     
     // Create request handler chain
@@ -135,11 +136,11 @@ astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(
     // Start the pool
     pool->start();
     
-    // Create load shedder from config
+    // Create load shedder from runtime config
     size_t max_concurrent = 1000;  // default
-    if (config.has_operational() && config.operational().has_resilience() &&
-        config.operational().resilience().max_concurrent_requests() > 0) {
-        max_concurrent = config.operational().resilience().max_concurrent_requests();
+    if (config.has_runtime() && config.runtime().has_load_shedder() &&
+        config.runtime().load_shedder().max_concurrent_requests() > 0) {
+        max_concurrent = config.runtime().load_shedder().max_concurrent_requests();
     }
     auto load_shedder_policy = astra::resilience::LoadShedderPolicy::create(
         max_concurrent, "uri_shortener");
@@ -206,7 +207,7 @@ int UriShortenerApp::run() {
     });
 
     obs::info("URI Shortener listening");
-    obs::info("Using message-based architecture", {{"workers", std::to_string(m_pool->thread_count())}});
+    obs::info("Using message-based architecture", {{"workers", std::to_string(m_pool->worker_count())}});
     obs::info("Load shedder enabled", {{"max_concurrent", std::to_string(m_load_shedder->max_concurrent())}});
     m_server->run();
     return 0;

@@ -1,6 +1,11 @@
+# Protobuf generation
+find_package(Protobuf REQUIRED)
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS config/http2client.proto)
+
 # Sources
 set(HTTP2CLIENT_SOURCES
     src/Http2Client.cpp
+    ${PROTO_SRCS}
 )
 
 find_package(Boost REQUIRED COMPONENTS system thread chrono)
@@ -15,24 +20,24 @@ target_compile_features(http2client PUBLIC cxx_std_17)
 target_include_directories(http2client
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
         $<INSTALL_INTERFACE:include>
     PRIVATE
         src
 )
 
 # Link libraries
-# Note: nghttp2_asio is expected to be available from the parent project or http2server
+find_package(OpenSSL REQUIRED)
 target_link_libraries(http2client 
+    PUBLIC
+        protobuf::libprotobuf
     PRIVATE
         astra_sanitizers
         nghttp2_asio
+        OpenSSL::SSL
+        OpenSSL::Crypto
         observability
         Boost::system
         Boost::thread
         Boost::chrono
 )
-
-# Example executable
-add_executable(simple_client examples/simple_client.cpp)
-target_include_directories(simple_client PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(simple_client PRIVATE http2client)

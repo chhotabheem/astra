@@ -1,7 +1,7 @@
 #pragma once
 
 #include <IMessageHandler.h>
-#include <StripedMessagePool.h>
+#include <StickyQueue.h>
 #include <IRequest.h>
 #include <IResponse.h>
 #include <Context.h>
@@ -16,7 +16,7 @@ namespace url_shortener {
  */
 class UriShortenerRequestHandler {
 public:
-    explicit UriShortenerRequestHandler(astra::execution::StripedMessagePool& pool);
+    explicit UriShortenerRequestHandler(astra::execution::StickyQueue& pool);
     
     /**
      * @brief Handle incoming HTTP request
@@ -27,7 +27,7 @@ public:
     void handle(router::IRequest& req, router::IResponse& res);
 
 private:
-    astra::execution::StripedMessagePool& m_pool;
+    astra::execution::StickyQueue& m_pool;
     
     /**
      * @brief Generate session ID from request

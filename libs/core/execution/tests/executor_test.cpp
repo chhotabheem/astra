@@ -8,13 +8,13 @@ using namespace astra::execution;
 
 class ExecutorTest : public ::testing::Test {};
 
-// ThreadPoolExecutor tests
+// SharedQueueExecutor tests
 
-TEST_F(ExecutorTest, ThreadPoolExecutorOwnsPool) {
-    auto pool = std::make_unique<ThreadPool>(2);
-    pool->start();
+TEST_F(ExecutorTest, SharedQueueExecutorOwnsQueue) {
+    auto queue = std::make_unique<SharedQueue>(2);
+    queue->start();
     
-    ThreadPoolExecutor executor(std::move(pool));
+    SharedQueueExecutor executor(std::move(queue));
     
     std::atomic<int> counter{0};
     executor.submit([&counter] { counter++; });
@@ -25,8 +25,8 @@ TEST_F(ExecutorTest, ThreadPoolExecutorOwnsPool) {
     EXPECT_EQ(counter.load(), 1);
 }
 
-TEST_F(ExecutorTest, ThreadPoolExecutorFactoryCreatesWorkingExecutor) {
-    auto executor = ThreadPoolExecutor::create(2);
+TEST_F(ExecutorTest, SharedQueueExecutorFactoryCreatesWorkingExecutor) {
+    auto executor = SharedQueueExecutor::create(2);
     
     std::atomic<int> counter{0};
     executor->submit([&counter] { counter++; });
@@ -37,9 +37,9 @@ TEST_F(ExecutorTest, ThreadPoolExecutorFactoryCreatesWorkingExecutor) {
     EXPECT_EQ(counter.load(), 2);
 }
 
-TEST_F(ExecutorTest, ThreadPoolExecutorDefaultThreadCount) {
-    // Factory should use default 4 threads
-    auto executor = ThreadPoolExecutor::create();
+TEST_F(ExecutorTest, SharedQueueExecutorDefaultWorkerCount) {
+    // Factory should use default 4 workers
+    auto executor = SharedQueueExecutor::create();
     
     std::atomic<int> counter{0};
     for (int i = 0; i < 10; ++i) {

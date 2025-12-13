@@ -12,6 +12,19 @@
 using namespace testing;
 using namespace std::chrono_literals;
 
+namespace {
+
+// Helper to create proto config for tests
+http2server::Config make_config(const std::string& address, uint32_t port, uint32_t threads = 1) {
+    http2server::Config config;
+    config.set_address(address);
+    config.set_port(port);
+    config.set_thread_count(threads);
+    return config;
+}
+
+} // namespace
+
 /**
  * Handler signature tests for HTTP/2 Server
  * Verifies Request& and Response& handler interface
@@ -19,7 +32,7 @@ using namespace std::chrono_literals;
 
 // Test 1: Handler receives references to concrete types
 TEST(HandlerSignatureTest, HandlerReceivesReferences) {
-    auto server = std::make_unique<http2server::Server>("127.0.0.1", "9100", 1);
+    auto server = std::make_unique<http2server::Server>(make_config("127.0.0.1", 9100));
     
     bool handler_called = false;
     
@@ -36,7 +49,7 @@ TEST(HandlerSignatureTest, HandlerReceivesReferences) {
 
 // Test 2: Multiple handlers can be registered
 TEST(HandlerSignatureTest, MultipleHandlers) {
-    auto server = std::make_unique<http2server::Server>("127.0.0.1", "9101", 1);
+    auto server = std::make_unique<http2server::Server>(make_config("127.0.0.1", 9101));
     
     server->handle("GET", "/path1", 
         [](http2server::Request& req, http2server::Response& res) {
@@ -53,7 +66,7 @@ TEST(HandlerSignatureTest, MultipleHandlers) {
 
 // Test 3: Handler can access request and response methods
 TEST(HandlerSignatureTest, AccessRequestResponseMethods) {
-    auto server = std::make_unique<http2server::Server>("127.0.0.1", "9102", 1);
+    auto server = std::make_unique<http2server::Server>(make_config("127.0.0.1", 9102));
     
     server->handle("GET", "/test",
         [](http2server::Request& req, http2server::Response& res) {
@@ -72,7 +85,7 @@ TEST(HandlerSignatureTest, AccessRequestResponseMethods) {
 
 // Test 4: Router integration
 TEST(HandlerSignatureTest, RouterIntegration) {
-    auto server = std::make_unique<http2server::Server>("127.0.0.1", "9103", 1);
+    auto server = std::make_unique<http2server::Server>(make_config("127.0.0.1", 9103));
     
     // Access router directly
     server->router().get("/route", [](router::IRequest& req, router::IResponse& res) {
