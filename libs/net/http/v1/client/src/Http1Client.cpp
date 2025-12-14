@@ -6,7 +6,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <iostream>
 
-namespace http1 {
+namespace astra::http1 {
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -69,4 +69,4 @@ Response Client::perform_request(const std::string& host, const std::string& por
     }
 }
 
-} // namespace http1
+} // namespace astra::http1

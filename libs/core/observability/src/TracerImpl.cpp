@@ -8,7 +8,7 @@
 #include <opentelemetry/trace/tracer.h>
 #include <opentelemetry/trace/span.h>
 
-namespace obs {
+namespace astra::observability {
 
 TracerImpl::TracerImpl(std::string name, ProviderImpl& provider)
     : m_name(std::move(name))
@@ -22,7 +22,7 @@ std::shared_ptr<Span> TracerImpl::start_span(std::string_view name) {
 std::shared_ptr<Span> TracerImpl::start_span(std::string_view name, const Context& parent) {
     auto tracer = m_provider.get_tracer();
     if (!tracer) {
-        obs::warn("Tracer not initialized - returning null span");
+        astra::observability::warn("Tracer not initialized - returning null span");
         return std::shared_ptr<Span>(new Span(nullptr));
     }
     
@@ -47,5 +47,5 @@ std::shared_ptr<Span> TracerImpl::start_span(std::string_view name, const Contex
     return span;
 }
 
-} // namespace obs
+} // namespace astra::observability
 

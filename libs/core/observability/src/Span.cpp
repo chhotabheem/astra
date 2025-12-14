@@ -9,7 +9,7 @@
 #include <opentelemetry/trace/span.h>
 #include <cstring>
 
-namespace obs {
+namespace astra::observability {
 
 // Span::Impl methods
 void Span::Impl::end_span() {
@@ -26,7 +26,7 @@ void Span::Impl::end_span() {
 Span::Impl::~Impl() {
     // Auto-end if not explicitly ended (RAII fallback)
     if (!ended && otel_span) {
-        obs::warn("Span destroyed without explicit end() - auto-ending");
+        astra::observability::warn("Span destroyed without explicit end() - auto-ending");
         end_span();
     }
 }
@@ -178,4 +178,4 @@ bool Span::is_recording() const {
     return false;
 }
 
-} // namespace obs
+} // namespace astra::observability

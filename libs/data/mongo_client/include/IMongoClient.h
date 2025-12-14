@@ -5,7 +5,7 @@
 #include <bsoncxx/document/value.hpp>
 #include <bsoncxx/builder/basic/document.hpp>
 
-namespace mongoclient {
+namespace astra::mongo {
 
 class IMongoClient {
 public:
@@ -46,4 +46,4 @@ public:
         const bsoncxx::document::view& query) = 0;
 };
 
-} // namespace mongoclient
+} // namespace astra::mongo

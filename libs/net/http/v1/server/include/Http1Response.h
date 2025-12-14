@@ -5,7 +5,7 @@
 #include <functional>
 #include <memory>
 
-namespace http1 {
+namespace astra::http1 {
 
 class Response final : public router::IResponse {
 public:
@@ -25,5 +25,5 @@ private:
     bool closed_ = false;
 };
 
-} // namespace http1
+} // namespace astra::http1
 

@@ -4,7 +4,7 @@
 #include <map>
 #include <unordered_map>
 
-namespace http2server {
+namespace astra::http2 {
 
 /**
  * @brief Data structure holding actual HTTP request data.
@@ -20,4 +20,4 @@ struct RequestData {
     std::unordered_map<std::string, std::string> path_params;
 };
 
-} // namespace http2server
+} // namespace astra::http2

@@ -12,7 +12,7 @@ class ILoadShedder {
 public:
     virtual ~ILoadShedder() = default;
     
-    virtual std::optional<LoadShedderGuard> try_acquire() = 0;
+    [[nodiscard]] virtual std::optional<LoadShedderGuard> try_acquire() = 0;
     virtual void update_policy(const LoadShedderPolicy& policy) = 0;
     [[nodiscard]] virtual size_t current_count() const = 0;
     [[nodiscard]] virtual size_t max_concurrent() const = 0;

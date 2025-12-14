@@ -4,7 +4,7 @@
 #include <vector>
 #include <utility>
 
-namespace json {
+namespace astra::json {
 
 class JsonWriter::Impl {
 public:
@@ -78,4 +78,4 @@ std::string JsonWriter::get_string() const {
     return boost::json::serialize(m_impl->stack.front().second);
 }
 
-} // namespace json
+} // namespace astra::json

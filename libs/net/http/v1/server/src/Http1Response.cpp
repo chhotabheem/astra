@@ -1,6 +1,6 @@
 #include "Http1Response.h"
 
-namespace http1 {
+namespace astra::http1 {
 
 Response::Response(SendCallback callback)
     : callback_(std::move(callback)) {
@@ -34,5 +34,5 @@ bool Response::is_alive() const noexcept {
     return !closed_;
 }
 
-} // namespace http1
+} // namespace astra::http1
 

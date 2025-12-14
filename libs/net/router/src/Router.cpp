@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-namespace router {
+namespace astra::router {
 
 Router::Router() = default;
 Router::~Router() = default;
@@ -119,5 +119,5 @@ void Router::dispatch(std::shared_ptr<IRequest> req, std::shared_ptr<IResponse> 
     }
 }
 
-} // namespace router
+} // namespace astra::router
 

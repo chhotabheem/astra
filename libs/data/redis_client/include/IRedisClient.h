@@ -4,7 +4,7 @@
 #include <string_view>
 #include <optional>
 
-namespace redisclient {
+namespace astra::redis {
 
 class IRedisClient {
 public:
@@ -20,4 +20,4 @@ public:
     virtual bool ping() = 0;
 };
 
-} // namespace redisclient
+} // namespace astra::redis

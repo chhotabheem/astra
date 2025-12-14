@@ -42,7 +42,7 @@ public:
             .counter("remove_error", "link_repo.remove.error");
     }
 
-    astra::Result<void, domain::DomainError> save(const domain::ShortLink& link) override {
+    astra::outcome::Result<void, domain::DomainError> save(const domain::ShortLink& link) override {
         auto span = m_tracer->start_span("LinkRepository.save");
         span->attr("short_code", std::string(link.code().value()));
         
@@ -66,7 +66,7 @@ public:
         return result;
     }
 
-    astra::Result<void, domain::DomainError> remove(const domain::ShortCode& code) override {
+    astra::outcome::Result<void, domain::DomainError> remove(const domain::ShortCode& code) override {
         auto span = m_tracer->start_span("LinkRepository.remove");
         span->attr("short_code", std::string(code.value()));
         
@@ -88,7 +88,7 @@ public:
         return result;
     }
 
-    astra::Result<domain::ShortLink, domain::DomainError> find_by_code(const domain::ShortCode& code) override {
+    astra::outcome::Result<domain::ShortLink, domain::DomainError> find_by_code(const domain::ShortCode& code) override {
         auto span = m_tracer->start_span("LinkRepository.find_by_code");
         span->attr("short_code", std::string(code.value()));
         

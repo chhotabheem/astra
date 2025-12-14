@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-package http2server;
+package astra.http2;
 
 // HTTP/2 server configuration
-message Config {
+message ServerConfig {
     string address = 1;
     uint32 port = 2;
     uint32 thread_count = 3;

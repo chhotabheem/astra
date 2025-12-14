@@ -23,7 +23,7 @@ public:
         std::string short_code;
     };
 
-    using Result = astra::Result<void, domain::DomainError>;
+    using Result = astra::outcome::Result<void, domain::DomainError>;
 
     explicit DeleteLink(std::shared_ptr<domain::ILinkRepository> repository);
 

@@ -12,7 +12,7 @@
 #include <vector>
 #include <functional>
 
-namespace http1 {
+namespace astra::http1 {
 
 class Server {
 public:
@@ -42,4 +42,4 @@ private:
     mutable std::mutex m_handler_mutex;
 };
 
-} // namespace http1
+} // namespace astra::http1

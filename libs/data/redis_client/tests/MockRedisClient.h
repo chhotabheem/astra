@@ -3,7 +3,7 @@
 #include "IRedisClient.h"
 #include <gmock/gmock.h>
 
-namespace redisclient {
+namespace astra::redis {
 
 class MockRedisClient : public IRedisClient {
 public:
@@ -14,4 +14,4 @@ public:
     MOCK_METHOD(bool, ping, (), (override));
 };
 
-} // namespace redisclient
+} // namespace astra::redis

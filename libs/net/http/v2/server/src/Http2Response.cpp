@@ -2,25 +2,25 @@
 #include "ResponseHandle.h"
 #include <Log.h>
 
-namespace http2server {
+namespace astra::http2 {
 
-Response::Response(std::weak_ptr<ResponseHandle> handle)
+ServerResponse::ServerResponse(std::weak_ptr<ResponseHandle> handle)
     : m_handle(std::move(handle)) {
 }
 
-void Response::set_status(int code) noexcept {
+void ServerResponse::set_status(int code) noexcept {
     m_status = code;
 }
 
-void Response::set_header(std::string_view key, std::string_view value) {
+void ServerResponse::set_header(std::string_view key, std::string_view value) {
     m_headers[std::string(key)] = std::string(value);
 }
 
-void Response::write(std::string_view data) {
+void ServerResponse::write(std::string_view data) {
     m_body.append(data);
 }
 
-void Response::close() {
+void ServerResponse::close() {
     if (m_closed) {
         return;
     }
@@ -29,7 +29,7 @@ void Response::close() {
     if (auto handle = m_handle.lock()) {
         int status = m_status.value_or(500);
         if (!m_status.has_value()) {
-            obs::warn("Response closed without setting status code - defaulting to 500");
+            obs::warn("ServerResponse closed without setting status code - defaulting to 500");
         }
         handle->send(status, std::move(m_headers), std::move(m_body));
     } else {
@@ -37,18 +37,18 @@ void Response::close() {
     }
 }
 
-void Response::add_scoped_resource(std::unique_ptr<astra::execution::IScopedResource> resource) {
+void ServerResponse::add_scoped_resource(std::unique_ptr<astra::execution::IScopedResource> resource) {
     if (auto handle = m_handle.lock()) {
         handle->add_scoped_resource(std::move(resource));
     }
 }
 
-bool Response::is_alive() const noexcept {
+bool ServerResponse::is_alive() const noexcept {
     if (auto handle = m_handle.lock()) {
         return handle->is_alive();
     }
     return false;
 }
 
-} // namespace http2server
+} // namespace astra::http2
 

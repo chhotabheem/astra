@@ -12,7 +12,7 @@
 
 
 using namespace url_shortener::service;
-using namespace http2client;
+using namespace astra::http2;
 using ::testing::_;
 using ::testing::Invoke;
 
@@ -35,7 +35,7 @@ protected:
         m_pool_config.set_pool_size(2);
     }
 
-    http2client::Config m_pool_config;
+    astra::http2::ClientConfig m_pool_config;
 };
 
 // ===========================================================================

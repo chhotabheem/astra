@@ -3,7 +3,7 @@
 #include "ZookeeperClient.h"
 
 using namespace testing;
-using namespace zookeeperclient;
+using namespace astra::zookeeper;
 
 TEST(ZookeeperClientTest, MockOperations) {
     ZookeeperClient client("127.0.0.1:2181");

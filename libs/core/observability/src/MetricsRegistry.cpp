@@ -1,6 +1,6 @@
 #include <MetricsRegistry.h>
 
-namespace obs {
+namespace astra::observability {
 
 // =============================================================================
 // Fluent Registration
@@ -82,4 +82,4 @@ Gauge MetricsRegistry::gauge(std::string_view key) const {
     return Gauge{0};
 }
 
-} // namespace obs
+} // namespace astra::observability

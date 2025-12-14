@@ -2,7 +2,7 @@
 #include <Log.h>
 #include <stdexcept>
 
-namespace mongoclient {
+namespace astra::mongo {
     MongoClient::MongoClient() : m_client(nullptr) {
         // The mongocxx::instance constructor and destructor initialize and shut down the driver,
         // respectively. Therefore, a mongocxx::instance must be created before using the driver and
@@ -150,5 +150,5 @@ namespace mongoclient {
         obs::debug("Found " + std::to_string(results.size()) + " documents");
         return results;
     }
-} // namespace mongoclient
+} // namespace astra::mongo
 

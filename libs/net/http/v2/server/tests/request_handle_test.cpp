@@ -3,7 +3,7 @@
 #include "RequestData.h"
 #include <memory>
 
-using namespace http2server;
+using namespace astra::http2;
 
 /**
  * TDD Tests for Request as lightweight copyable handle

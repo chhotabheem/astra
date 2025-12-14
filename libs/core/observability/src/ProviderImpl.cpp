@@ -13,7 +13,7 @@
 #include <random>
 #include <cstring>
 
-namespace obs {
+namespace astra::observability {
 
 // Thread-local active span stack
 thread_local std::vector<Context> active_span_stack;
@@ -320,4 +320,4 @@ uint64_t ProviderImpl::generate_span_id() {
     return gen();
 }
 
-} // namespace obs
+} // namespace astra::observability

@@ -6,12 +6,12 @@
 #include <nghttp2/asio_http2_server.h>
 #include "Http2Server.h"
 
-namespace http2server {
+namespace astra::http2 {
 namespace backend {
 
 class NgHttp2Server {
 public:
-    NgHttp2Server(const http2server::Config& config);
+    NgHttp2Server(const ServerConfig& config);
     ~NgHttp2Server();
 
     void handle(const std::string& method, const std::string& path, Server::Handler handler);
@@ -22,7 +22,7 @@ public:
     void wait_until_ready();
 
 private:
-    http2server::Config m_config;
+    ServerConfig m_config;
     std::atomic<bool> is_running_{false};
     nghttp2::asio_http2::server::http2 server_;
     
@@ -32,4 +32,4 @@ private:
 };
 
 } // namespace backend
-} // namespace http2server
+} // namespace astra::http2

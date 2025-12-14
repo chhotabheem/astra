@@ -21,14 +21,14 @@ UriShortenerApp::UriShortenerApp(
     std::shared_ptr<application::ShortenLink> shorten,
     std::shared_ptr<application::ResolveLink> resolve,
     std::shared_ptr<application::DeleteLink> del,
-    std::unique_ptr<http2client::Http2ClientPool> client_pool,
+    std::unique_ptr<astra::http2::Http2ClientPool> client_pool,
     std::shared_ptr<service::IDataServiceAdapter> data_adapter,
     std::unique_ptr<UriShortenerMessageHandler> msg_handler,
     std::unique_ptr<ObservableMessageHandler> obs_msg_handler,
     std::unique_ptr<astra::execution::StickyQueue> pool,
     std::unique_ptr<UriShortenerRequestHandler> req_handler,
     std::unique_ptr<ObservableRequestHandler> obs_req_handler,
-    std::unique_ptr<http2server::Server> server,
+    std::unique_ptr<astra::http2::Server> server,
     std::unique_ptr<astra::resilience::AtomicLoadShedder> load_shedder
 )
     : m_repo(std::move(repo))
@@ -56,7 +56,7 @@ UriShortenerApp::~UriShortenerApp() {
 UriShortenerApp::UriShortenerApp(UriShortenerApp&&) noexcept = default;
 UriShortenerApp& UriShortenerApp::operator=(UriShortenerApp&&) noexcept = default;
 
-astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(
+astra::outcome::Result<UriShortenerApp, AppError> UriShortenerApp::create(
         const uri_shortener::Config& config,
         const Overrides& overrides) {
     
@@ -69,10 +69,10 @@ astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(
     
     // Validate config
     if (address.empty()) {
-        return astra::Result<UriShortenerApp, AppError>::Err(AppError::InvalidConfig);
+        return astra::outcome::Result<UriShortenerApp, AppError>::Err(AppError::InvalidConfig);
     }
     if (port.empty() || port == "0") {
-        return astra::Result<UriShortenerApp, AppError>::Err(AppError::InvalidConfig);
+        return astra::outcome::Result<UriShortenerApp, AppError>::Err(AppError::InvalidConfig);
     }
 
     // Initialize observability from proto config
@@ -120,14 +120,14 @@ astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(
     auto del = std::make_shared<application::DeleteLink>(repo);
 
     // Create HTTP server from proto config
-    auto server = std::make_unique<http2server::Server>(bootstrap.server());
+    auto server = std::make_unique<astra::http2::Server>(bootstrap.server());
     
     // Create Http2ClientPool for backend HTTP calls
-    http2client::Config client_config;
+    astra::http2::ClientConfig client_config;
     client_config.set_host("localhost");  // TODO: Get from config proto
     client_config.set_port(8080);
     client_config.set_pool_size(4);
-    auto client_pool = std::make_unique<http2client::Http2ClientPool>(client_config);
+    auto client_pool = std::make_unique<astra::http2::Http2ClientPool>(client_config);
     
     // Create HttpDataServiceAdapter as shared_ptr (MessageHandler takes shared ownership)
     auto data_adapter = std::make_shared<service::HttpDataServiceAdapter>(*client_pool);
@@ -169,7 +169,7 @@ astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(
     auto load_shedder = std::make_unique<astra::resilience::AtomicLoadShedder>(
         std::move(load_shedder_policy));
 
-    return astra::Result<UriShortenerApp, AppError>::Ok(UriShortenerApp(
+    return astra::outcome::Result<UriShortenerApp, AppError>::Ok(UriShortenerApp(
         std::move(repo),
         std::move(gen),
         std::move(shorten),
@@ -212,7 +212,7 @@ int UriShortenerApp::run() {
         accepted.inc();
         
         // Cast to concrete type for scoped resource
-        auto http_res = std::dynamic_pointer_cast<http2server::Response>(res);
+        auto http_res = std::dynamic_pointer_cast<astra::http2::ServerResponse>(res);
         if (http_res) {
             http_res->add_scoped_resource(
                 std::make_unique<astra::resilience::LoadShedderGuard>(std::move(*guard)));

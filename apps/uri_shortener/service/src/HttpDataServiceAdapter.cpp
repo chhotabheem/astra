@@ -4,11 +4,11 @@
 
 namespace url_shortener::service {
 
-HttpDataServiceAdapter::HttpDataServiceAdapter(http2client::Http2ClientPool& client_pool)
+HttpDataServiceAdapter::HttpDataServiceAdapter(astra::http2::Http2ClientPool& client_pool)
     : m_client_pool(client_pool), m_config{} {}
 
 HttpDataServiceAdapter::HttpDataServiceAdapter(
-    http2client::Http2ClientPool& client_pool,
+    astra::http2::Http2ClientPool& client_pool,
     Config config
 ) : m_client_pool(client_pool), m_config(std::move(config)) {}
 
@@ -37,7 +37,7 @@ void HttpDataServiceAdapter::execute(DataServiceRequest request, DataServiceCall
         path,
         request.payload,
         headers,
-        [callback, response, span](const http2client::Response& resp, const http2client::Error& err) {
+        [callback, response, span](const astra::http2::ClientResponse& resp, const astra::http2::Error& err) {
             DataServiceResponse ds_resp;
             ds_resp.response = response;
             ds_resp.span = span;

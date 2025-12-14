@@ -1,6 +1,6 @@
 #include "Http1Request.h"
 
-namespace http1 {
+namespace astra::http1 {
 
 Request::Request(boost::beast::http::request<boost::beast::http::string_body> req)
     : req_(std::move(req)) {}
@@ -45,4 +45,4 @@ void Request::set_path_params(std::unordered_map<std::string, std::string> param
     path_params_ = std::move(params);
 }
 
-} // namespace http1
+} // namespace astra::http1

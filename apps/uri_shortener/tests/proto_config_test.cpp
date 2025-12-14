@@ -28,11 +28,11 @@ public:
 
 
 // =============================================================================
-// LIBRARY CONFIG TESTS - http2server::Config
+// LIBRARY CONFIG TESTS - astra::http2::ServerConfig
 // =============================================================================
 
 TEST(Http2ServerConfigTest, Defaults) {
-    http2server::Config server;
+    astra::http2::ServerConfig server;
     EXPECT_EQ(server.address(), "");
     EXPECT_EQ(server.port(), 0);
     EXPECT_EQ(server.thread_count(), 0);
@@ -43,29 +43,29 @@ TEST(Http2ServerConfigTest, Defaults) {
 }
 
 TEST(Http2ServerConfigTest, CanSetAddress) {
-    http2server::Config server;
+    astra::http2::ServerConfig server;
     server.set_address("0.0.0.0");
     EXPECT_EQ(server.address(), "0.0.0.0");
 }
 
 TEST(Http2ServerConfigTest, CanSetPort) {
-    http2server::Config server;
+    astra::http2::ServerConfig server;
     server.set_port(8080);
     EXPECT_EQ(server.port(), 8080);
 }
 
 TEST(Http2ServerConfigTest, CanSetThreadCount) {
-    http2server::Config server;
+    astra::http2::ServerConfig server;
     server.set_thread_count(4);
     EXPECT_EQ(server.thread_count(), 4);
 }
 
 // =============================================================================
-// LIBRARY CONFIG TESTS - http2client::Config
+// LIBRARY CONFIG TESTS - astra::http2::ClientConfig
 // =============================================================================
 
 TEST(Http2ClientConfigTest, Defaults) {
-    http2client::Config client;
+    astra::http2::ClientConfig client;
     EXPECT_EQ(client.host(), "");
     EXPECT_EQ(client.port(), 0);
     EXPECT_EQ(client.connect_timeout_ms(), 0);
@@ -74,13 +74,13 @@ TEST(Http2ClientConfigTest, Defaults) {
 }
 
 TEST(Http2ClientConfigTest, CanSetHost) {
-    http2client::Config client;
+    astra::http2::ClientConfig client;
     client.set_host("localhost");
     EXPECT_EQ(client.host(), "localhost");
 }
 
 TEST(Http2ClientConfigTest, CanSetTimeouts) {
-    http2client::Config client;
+    astra::http2::ClientConfig client;
     client.set_connect_timeout_ms(1000);
     client.set_request_timeout_ms(3000);
     EXPECT_EQ(client.connect_timeout_ms(), 1000);

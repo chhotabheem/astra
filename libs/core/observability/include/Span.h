@@ -7,7 +7,7 @@
 #include <initializer_list>
 #include <utility>
 
-namespace obs {
+namespace astra::observability {
 
 // Forward declarations
 class Provider;
@@ -75,13 +75,13 @@ public:
     void end();
     
     // Check if span has been ended
-    bool is_ended() const;
+    [[nodiscard]] bool is_ended() const;
     
     // Get span context (for propagation)
-    Context context() const;
+    [[nodiscard]] Context context() const;
     
     // Check if span is recording (sampling)
-    bool is_recording() const;
+    [[nodiscard]] bool is_recording() const;
     
     // Pimpl - hide OTel SDK details
     struct Impl;
@@ -97,4 +97,4 @@ private:
     bool m_ended = false;
 };
 
-} // namespace obs
+} // namespace astra::observability

@@ -4,7 +4,7 @@
 #include <string_view>
 #include <unordered_map>
 
-namespace router {
+namespace astra::router {
 
 class IRequest {
 public:
@@ -21,4 +21,7 @@ public:
     virtual void set_path_params(std::unordered_map<std::string, std::string> params) = 0;
 };
 
-} // namespace router
+} // namespace astra::router
+
+// Backward compatibility alias
+namespace router = astra::router;

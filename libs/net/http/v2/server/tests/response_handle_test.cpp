@@ -5,7 +5,7 @@
 #include <chrono>
 #include <IScopedResource.h>
 
-using namespace http2server;
+using namespace astra::http2;
 using namespace std::chrono_literals;
 
 class ResponseHandleTest : public ::testing::Test {

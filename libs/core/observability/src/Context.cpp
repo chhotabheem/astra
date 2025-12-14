@@ -7,7 +7,7 @@
 #include <iomanip>
 #include <cstring>
 
-namespace obs {
+namespace astra::observability {
 
 namespace {
     // Thread-local random generator for trace/span ID generation
@@ -147,4 +147,4 @@ void Context::parse_baggage(Context& ctx, std::string_view header) {
     }
 }
 
-} // namespace obs
+} // namespace astra::observability

@@ -6,10 +6,10 @@
 #include <Log.h>
 #include <iostream>
 
-namespace http2server {
+namespace astra::http2 {
 namespace backend {
 
-NgHttp2Server::NgHttp2Server(const http2server::Config& config)
+NgHttp2Server::NgHttp2Server(const ServerConfig& config)
     : m_config(config),
       ready_future_(ready_promise_.get_future().share()) {
     int threads = m_config.thread_count() > 0 ? m_config.thread_count() : 1;
@@ -85,7 +85,7 @@ void NgHttp2Server::handle(const std::string& method, const std::string& path, S
             } else {
                 // Request complete, create shared_ptr Request and Response
                 auto request = std::make_shared<Request>(ctx->request_data);
-                auto response = std::make_shared<Response>(ctx->response_handle);
+                auto response = std::make_shared<ServerResponse>(ctx->response_handle);
                 
                 // Call user handler with shared_ptr
                 ctx->handler(request, response);
@@ -141,4 +141,4 @@ void NgHttp2Server::wait_until_ready() {
 }
 
 } // namespace backend
-} // namespace http2server
+} // namespace astra::http2

@@ -1,7 +1,7 @@
 #include "ResponseHandle.h"
 #include <boost/asio/post.hpp>
 
-namespace http2server {
+namespace astra::http2 {
 
 ResponseHandle::ResponseHandle(SendFunction send_fn, boost::asio::io_context& io_ctx)
     : m_send_fn(std::move(send_fn))
@@ -31,4 +31,4 @@ bool ResponseHandle::is_alive() const noexcept {
     return m_stream_alive.load(std::memory_order_acquire);
 }
 
-} // namespace http2server
+} // namespace astra::http2

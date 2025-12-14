@@ -3,7 +3,7 @@
 #include <variant>
 #include <stdexcept>
 
-namespace astra {
+namespace astra::outcome {
 
 /// Unit type - represents "no value" for Result<void, E> equivalent
 struct Unit {
@@ -136,5 +136,5 @@ private:
     std::variant<Unit, E> m_data;
 };
 
-} // namespace astra
+} // namespace astra::outcome
 

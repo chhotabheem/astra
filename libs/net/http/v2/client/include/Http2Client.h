@@ -7,7 +7,7 @@
 #include "Http2ClientResponse.h"
 #include "http2client.pb.h"
 
-namespace http2client {
+namespace astra::http2 {
 
 /**
  * @brief Error information passed to callbacks
@@ -16,11 +16,11 @@ struct Error {
     int code = 0;
     std::string message;
     
-    operator bool() const { return code != 0; }
+    constexpr operator bool() const { return code != 0; }
 };
 
 // Callback type: Invoked only when the FULL response is received
-using ResponseHandler = std::function<void(const Response&, const Error&)>;
+using ResponseHandler = std::function<void(const ClientResponse&, const Error&)>;
 
 class ClientImpl;
 
@@ -30,7 +30,7 @@ public:
      * @brief Construct a new Client object
      * @param config Proto-generated client configuration
      */
-    explicit Client(const http2client::Config& config);
+    explicit Client(const ClientConfig& config);
     ~Client();
 
     // Prevent copying to ensure resource safety
@@ -68,10 +68,10 @@ public:
     /**
      * @brief Check if the client is currently connected
      */
-    bool is_connected() const;
+    [[nodiscard]] bool is_connected() const;
 
 private:
     std::unique_ptr<ClientImpl> m_impl;
 };
 
-} // namespace http2client
+} // namespace astra::http2

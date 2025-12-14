@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace obs {
+namespace astra::observability {
 
 namespace {
     // Maximum cache size for ad-hoc metrics (Fix #3)
@@ -216,4 +216,4 @@ Gauge gauge(std::string_view name, Unit unit) {
     return g;
 }
 
-} // namespace obs
+} // namespace astra::observability

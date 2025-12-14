@@ -34,7 +34,7 @@ public:
         std::string original_url;
     };
 
-    using Result = astra::Result<Output, domain::DomainError>;
+    using Result = astra::outcome::Result<Output, domain::DomainError>;
 
     /**
      * @brief Constructor

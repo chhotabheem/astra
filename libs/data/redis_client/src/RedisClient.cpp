@@ -1,7 +1,7 @@
 #include "RedisClient.h"
 #include <iostream>
 
-namespace redisclient {
+namespace astra::redis {
 
 RedisClient::RedisClient(const std::string& uri) {
     try {
@@ -63,4 +63,4 @@ bool RedisClient::ping() {
     }
 }
 
-} // namespace redisclient
+} // namespace astra::redis

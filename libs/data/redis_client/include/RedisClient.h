@@ -7,7 +7,7 @@
 #include <memory>
 #include <sw/redis++/redis++.h>
 
-namespace redisclient {
+namespace astra::redis {
 
 class RedisClient : public IRedisClient {
 public:
@@ -31,4 +31,4 @@ private:
     std::unique_ptr<sw::redis::Redis> redis_;
 };
 
-} // namespace redisclient
+} // namespace astra::redis

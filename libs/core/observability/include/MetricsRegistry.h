@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <string>
 
-namespace obs {
+namespace astra::observability {
 
 // MetricsRegistry - Convenience class for organizing metrics in a single member variable
 // Provides fluent API for registration and short-key lookup
@@ -43,4 +43,4 @@ private:
     std::unordered_map<std::string, Gauge> m_gauges;
 };
 
-} // namespace obs
+} // namespace astra::observability

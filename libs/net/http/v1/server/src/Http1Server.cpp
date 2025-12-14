@@ -3,7 +3,7 @@
 #include "Http1Response.h"
 #include <iostream>
 
-namespace http1 {
+namespace astra::http1 {
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -164,4 +164,4 @@ void Server::do_session(tcp::socket socket) {
     // Deprecated/Unused
 }
 
-} // namespace http1
+} // namespace astra::http1

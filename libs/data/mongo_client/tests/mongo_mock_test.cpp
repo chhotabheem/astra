@@ -4,7 +4,7 @@
 #include <bsoncxx/builder/basic/kvp.hpp>
 #include <bsoncxx/json.hpp>
 
-using namespace mongoclient;
+using namespace astra::mongo;
 using ::testing::Return;
 using ::testing::_;
 using bsoncxx::builder::basic::kvp;

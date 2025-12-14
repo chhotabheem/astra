@@ -4,7 +4,7 @@
 #include <string>
 #include <stdexcept>
 
-using namespace json;
+using namespace astra::json;
 
 void test_parse_valid_json() {
     std::string json_str = R"({

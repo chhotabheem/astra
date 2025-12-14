@@ -5,7 +5,7 @@
 #include <mutex>
 #include <string>
 
-namespace observability {
+namespace astra::observability {
 namespace testing {
 
 // In-memory log exporter for testing
@@ -73,4 +73,4 @@ void initialize_in_memory(
 );
 
 } // namespace testing
-} // namespace observability
+} // namespace astra::observability

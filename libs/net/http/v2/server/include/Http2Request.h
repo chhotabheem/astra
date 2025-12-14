@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <string_view>
 
-namespace http2server {
+namespace astra::http2 {
 
 struct RequestData;  // Forward declaration
 
@@ -45,4 +45,4 @@ private:
     std::weak_ptr<RequestData> m_data;
 };
 
-} // namespace http2server
+} // namespace astra::http2

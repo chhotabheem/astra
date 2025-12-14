@@ -5,7 +5,7 @@
 #include <initializer_list>
 #include <utility>
 
-namespace obs {
+namespace astra::observability {
 
 // Attributes for metrics (OpenTelemetry labels/tags)
 using Attributes = std::initializer_list<std::pair<std::string_view, std::string_view>>;
@@ -108,4 +108,7 @@ Counter counter(std::string_view name, Unit unit = Unit::Dimensionless);
 Histogram histogram(std::string_view name, Unit unit = Unit::Milliseconds);
 Gauge gauge(std::string_view name, Unit unit = Unit::Dimensionless);
 
-} // namespace obs
+} // namespace astra::observability
+
+// Backward compatibility alias
+namespace obs = astra::observability;

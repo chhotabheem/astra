@@ -13,7 +13,7 @@ class ShortLink {
 public:
     using Clock = std::chrono::system_clock;
     using TimePoint = Clock::time_point;
-    using CreateResult = astra::Result<ShortLink, DomainError>;
+    using CreateResult = astra::outcome::Result<ShortLink, DomainError>;
 
     [[nodiscard]] static CreateResult create(
         ShortCode code,

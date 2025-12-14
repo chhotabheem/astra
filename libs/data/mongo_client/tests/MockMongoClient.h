@@ -3,7 +3,7 @@
 #include "IMongoClient.h"
 #include <gmock/gmock.h>
 
-namespace mongoclient {
+namespace astra::mongo {
 
 class MockMongoClient : public IMongoClient {
 public:
@@ -43,4 +43,4 @@ public:
         const bsoncxx::document::view& query), (override));
 };
 
-} // namespace mongoclient
+} // namespace astra::mongo

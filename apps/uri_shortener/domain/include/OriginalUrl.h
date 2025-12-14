@@ -9,7 +9,7 @@ namespace url_shortener::domain {
 
 class OriginalUrl {
 public:
-    using CreateResult = astra::Result<OriginalUrl, DomainError>;
+    using CreateResult = astra::outcome::Result<OriginalUrl, DomainError>;
 
     [[nodiscard]] static CreateResult create(std::string_view raw);
     [[nodiscard]] static OriginalUrl from_trusted(std::string raw);

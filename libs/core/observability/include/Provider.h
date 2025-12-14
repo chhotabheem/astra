@@ -3,7 +3,7 @@
 #include <memory>
 #include <string_view>
 
-namespace obs {
+namespace astra::observability {
 
 class ProviderImpl;
 class Tracer;
@@ -36,5 +36,7 @@ private:
 bool init(const ::observability::Config& config);
 bool shutdown();
 
-} // namespace obs
+} // namespace astra::observability
 
+// Backward compatibility alias
+namespace obs = astra::observability;

@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-namespace router {
+namespace astra::router {
 
 class IResponse {
 public:
@@ -17,5 +17,8 @@ public:
     [[nodiscard]] virtual bool is_alive() const noexcept = 0;
 };
 
-} // namespace router
+} // namespace astra::router
+
+// Backward compatibility alias
+namespace router = astra::router;
 

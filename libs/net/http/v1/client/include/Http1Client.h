@@ -4,7 +4,7 @@
 #include <map>
 #include <boost/beast/http.hpp>
 
-namespace http1 {
+namespace astra::http1 {
 
 struct Response {
     int status_code;
@@ -24,4 +24,4 @@ private:
     Response perform_request(const std::string& host, const std::string& port, const std::string& target, boost::beast::http::verb method, const std::string& body);
 };
 
-} // namespace http1
+} // namespace astra::http1

@@ -9,7 +9,7 @@
 #include <boost/asio/io_context.hpp>
 #include <IScopedResource.h>
 
-namespace http2server {
+namespace astra::http2 {
 
 class ResponseHandle : public std::enable_shared_from_this<ResponseHandle> {
 public:
@@ -36,4 +36,4 @@ private:
     std::vector<std::unique_ptr<astra::execution::IScopedResource>> m_scoped_resources;
 };
 
-} // namespace http2server
+} // namespace astra::http2

@@ -1,6 +1,6 @@
 #include "InMemoryExporters.h"
 
-namespace observability {
+namespace astra::observability {
 namespace testing {
 
 // InMemoryLogExporter implementation
@@ -72,4 +72,4 @@ void initialize_in_memory(
 }
 
 } // namespace testing
-} // namespace observability
+} // namespace astra::observability

@@ -5,7 +5,7 @@
 #include <bsoncxx/builder/basic/kvp.hpp>
 
 using namespace testing;
-using namespace mongoclient;
+using namespace astra::mongo;
 
 TEST(MongoClientTest, Instantiation) {
     EXPECT_NO_THROW({

@@ -20,7 +20,7 @@ namespace astra::execution {
  */
 struct Message {
     uint64_t session_id;
-    obs::Context trace_ctx;
+    astra::observability::Context trace_ctx;
     std::any payload;
 };
 

@@ -8,21 +8,21 @@
 #include <optional>
 #include <IScopedResource.h>
 
-namespace http2server {
+namespace astra::http2 {
 
 class ResponseHandle;
 
-class Response final : public router::IResponse {
+class ServerResponse final : public router::IResponse {
 public:
-    Response() = default;
-    explicit Response(std::weak_ptr<ResponseHandle> handle);
+    ServerResponse() = default;
+    explicit ServerResponse(std::weak_ptr<ResponseHandle> handle);
     
-    Response(const Response&) = default;
-    Response& operator=(const Response&) = default;
-    Response(Response&&) noexcept = default;
-    Response& operator=(Response&&) noexcept = default;
+    ServerResponse(const ServerResponse&) = default;
+    ServerResponse& operator=(const ServerResponse&) = default;
+    ServerResponse(ServerResponse&&) noexcept = default;
+    ServerResponse& operator=(ServerResponse&&) noexcept = default;
     
-    ~Response() override = default;
+    ~ServerResponse() override = default;
 
     void set_status(int code) noexcept override;
     void set_header(std::string_view key, std::string_view value) override;
@@ -40,4 +40,4 @@ private:
     bool m_closed = false;
 };
 
-} // namespace http2server
+} // namespace astra::http2

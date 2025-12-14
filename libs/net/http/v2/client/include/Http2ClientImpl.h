@@ -9,9 +9,9 @@
 #include <mutex>
 #include <Log.h>
 
-namespace http2client {
+namespace astra::http2 {
 
-class Response::Impl {
+class ClientResponse::Impl {
 public:
     Impl(int status) : status_code(status) {}
     
@@ -30,7 +30,7 @@ enum class ConnectionState {
 
 class ClientImpl {
 public:
-    ClientImpl(const http2client::Config& config);
+    ClientImpl(const ClientConfig& config);
     ~ClientImpl();
 
     void submit(const std::string& method, const std::string& path, 
@@ -49,7 +49,7 @@ private:
     void start_io_service();
     void stop_io_service();
 
-    http2client::Config m_config;
+    ClientConfig m_config;
     boost::asio::io_context m_io_context;
     std::unique_ptr<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>> m_work;
     std::thread m_io_thread;
@@ -59,5 +59,4 @@ private:
     std::mutex m_connect_mutex;
 };
 
-} // namespace http2client
-
+} // namespace astra::http2

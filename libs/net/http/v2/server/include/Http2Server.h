@@ -6,7 +6,7 @@
 #include "Router.h"
 #include "http2server.pb.h"
 
-namespace http2server {
+namespace astra::http2 {
 
 class Request;
 class Response;
@@ -17,7 +17,7 @@ public:
      * @brief Construct a new Server object
      * @param config Proto-generated server configuration
      */
-    explicit Server(const http2server::Config& config);
+    explicit Server(const ServerConfig& config);
     ~Server();
 
     // Prevent copying
@@ -50,7 +50,7 @@ public:
      */
     void wait_until_ready();
 
-    router::Router& router() { return m_router; }
+    [[nodiscard]] router::Router& router() { return m_router; }
 
 private:
     class Impl;
@@ -58,4 +58,4 @@ private:
     router::Router m_router;
 };
 
-} // namespace http2server
+} // namespace astra::http2

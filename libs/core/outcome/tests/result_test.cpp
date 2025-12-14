@@ -2,7 +2,7 @@
 #include "Result.h"
 #include <string>
 
-using namespace astra;
+using namespace astra::outcome;
 
 struct TestError {
     int code;

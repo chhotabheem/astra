@@ -1,23 +1,24 @@
 #include "Http2Client.h"
+#include "Http2ClientResponse.h"
 #include "Http2ClientImpl.h"
 #include <sstream>
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-namespace http2client {
+namespace astra::http2 {
 
 // ============================================================================
-// Response Implementation
+// ClientResponse Implementation
 // ============================================================================
 
-Response::Response() : m_impl(std::make_shared<Impl>(0)) {}
-Response::Response(std::shared_ptr<Impl> impl) : m_impl(impl) {}
-Response::~Response() = default;
+ClientResponse::ClientResponse() : m_impl(std::make_shared<Impl>(0)) {}
+ClientResponse::ClientResponse(std::shared_ptr<Impl> impl) : m_impl(impl) {}
+ClientResponse::~ClientResponse() = default;
 
-int Response::status_code() const { return m_impl->status_code; }
-const std::string& Response::body() const { return m_impl->body; }
+int ClientResponse::status_code() const { return m_impl->status_code; }
+const std::string& ClientResponse::body() const { return m_impl->body; }
 
-std::string Response::header(const std::string& name) const {
+std::string ClientResponse::header(const std::string& name) const {
     auto it = m_impl->headers.find(name);
     if (it != m_impl->headers.end()) {
         return it->second;
@@ -25,7 +26,7 @@ std::string Response::header(const std::string& name) const {
     return "";
 }
 
-const std::map<std::string, std::string>& Response::headers() const {
+const std::map<std::string, std::string>& ClientResponse::headers() const {
     return m_impl->headers;
 }
 
@@ -33,7 +34,7 @@ const std::map<std::string, std::string>& Response::headers() const {
 // Client Implementation
 // ============================================================================
 
-Client::Client(const http2client::Config& config) : m_impl(std::make_unique<ClientImpl>(config)) {}
+Client::Client(const ClientConfig& config) : m_impl(std::make_unique<ClientImpl>(config)) {}
 Client::~Client() = default;
 
 void Client::get(const std::string& path, ResponseHandler handler) {
@@ -59,7 +60,7 @@ bool Client::is_connected() const {
 // ClientImpl Implementation
 // ============================================================================
 
-ClientImpl::ClientImpl(const http2client::Config& config) : m_config(config) {
+ClientImpl::ClientImpl(const ClientConfig& config) : m_config(config) {
     // Lazy connection: only start io_service, don't connect yet
     start_io_service();
 }
@@ -161,14 +162,14 @@ void ClientImpl::submit(const std::string& method, const std::string& path,
     boost::asio::post(m_io_context, [this, method, path, body, headers, handler]() {
         ConnectionState current_state = m_state.load(std::memory_order_acquire);
         if (current_state != ConnectionState::CONNECTED && current_state != ConnectionState::CONNECTING) {
-            handler(Response(), Error{1, "Not connected"});
+            handler(ClientResponse(), Error{1, "Not connected"});
             return;
         }
 
         // If still connecting, wait a bit (simple approach)
         // In production, you might queue requests until connected
         if (current_state == ConnectionState::CONNECTING) {
-            handler(Response(), Error{1, "Connection in progress, try again"});
+            handler(ClientResponse(), Error{1, "Connection in progress, try again"});
             return;
         }
 
@@ -183,7 +184,7 @@ void ClientImpl::submit(const std::string& method, const std::string& path,
         auto req = m_session->submit(ec, method, path, body, ng_headers);
 
         if (ec) {
-            handler(Response(), Error{ec.value(), "Submit failed: " + ec.message()});
+            handler(ClientResponse(), Error{ec.value(), "Submit failed: " + ec.message()});
             return;
         }
 
@@ -195,7 +196,7 @@ void ClientImpl::submit(const std::string& method, const std::string& path,
         // Shared state to coordinate between timeout and response
         struct RequestState {
             bool completed = false;
-            std::shared_ptr<Response::Impl> response_impl = std::make_shared<Response::Impl>(0);
+            std::shared_ptr<ClientResponse::Impl> response_impl = std::make_shared<ClientResponse::Impl>(0);
         };
         auto state = std::make_shared<RequestState>();
 
@@ -203,7 +204,7 @@ void ClientImpl::submit(const std::string& method, const std::string& path,
             if (!ec && !state->completed) {
                 state->completed = true;
                 req->cancel(NGHTTP2_CANCEL);
-                handler(Response(), Error{2, "Request timeout"});
+                handler(ClientResponse(), Error{2, "Request timeout"});
             }
         });
 
@@ -228,13 +229,13 @@ void ClientImpl::submit(const std::string& method, const std::string& path,
             state->completed = true;
 
             if (error_code != 0) {
-                handler(Response(), Error{(int)error_code, "Stream closed with error"});
+                handler(ClientResponse(), Error{(int)error_code, "Stream closed with error"});
             } else {
-                handler(Response(state->response_impl), Error{});
+                handler(ClientResponse(state->response_impl), Error{});
             }
         });
     });
 }
 
-} // namespace http2client
+} // namespace astra::http2
 

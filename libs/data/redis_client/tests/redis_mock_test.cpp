@@ -1,7 +1,7 @@
 #include "MockRedisClient.h"
 #include <gtest/gtest.h>
 
-using namespace redisclient;
+using namespace astra::redis;
 using ::testing::Return;
 using ::testing::_;
 

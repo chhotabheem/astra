@@ -24,8 +24,7 @@
 #include <thread>
 
 // Forward declarations
-namespace http2server { class Server; }
-namespace http2client { class Http2ClientPool; }
+namespace astra::http2 { class Server; class Http2ClientPool; }
 
 namespace url_shortener {
 
@@ -48,7 +47,7 @@ public:
         std::shared_ptr<domain::ICodeGenerator> code_generator;
     };
 
-    [[nodiscard]] static astra::Result<UriShortenerApp, AppError> create(
+    [[nodiscard]] static astra::outcome::Result<UriShortenerApp, AppError> create(
         const uri_shortener::Config& config,
         const Overrides& overrides = {});
 
@@ -68,14 +67,14 @@ private:
         std::shared_ptr<application::ShortenLink> shorten,
         std::shared_ptr<application::ResolveLink> resolve,
         std::shared_ptr<application::DeleteLink> del,
-        std::unique_ptr<http2client::Http2ClientPool> client_pool,
+        std::unique_ptr<astra::http2::Http2ClientPool> client_pool,
         std::shared_ptr<service::IDataServiceAdapter> data_adapter,
         std::unique_ptr<UriShortenerMessageHandler> msg_handler,
         std::unique_ptr<ObservableMessageHandler> obs_msg_handler,
         std::unique_ptr<astra::execution::StickyQueue> pool,
         std::unique_ptr<UriShortenerRequestHandler> req_handler,
         std::unique_ptr<ObservableRequestHandler> obs_req_handler,
-        std::unique_ptr<http2server::Server> server,
+        std::unique_ptr<astra::http2::Server> server,
         std::unique_ptr<astra::resilience::AtomicLoadShedder> load_shedder
     );
 
@@ -90,7 +89,7 @@ private:
     std::shared_ptr<application::DeleteLink> m_delete;
     
     // Backend HTTP client (destruction order: adapter uses pool)
-    std::unique_ptr<http2client::Http2ClientPool> m_client_pool;
+    std::unique_ptr<astra::http2::Http2ClientPool> m_client_pool;
     std::shared_ptr<service::IDataServiceAdapter> m_data_adapter;
     
     // Message-passing components
@@ -101,7 +100,7 @@ private:
     std::unique_ptr<ObservableRequestHandler> m_obs_req_handler;
     
     // HTTP server
-    std::unique_ptr<http2server::Server> m_server;
+    std::unique_ptr<astra::http2::Server> m_server;
     
     // Resilience
     std::unique_ptr<astra::resilience::AtomicLoadShedder> m_load_shedder;

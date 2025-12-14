@@ -25,7 +25,7 @@
 #include <string>
 #include <mutex>
 
-namespace obs {
+namespace astra::observability {
 
 /// Configuration for OTelBackend
 struct OTelConfig {
@@ -72,4 +72,4 @@ private:
     bool m_shutdown{false};
 };
 
-} // namespace obs
+} // namespace astra::observability

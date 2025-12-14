@@ -1,9 +1,9 @@
 #include "Http2ClientPool.h"
 #include <algorithm>
 
-namespace http2client {
+namespace astra::http2 {
 
-Http2ClientPool::Http2ClientPool(const http2client::Config& config) {
+Http2ClientPool::Http2ClientPool(const ClientConfig& config) {
     // Use at least 1 client
     size_t pool_size = std::max(static_cast<size_t>(1), 
                                  static_cast<size_t>(config.pool_size()));
@@ -25,4 +25,4 @@ size_t Http2ClientPool::size() const noexcept {
     return m_clients.size();
 }
 
-} // namespace http2client
+} // namespace astra::http2

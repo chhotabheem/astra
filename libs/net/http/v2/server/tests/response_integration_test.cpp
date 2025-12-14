@@ -4,7 +4,7 @@
 #include <memory>
 #include <boost/asio/io_context.hpp>
 
-using namespace http2server;
+using namespace astra::http2;
 
 /**
  * TDD Tests for Response as lightweight copyable handle
@@ -42,15 +42,15 @@ protected:
     }
 };
 
-TEST_F(ResponseHandleIntegrationTest, ResponseIsCopyable) {
+TEST_F(ResponseHandleIntegrationTest, ServerResponseIsCopyable) {
     auto handle = make_response_handle();
-    Response res1(handle);
+    ServerResponse res1(handle);
     
     // Copy construct
-    Response res2 = res1;
+    ServerResponse res2 = res1;
     
     // Copy assign
-    Response res3(handle);
+    ServerResponse res3(handle);
     res3 = res1;
     
     // All should be valid
@@ -60,9 +60,9 @@ TEST_F(ResponseHandleIntegrationTest, ResponseIsCopyable) {
     SUCCEED();
 }
 
-TEST_F(ResponseHandleIntegrationTest, ResponseCloseSendsViaHandle) {
+TEST_F(ResponseHandleIntegrationTest, ServerResponseCloseSendsViaHandle) {
     auto handle = make_response_handle();
-    Response res(handle);
+    ServerResponse res(handle);
     
     res.set_status(201);
     res.set_header("Content-Type", "text/plain");
@@ -78,9 +78,9 @@ TEST_F(ResponseHandleIntegrationTest, ResponseCloseSendsViaHandle) {
     EXPECT_EQ(sent.send_count, 1);
 }
 
-TEST_F(ResponseHandleIntegrationTest, ResponseDoubleCloseOnlySendsOnce) {
+TEST_F(ResponseHandleIntegrationTest, ServerResponseDoubleCloseOnlySendsOnce) {
     auto handle = make_response_handle();
-    Response res(handle);
+    ServerResponse res(handle);
     
     res.set_status(200);
     res.write("OK");
@@ -93,7 +93,7 @@ TEST_F(ResponseHandleIntegrationTest, ResponseDoubleCloseOnlySendsOnce) {
     EXPECT_EQ(sent.send_count, 1);  // Only sent once
 }
 
-TEST_F(ResponseHandleIntegrationTest, ResponseCloseGracefulWhenHandleExpired) {
+TEST_F(ResponseHandleIntegrationTest, ServerResponseCloseGracefulWhenHandleExpired) {
     std::weak_ptr<ResponseHandle> weak_handle;
     {
         auto handle = make_response_handle();
@@ -101,7 +101,7 @@ TEST_F(ResponseHandleIntegrationTest, ResponseCloseGracefulWhenHandleExpired) {
     }
     // handle destroyed
     
-    Response res(weak_handle);
+    ServerResponse res(weak_handle);
     res.set_status(200);
     res.write("test");
     res.close();  // Should not crash, gracefully dropped
@@ -111,9 +111,9 @@ TEST_F(ResponseHandleIntegrationTest, ResponseCloseGracefulWhenHandleExpired) {
     EXPECT_EQ(sent.send_count, 0);  // Not sent
 }
 
-TEST_F(ResponseHandleIntegrationTest, ResponseStatusDefaultsTo500IfNotSet) {
+TEST_F(ResponseHandleIntegrationTest, ServerResponseStatusDefaultsTo500IfNotSet) {
     auto handle = make_response_handle();
-    Response res(handle);
+    ServerResponse res(handle);
     
     // Deliberately NOT calling set_status()
     res.write("oops");
@@ -125,9 +125,9 @@ TEST_F(ResponseHandleIntegrationTest, ResponseStatusDefaultsTo500IfNotSet) {
     EXPECT_EQ(sent.status, 500);
 }
 
-TEST_F(ResponseHandleIntegrationTest, ResponseAccumulatesWrites) {
+TEST_F(ResponseHandleIntegrationTest, ServerResponseAccumulatesWrites) {
     auto handle = make_response_handle();
-    Response res(handle);
+    ServerResponse res(handle);
     
     res.set_status(200);
     res.write("Hello");
@@ -140,14 +140,14 @@ TEST_F(ResponseHandleIntegrationTest, ResponseAccumulatesWrites) {
     EXPECT_EQ(sent.body, "Hello World");
 }
 
-TEST_F(ResponseHandleIntegrationTest, CopiedResponseSharesClosedState) {
+TEST_F(ResponseHandleIntegrationTest, CopiedServerResponseSharesClosedState) {
     auto handle = make_response_handle();
-    Response res1(handle);
+    ServerResponse res1(handle);
     res1.set_status(200);
     res1.write("test");
     
     // Copy before close
-    Response res2 = res1;
+    ServerResponse res2 = res1;
     
     res1.close();
     io_ctx.run();
@@ -165,9 +165,9 @@ TEST_F(ResponseHandleIntegrationTest, CopiedResponseSharesClosedState) {
     EXPECT_EQ(sent.send_count, 2);  // Both copies sent
 }
 
-TEST_F(ResponseHandleIntegrationTest, ResponseSetHeaderMultipleTimes) {
+TEST_F(ResponseHandleIntegrationTest, ServerResponseSetHeaderMultipleTimes) {
     auto handle = make_response_handle();
-    Response res(handle);
+    ServerResponse res(handle);
     
     res.set_status(200);
     res.set_header("X-Custom", "value1");

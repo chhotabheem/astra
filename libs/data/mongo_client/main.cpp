@@ -13,7 +13,7 @@ int main() {
     obs::info("MongoDB Client Application started");
     
     try {
-        mongoclient::MongoClient client;
+        astra::mongo::MongoClient client;
         
         // Connect to MongoDB
         client.connect("mongodb://localhost:27017");

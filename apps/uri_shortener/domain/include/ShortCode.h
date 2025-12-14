@@ -12,7 +12,7 @@ constexpr size_t kMaxCodeLength = 8;
 
 class ShortCode {
 public:
-    using CreateResult = astra::Result<ShortCode, DomainError>;
+    using CreateResult = astra::outcome::Result<ShortCode, DomainError>;
 
     [[nodiscard]] static CreateResult create(std::string_view raw);
     [[nodiscard]] static ShortCode from_trusted(std::string raw);

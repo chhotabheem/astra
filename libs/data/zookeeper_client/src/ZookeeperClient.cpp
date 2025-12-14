@@ -6,7 +6,7 @@
 #include <zookeeper/zookeeper.h>
 #endif
 
-namespace zookeeperclient {
+namespace astra::zookeeper {
 
 class ZookeeperClient::Impl {
 public:
@@ -95,4 +95,4 @@ bool ZookeeperClient::exists(std::string_view path) {
     return impl_->exists(std::string(path));
 }
 
-} // namespace zookeeperclient
+} // namespace astra::zookeeper

@@ -15,8 +15,8 @@ using namespace std::chrono_literals;
 namespace {
 
 // Helper to create proto config for tests
-http2server::Config make_config(const std::string& address, uint32_t port, uint32_t threads = 1) {
-    http2server::Config config;
+astra::http2::ServerConfig make_config(const std::string& address, uint32_t port, uint32_t threads = 1) {
+    astra::http2::ServerConfig config;
     config.set_address(address);
     config.set_port(port);
     config.set_thread_count(threads);
@@ -32,7 +32,7 @@ http2server::Config make_config(const std::string& address, uint32_t port, uint3
 
 // Test 1: Handler receives shared_ptr to types
 TEST(HandlerSignatureTest, HandlerReceivesReferences) {
-    auto server = std::make_unique<http2server::Server>(make_config("127.0.0.1", 9100));
+    auto server = std::make_unique<astra::http2::Server>(make_config("127.0.0.1", 9100));
     
     bool handler_called = false;
     
@@ -49,7 +49,7 @@ TEST(HandlerSignatureTest, HandlerReceivesReferences) {
 
 // Test 2: Multiple handlers can be registered
 TEST(HandlerSignatureTest, MultipleHandlers) {
-    auto server = std::make_unique<http2server::Server>(make_config("127.0.0.1", 9101));
+    auto server = std::make_unique<astra::http2::Server>(make_config("127.0.0.1", 9101));
     
     server->handle("GET", "/path1", 
         [](std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res) {
@@ -66,7 +66,7 @@ TEST(HandlerSignatureTest, MultipleHandlers) {
 
 // Test 3: Handler can access request and response methods
 TEST(HandlerSignatureTest, AccessRequestResponseMethods) {
-    auto server = std::make_unique<http2server::Server>(make_config("127.0.0.1", 9102));
+    auto server = std::make_unique<astra::http2::Server>(make_config("127.0.0.1", 9102));
     
     server->handle("GET", "/test",
         [](std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res) {
@@ -85,7 +85,7 @@ TEST(HandlerSignatureTest, AccessRequestResponseMethods) {
 
 // Test 4: Router integration
 TEST(HandlerSignatureTest, RouterIntegration) {
-    auto server = std::make_unique<http2server::Server>(make_config("127.0.0.1", 9103));
+    auto server = std::make_unique<astra::http2::Server>(make_config("127.0.0.1", 9103));
     
     // Access router directly - now uses shared_ptr
     server->router().get("/route", [](std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res) {
@@ -98,7 +98,7 @@ TEST(HandlerSignatureTest, RouterIntegration) {
 
 // Test 5: Handler signature matches Server::Handler type
 TEST(HandlerSignatureTest, HandlerTypeCompatible) {
-    http2server::Server::Handler handler = 
+    astra::http2::Server::Handler handler = 
         [](std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res) {
             res->close();
         };

@@ -9,7 +9,7 @@
 #include <memory>
 #include <functional>
 
-namespace router {
+namespace astra::router {
 
 /// Handler takes shared_ptr to request and response
 using Handler = std::function<void(std::shared_ptr<IRequest>, std::shared_ptr<IResponse>)>;
@@ -45,4 +45,7 @@ private:
     void add_route(std::string_view method, std::string_view path, Handler handler);
 };
 
-} // namespace router
+} // namespace astra::router
+
+// Backward compatibility alias
+namespace router = astra::router;

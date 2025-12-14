@@ -6,7 +6,7 @@
 #include <memory>
 #include <atomic>
 
-namespace http2client {
+namespace astra::http2 {
 
 /**
  * @brief Pool of HTTP/2 clients for high-traffic scenarios
@@ -20,7 +20,7 @@ public:
      * @brief Construct pool from config
      * @param config Config containing pool_size and client settings
      */
-    explicit Http2ClientPool(const http2client::Config& config);
+    explicit Http2ClientPool(const ClientConfig& config);
     
     ~Http2ClientPool() = default;
     
@@ -44,4 +44,4 @@ private:
     std::atomic<size_t> m_next{0};
 };
 
-} // namespace http2client
+} // namespace astra::http2

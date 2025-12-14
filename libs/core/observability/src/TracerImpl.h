@@ -6,7 +6,7 @@
 #include <string>
 #include <string_view>
 
-namespace obs {
+namespace astra::observability {
 
 class ProviderImpl;
 
@@ -34,5 +34,5 @@ private:
     ProviderImpl& m_provider;
 };
 
-} // namespace obs
+} // namespace astra::observability
 

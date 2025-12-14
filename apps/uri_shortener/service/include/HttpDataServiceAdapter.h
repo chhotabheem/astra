@@ -17,10 +17,10 @@ public:
     
     /// Construct with a client pool reference
     /// @param client_pool Pool of HTTP/2 clients
-    explicit HttpDataServiceAdapter(http2client::Http2ClientPool& client_pool);
+    explicit HttpDataServiceAdapter(astra::http2::Http2ClientPool& client_pool);
     
     /// Construct with a client pool and custom configuration
-    HttpDataServiceAdapter(http2client::Http2ClientPool& client_pool, Config config);
+    HttpDataServiceAdapter(astra::http2::Http2ClientPool& client_pool, Config config);
     
     ~HttpDataServiceAdapter() override = default;
     
@@ -37,7 +37,7 @@ private:
     /// Map HTTP status code to domain error code (0 = success)
     static int map_http_status_to_error(int status_code);
     
-    http2client::Http2ClientPool& m_client_pool;
+    astra::http2::Http2ClientPool& m_client_pool;
     Config m_config;
 };
 

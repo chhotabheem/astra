@@ -4,7 +4,7 @@
 #include <set>
 #include <atomic>
 
-namespace http2client {
+namespace astra::http2 {
 namespace test {
 
 /**
@@ -28,7 +28,7 @@ protected:
         m_config.set_pool_size(3);
     }
 
-    http2client::Config m_config;
+    ClientConfig m_config;
 };
 
 // ===========================================================================
@@ -160,4 +160,4 @@ TEST_F(Http2ClientPoolTest, SizeRemainsConstant) {
 }
 
 } // namespace test
-} // namespace http2client
+} // namespace astra::http2

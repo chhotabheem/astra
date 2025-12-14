@@ -4,7 +4,7 @@
 #include <opentelemetry/trace/span.h>
 #include <opentelemetry/nostd/shared_ptr.h>
 
-namespace obs {
+namespace astra::observability {
 
 // Span implementation details - visible to TracerImpl
 struct Span::Impl {
@@ -19,4 +19,4 @@ struct Span::Impl {
     ~Impl();
 };
 
-} // namespace obs
+} // namespace astra::observability

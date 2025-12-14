@@ -21,7 +21,7 @@
 #include <opentelemetry/logs/provider.h>
 #include <opentelemetry/logs/logger.h>
 
-namespace obs {
+namespace astra::observability {
 
 namespace nostd = opentelemetry::nostd;
 namespace metrics_api = opentelemetry::metrics;
@@ -111,4 +111,4 @@ private:
 // Thread-local active span stack
 extern thread_local std::vector<Context> active_span_stack;
 
-} // namespace obs
+} // namespace astra::observability

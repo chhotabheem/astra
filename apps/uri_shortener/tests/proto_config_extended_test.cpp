@@ -37,13 +37,13 @@ public:
 // =============================================================================
 
 TEST(EdgeCasesTest, PortZero) {
-    http2server::Config server;
+    astra::http2::ServerConfig server;
     server.set_port(0);
     EXPECT_EQ(server.port(), 0);
 }
 
 TEST(EdgeCasesTest, PortMaxUint32) {
-    http2server::Config server;
+    astra::http2::ServerConfig server;
     server.set_port(std::numeric_limits<uint32_t>::max());
     EXPECT_EQ(server.port(), std::numeric_limits<uint32_t>::max());
 }
@@ -96,13 +96,13 @@ TEST(StringEdgeCasesTest, UnicodeServiceName) {
 }
 
 TEST(StringEdgeCasesTest, ServerAddressIPv6) {
-    http2server::Config server;
+    astra::http2::ServerConfig server;
     server.set_address("::1");
     EXPECT_EQ(server.address(), "::1");
 }
 
 TEST(StringEdgeCasesTest, ServerAddressHostname) {
-    http2server::Config server;
+    astra::http2::ServerConfig server;
     server.set_address("localhost");
     EXPECT_EQ(server.address(), "localhost");
 }

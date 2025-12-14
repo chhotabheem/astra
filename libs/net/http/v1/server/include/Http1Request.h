@@ -5,7 +5,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace http1 {
+namespace astra::http1 {
 
 class Request final : public router::IRequest {
 public:
@@ -28,4 +28,4 @@ private:
     std::unordered_map<std::string, std::string> path_params_;
 };
 
-} // namespace http1
+} // namespace astra::http1

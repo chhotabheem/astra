@@ -4,7 +4,7 @@
 #include <functional>
 #include <memory>
 
-namespace zookeeperclient {
+namespace astra::zookeeper {
 
 class ZookeeperClient {
 public:
@@ -24,4 +24,4 @@ private:
     std::unique_ptr<Impl> impl_;
 };
 
-} // namespace zookeeperclient
+} // namespace astra::zookeeper

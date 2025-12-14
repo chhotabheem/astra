@@ -1,7 +1,7 @@
 #include "Http2Request.h"
 #include "RequestData.h"
 
-namespace http2server {
+namespace astra::http2 {
 
 Request::Request(std::weak_ptr<RequestData> data)
     : m_data(std::move(data)) {
@@ -59,4 +59,4 @@ void Request::set_path_params(std::unordered_map<std::string, std::string> param
     }
 }
 
-} // namespace http2server
+} // namespace astra::http2

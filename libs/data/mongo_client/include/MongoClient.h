@@ -5,7 +5,7 @@
 #include <mongocxx/uri.hpp>
 #include <memory>
 
-namespace mongoclient {
+namespace astra::mongo {
 
 class MongoClient : public IMongoClient {
 public:
@@ -50,4 +50,4 @@ private:
     std::unique_ptr<mongocxx::client> m_client;
 };
 
-} // namespace mongoclient
+} // namespace astra::mongo

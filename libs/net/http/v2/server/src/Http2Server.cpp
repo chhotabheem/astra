@@ -3,17 +3,17 @@
 #include "Http2Response.h"
 #include "backend/nghttp2/NgHttp2Server.h"
 
-namespace http2server {
+namespace astra::http2 {
 
 class Server::Impl {
 public:
-    Impl(const http2server::Config& config)
+    Impl(const ServerConfig& config)
         : backend(config) {}
     
     backend::NgHttp2Server backend;
 };
 
-Server::Server(const http2server::Config& config)
+Server::Server(const ServerConfig& config)
     : m_impl(std::make_unique<Impl>(config)) {
     
     // Default handler: Dispatch to Router with shared_ptr
@@ -41,4 +41,4 @@ void Server::wait_until_ready() {
     m_impl->backend.wait_until_ready();
 }
 
-} // namespace http2server
+} // namespace astra::http2

@@ -7,7 +7,7 @@
 #include <IResponse.h>
 
 // Forward declarations
-namespace obs {
+namespace astra::observability {
 class Span;
 }
 
@@ -35,7 +35,7 @@ struct DataServiceRequest {
     std::string entity_id;   // e.g., short code
     std::string payload;     // JSON payload for SAVE
     std::shared_ptr<router::IResponse> response;  // Response interface
-    std::shared_ptr<obs::Span> span;
+    std::shared_ptr<astra::observability::Span> span;
 };
 
 /// Protocol-agnostic response from data service  
@@ -53,7 +53,7 @@ struct DataServiceResponse {
     
     // Passthrough from request
     std::shared_ptr<router::IResponse> response;  // Response interface
-    std::shared_ptr<obs::Span> span;
+    std::shared_ptr<astra::observability::Span> span;
 };
 
 /// Callback type for async responses

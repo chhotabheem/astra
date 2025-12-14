@@ -4,7 +4,7 @@
 #include <string_view>
 #include <memory>
 
-namespace json {
+namespace astra::json {
 
 class JsonWriter {
 public:
@@ -35,4 +35,4 @@ private:
     std::unique_ptr<Impl> m_impl;
 };
 
-} // namespace json
+} // namespace astra::json

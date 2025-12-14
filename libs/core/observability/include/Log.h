@@ -6,7 +6,7 @@
 #include <map>
 #include <string>
 
-namespace obs {
+namespace astra::observability {
 
 // Log levels (OpenTelemetry standard)
 enum class Level {
@@ -79,4 +79,7 @@ private:
     size_t m_stack_size;  // For restoring stack on destruction
 };
 
-} // namespace obs
+} // namespace astra::observability
+
+// Backward compatibility alias
+namespace obs = astra::observability;

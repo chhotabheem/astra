@@ -4,7 +4,7 @@
 #include <boost/system/error_code.hpp>
 #include <stdexcept>
 
-namespace json {
+namespace astra::json {
 
 class JsonDocument::Impl {
 public:
@@ -88,4 +88,4 @@ bool JsonDocument::is_number() const { return m_impl->val.is_number(); }
 bool JsonDocument::is_bool() const { return m_impl->val.is_bool(); }
 bool JsonDocument::is_null() const { return m_impl->val.is_null(); }
 
-} // namespace json
+} // namespace astra::json

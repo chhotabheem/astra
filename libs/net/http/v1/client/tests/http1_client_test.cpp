@@ -6,7 +6,7 @@ using namespace testing;
 
 class Http1ClientTest : public Test {
 protected:
-    http1::Client m_client;
+    astra::http1::Client m_client;
 };
 
 TEST_F(Http1ClientTest, ConnectionRefused) {

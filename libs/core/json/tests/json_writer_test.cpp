@@ -3,7 +3,7 @@
 #include <cassert>
 #include <string>
 
-using namespace json;
+using namespace astra::json;
 
 void test_basic_json() {
     JsonWriter json;

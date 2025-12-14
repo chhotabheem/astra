@@ -3,7 +3,7 @@
 #include "TracerImpl.h"
 #include <Tracer.h>
 
-namespace obs {
+namespace astra::observability {
 
 Provider& Provider::instance() {
     static Provider provider;
@@ -38,5 +38,5 @@ bool shutdown() {
     return Provider::instance().shutdown();
 }
 
-} // namespace obs
+} // namespace astra::observability
 

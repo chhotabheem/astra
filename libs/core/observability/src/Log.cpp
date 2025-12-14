@@ -6,7 +6,7 @@
 #include <opentelemetry/logs/logger.h>
 #include <vector>
 
-namespace obs {
+namespace astra::observability {
 
 namespace logs_api = opentelemetry::logs;
 namespace nostd = opentelemetry::nostd;
@@ -97,4 +97,4 @@ ScopedLogAttributes::~ScopedLogAttributes() {
     }
 }
 
-} // namespace obs
+} // namespace astra::observability
