@@ -1,63 +1,75 @@
 #include "UriShortenerMessageHandler.h"
 #include <Message.h>
 #include <Log.h>
+#include <Span.h>
+#include <IRequest.h>
+#include <IResponse.h>
 #include <any>
-#include "ShortenLink.h"
-#include "ResolveLink.h"
-#include "DeleteLink.h"
+#include <utility>
+#include <functional>
 
 namespace url_shortener {
 
+// Type alias for the payload pair
+using RequestResponsePair = std::pair<
+    std::shared_ptr<router::IRequest>,
+    std::shared_ptr<router::IResponse>
+>;
+
 UriShortenerMessageHandler::UriShortenerMessageHandler(
-    std::shared_ptr<application::ShortenLink> shorten,
-    std::shared_ptr<application::ResolveLink> resolve,
-    std::shared_ptr<application::DeleteLink> del
+    std::shared_ptr<service::IDataServiceAdapter> adapter,
+    std::shared_ptr<astra::execution::IQueue> response_queue
 )
-    : m_shorten(std::move(shorten))
-    , m_resolve(std::move(resolve))
-    , m_delete(std::move(del)) {
+    : m_adapter(std::move(adapter))
+    , m_response_queue(std::move(response_queue)) {
+}
+
+void UriShortenerMessageHandler::setResponseQueue(
+    std::shared_ptr<astra::execution::IQueue> queue
+) {
+    m_response_queue = std::move(queue);
 }
 
 void UriShortenerMessageHandler::handle(astra::execution::Message& msg) {
     try {
-        auto& payload = std::any_cast<UriPayload&>(msg.payload);
-        
-        std::visit(overloaded{
-            [this](HttpRequestMsg& req) {
-                processHttpRequest(req);
-            },
-            [this](DbQueryMsg& query) {
-                // Legacy path - should not be used with new architecture
-                obs::warn("Received standalone DbQueryMsg - unexpected");
-            },
-            [this](DbResponseMsg& resp) {
-                // Legacy path - should not be used with new architecture
-                obs::warn("Received standalone DbResponseMsg - unexpected");
-            }
-        }, payload);
-    } catch (const std::bad_any_cast& e) {
-        obs::error("UriShortenerMessageHandler: Invalid payload type");
+        // Try pair payload first (new format - HTTP request)
+        auto& pair = std::any_cast<RequestResponsePair&>(msg.payload);
+        processHttpRequest(pair.first, pair.second, msg.session_id, msg.trace_ctx);
+    } catch (const std::bad_any_cast&) {
+        try {
+            // Try DataServiceResponse (callback from adapter)
+            auto& resp = std::any_cast<service::DataServiceResponse&>(msg.payload);
+            processDataServiceResponse(resp);
+        } catch (const std::bad_any_cast&) {
+            obs::error("Unknown message payload type");
+        }
     }
 }
 
-void UriShortenerMessageHandler::processHttpRequest(HttpRequestMsg& req) {
-    // Parse request
-    auto method = std::string(req.request.method());
-    auto path = std::string(req.request.path());
-    auto body = std::string(req.request.body());
+void UriShortenerMessageHandler::processHttpRequest(
+    std::shared_ptr<router::IRequest> req,
+    std::shared_ptr<router::IResponse> res,
+    uint64_t session_id, 
+    obs::Context& trace_ctx
+) {
+    std::string method(req->method());
+    std::string path(req->path());
+    std::string body(req->body());
     
     std::string operation = determine_operation(method, path);
     
     if (operation.empty()) {
-        req.response.set_status(404);
-        req.response.set_header("Content-Type", "application/json");
-        req.response.write(R"({"error": "Not Found"})");
-        req.response.close();
+        res->set_status(404);
+        res->set_header("Content-Type", "application/json");
+        res->write(R"({"error": "Not found"})");
+        res->close();
         return;
     }
     
-    // Extract data
-    std::string data;
+    // Extract data based on operation
+    std::string entity_id;
+    std::string payload;
+    
     if (operation == "shorten") {
         // Parse JSON body for URL
         auto url_start = body.find("\"url\"");
@@ -66,63 +78,113 @@ void UriShortenerMessageHandler::processHttpRequest(HttpRequestMsg& req) {
             auto quote_start = body.find('"', value_start);
             auto quote_end = body.find('"', quote_start + 1);
             if (quote_start != std::string::npos && quote_end != std::string::npos) {
-                data = body.substr(quote_start + 1, quote_end - quote_start - 1);
+                payload = body.substr(quote_start + 1, quote_end - quote_start - 1);
             }
         }
-        if (data.empty()) {
-            req.response.set_status(400);
-            req.response.set_header("Content-Type", "application/json");
-            req.response.write(R"({"error": "Missing 'url' field"})");
-            req.response.close();
+        if (payload.empty()) {
+            res->set_status(400);
+            res->set_header("Content-Type", "application/json");
+            res->write(R"({"error": "Missing 'url' field"})");
+            res->close();
             return;
         }
     } else {
         // Extract short code from path (e.g., /abc123 -> abc123)
         if (path.size() > 1) {
-            data = path.substr(1);
+            entity_id = path.substr(1);
         }
     }
     
-    // Execute operation (synchronous)
-    if (operation == "shorten") {
-        application::ShortenLink::Input input{data};
-        auto res = m_shorten->execute(input);
-        req.response.set_header("Content-Type", "application/json");
-        if (res.is_ok()) {
-            req.response.set_status(201);
-            req.response.write("{\"short_code\": \"" + res.value().short_code + 
-                              "\", \"original_url\": \"" + res.value().original_url + "\"}");
-        } else {
-            req.response.set_status(400);
-            req.response.write(R"({"error": "Failed to shorten URL"})");
-        }
-    } else if (operation == "resolve") {
-        application::ResolveLink::Input input{data};
-        auto res = m_resolve->execute(input);
-        req.response.set_header("Content-Type", "application/json");
-        if (res.is_ok()) {
-            req.response.set_status(200);
-            req.response.write("{\"original_url\": \"" + res.value().original_url + "\"}");
-        } else {
-            req.response.set_status(404);
-            req.response.write(R"({"error": "Short code not found"})");
-        }
-    } else if (operation == "delete") {
-        application::DeleteLink::Input input{data};
-        auto res = m_delete->execute(input);
-        req.response.set_header("Content-Type", "application/json");
-        if (res.is_ok()) {
-            req.response.set_status(204);
-        } else {
-            req.response.set_status(404);
-            req.response.write(R"({"error": "Failed to delete"})");
-        }
+    // Create DataServiceRequest
+    service::DataServiceRequest ds_req{
+        to_data_service_op(operation),
+        entity_id,
+        payload,
+        res,  // Pass shared_ptr<IResponse>
+        nullptr  // No span for now
+    };
+    
+    // If no adapter configured, respond with error
+    if (!m_adapter) {
+        obs::warn("No adapter configured - responding with error");
+        res->set_status(503);
+        res->set_header("Content-Type", "application/json");
+        res->write(R"({"error": "Service not configured"})");
+        res->close();
+        return;
     }
     
-    req.response.close();
+    // Capture session_id and trace_ctx for callback
+    auto captured_session_id = session_id;
+    auto captured_trace_ctx = trace_ctx;
+    auto response_queue = m_response_queue;
+    
+    // Call adapter with callback that submits response to queue
+    m_adapter->execute(ds_req, [response_queue, captured_session_id, captured_trace_ctx](
+        service::DataServiceResponse resp
+    ) {
+        // Submit response back to StickyQueue for processing
+        astra::execution::Message response_msg;
+        response_msg.session_id = captured_session_id;
+        response_msg.trace_ctx = captured_trace_ctx;
+        response_msg.payload = std::move(resp);
+        
+        if (response_queue) {
+            response_queue->submit(std::move(response_msg));
+        }
+    });
 }
 
-std::string UriShortenerMessageHandler::determine_operation(const std::string& method, const std::string& path) {
+void UriShortenerMessageHandler::processDataServiceResponse(service::DataServiceResponse& resp) {
+    // Check if client is still connected
+    if (!resp.response || !resp.response->is_alive()) {
+        obs::warn("Client disconnected before response could be sent");
+        return;
+    }
+    
+    auto& response = *resp.response;
+    
+    if (resp.success) {
+        response.set_status(resp.http_status > 0 ? resp.http_status : 200);
+        response.set_header("Content-Type", "application/json");
+        if (!resp.payload.empty()) {
+            response.write(resp.payload);
+        }
+    } else {
+        int status = 500;
+        if (resp.infra_error.has_value()) {
+            switch (resp.infra_error.value()) {
+                case service::InfraError::TIMEOUT:
+                    status = 504;
+                    break;
+                case service::InfraError::CONNECTION_FAILED:
+                    status = 502;
+                    break;
+                default:
+                    status = 503;
+                    break;
+            }
+        } else if (resp.domain_error_code.has_value()) {
+            switch (resp.domain_error_code.value()) {
+                case 1: status = 404; break;
+                case 2: status = 409; break;
+                case 3: status = 400; break;
+                default: status = 500; break;
+            }
+        }
+        
+        response.set_status(status);
+        response.set_header("Content-Type", "application/json");
+        response.write("{\"error\": \"" + resp.error_message + "\"}");
+    }
+    
+    response.close();
+}
+
+std::string UriShortenerMessageHandler::determine_operation(
+    const std::string& method, 
+    const std::string& path
+) {
     if (method == "POST" && path == "/shorten") {
         return "shorten";
     } else if (method == "GET" && path.size() > 1 && path[0] == '/') {
@@ -131,6 +193,19 @@ std::string UriShortenerMessageHandler::determine_operation(const std::string& m
         return "delete";
     }
     return "";
+}
+
+service::DataServiceOperation UriShortenerMessageHandler::to_data_service_op(
+    const std::string& operation
+) {
+    if (operation == "shorten") {
+        return service::DataServiceOperation::SAVE;
+    } else if (operation == "resolve") {
+        return service::DataServiceOperation::FIND;
+    } else if (operation == "delete") {
+        return service::DataServiceOperation::DELETE;
+    }
+    return service::DataServiceOperation::FIND;
 }
 
 } // namespace url_shortener

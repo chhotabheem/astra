@@ -28,6 +28,7 @@ public:
     void set_header(std::string_view key, std::string_view value) override;
     void write(std::string_view data) override;
     void close() override;
+    [[nodiscard]] bool is_alive() const noexcept override;
     
     void add_scoped_resource(std::unique_ptr<astra::execution::IScopedResource> resource);
 

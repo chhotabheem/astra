@@ -6,8 +6,8 @@
 #include "ObservableLinkRepository.h"
 #include "RandomCodeGenerator.h"
 #include "Http2Server.h"
+#include "Http2ClientPool.h"
 #include <Provider.h>
-#include <Config.h>
 #include <Log.h>
 #include <Metrics.h>
 #include <resilience/policy/LoadShedderPolicy.h>
@@ -21,6 +21,8 @@ UriShortenerApp::UriShortenerApp(
     std::shared_ptr<application::ShortenLink> shorten,
     std::shared_ptr<application::ResolveLink> resolve,
     std::shared_ptr<application::DeleteLink> del,
+    std::unique_ptr<http2client::Http2ClientPool> client_pool,
+    std::shared_ptr<service::IDataServiceAdapter> data_adapter,
     std::unique_ptr<UriShortenerMessageHandler> msg_handler,
     std::unique_ptr<ObservableMessageHandler> obs_msg_handler,
     std::unique_ptr<astra::execution::StickyQueue> pool,
@@ -34,6 +36,8 @@ UriShortenerApp::UriShortenerApp(
     , m_shorten(std::move(shorten))
     , m_resolve(std::move(resolve))
     , m_delete(std::move(del))
+    , m_client_pool(std::move(client_pool))
+    , m_data_adapter(std::move(data_adapter))
     , m_msg_handler(std::move(msg_handler))
     , m_obs_msg_handler(std::move(obs_msg_handler))
     , m_pool(std::move(pool))
@@ -71,29 +75,29 @@ astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(
         return astra::Result<UriShortenerApp, AppError>::Err(AppError::InvalidConfig);
     }
 
-    // Initialize observability from proto config (C++17 compatible - no designated initializers)
-    obs::InitParams obs_params;
+    // Initialize observability from proto config
+    ::observability::Config obs_config;
     if (bootstrap.has_service()) {
-        obs_params.service_name = bootstrap.service().name();
-        obs_params.environment = bootstrap.service().environment();
+        obs_config.set_service_name(bootstrap.service().name());
+        obs_config.set_environment(bootstrap.service().environment());
     } else {
-        obs_params.service_name = "uri_shortener";
-        obs_params.environment = "development";
+        obs_config.set_service_name("uri_shortener");
+        obs_config.set_environment("development");
     }
     
     if (bootstrap.has_observability()) {
-        const auto& obs_config = bootstrap.observability();
-        obs_params.service_version = obs_config.service_version();
-        obs_params.otlp_endpoint = obs_config.otlp_endpoint();
-        obs_params.enable_metrics = obs_config.metrics_enabled();
-        obs_params.enable_tracing = obs_config.tracing_enabled();
-        obs_params.enable_logging = obs_config.logging_enabled();
+        const auto& obs_proto = bootstrap.observability();
+        obs_config.set_service_version(obs_proto.service_version());
+        obs_config.set_otlp_endpoint(obs_proto.otlp_endpoint());
+        obs_config.set_metrics_enabled(obs_proto.metrics_enabled());
+        obs_config.set_tracing_enabled(obs_proto.tracing_enabled());
+        obs_config.set_logging_enabled(obs_proto.logging_enabled());
     } else {
-        obs_params.service_version = "1.0.0";
-        obs_params.otlp_endpoint = "http://localhost:4317";
+        obs_config.set_service_version("1.0.0");
+        obs_config.set_otlp_endpoint("http://localhost:4317");
     }
     
-    if (!obs::init(obs_params)) {
+    if (!obs::init(obs_config)) {
         obs::warn("Observability initialization failed");
     }
 
@@ -118,9 +122,21 @@ astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(
     // Create HTTP server from proto config
     auto server = std::make_unique<http2server::Server>(bootstrap.server());
     
-    // Create message handler chain
+    // Create Http2ClientPool for backend HTTP calls
+    http2client::Config client_config;
+    client_config.set_host("localhost");  // TODO: Get from config proto
+    client_config.set_port(8080);
+    client_config.set_pool_size(4);
+    auto client_pool = std::make_unique<http2client::Http2ClientPool>(client_config);
+    
+    // Create HttpDataServiceAdapter as shared_ptr (MessageHandler takes shared ownership)
+    auto data_adapter = std::make_shared<service::HttpDataServiceAdapter>(*client_pool);
+    
+    // Create MessageHandler with adapter (response_queue wired after pool creation)
     auto inner_msg_handler = std::make_unique<UriShortenerMessageHandler>(
-        shorten, resolve, del);
+        data_adapter,
+        nullptr  // Will be set after pool creation
+    );
     
     // Create observable wrapper
     auto obs_msg_handler = std::make_unique<ObservableMessageHandler>(*inner_msg_handler);
@@ -128,6 +144,12 @@ astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(
     // Create pool with observable handler
     auto pool = std::make_unique<astra::execution::StickyQueue>(
         thread_count, *obs_msg_handler);
+    
+    // Wire response_queue - use non-owning shared_ptr for pool
+    auto response_queue = std::shared_ptr<astra::execution::IQueue>(
+        pool.get(), [](auto*) {}  // Non-owning - App owns pool
+    );
+    inner_msg_handler->setResponseQueue(response_queue);
     
     // Create request handler chain
     auto req_handler = std::make_unique<UriShortenerRequestHandler>(*pool);
@@ -153,6 +175,8 @@ astra::Result<UriShortenerApp, AppError> UriShortenerApp::create(
         std::move(shorten),
         std::move(resolve),
         std::move(del),
+        std::move(client_pool),
+        std::move(data_adapter),
         std::move(inner_msg_handler),
         std::move(obs_msg_handler),
         std::move(pool),
@@ -168,7 +192,8 @@ int UriShortenerApp::run() {
     auto accepted = obs::counter("load_shedder.accepted");
     auto rejected = obs::counter("load_shedder.rejected");
     
-    auto resilient = [this, accepted, rejected](router::IRequest& req, router::IResponse& res) {
+    auto resilient = [this, accepted, rejected](std::shared_ptr<router::IRequest> req, 
+                                                  std::shared_ptr<router::IResponse> res) {
         auto guard = m_load_shedder->try_acquire();
         if (!guard) {
             rejected.inc();
@@ -176,19 +201,22 @@ int UriShortenerApp::run() {
                 {"current", std::to_string(m_load_shedder->current_count())},
                 {"max", std::to_string(m_load_shedder->max_concurrent())}
             });
-            res.set_status(503);
-            res.set_header("Content-Type", "application/json");
-            res.set_header("Retry-After", "1");
-            res.write(R"({"error": "Service overloaded"})");
-            res.close();
+            res->set_status(503);
+            res->set_header("Content-Type", "application/json");
+            res->set_header("Retry-After", "1");
+            res->write(R"({"error": "Service overloaded"})");
+            res->close();
             return;
         }
         
         accepted.inc();
         
-        auto& http_res = static_cast<http2server::Response&>(res);
-        http_res.add_scoped_resource(
-            std::make_unique<astra::resilience::LoadShedderGuard>(std::move(*guard)));
+        // Cast to concrete type for scoped resource
+        auto http_res = std::dynamic_pointer_cast<http2server::Response>(res);
+        if (http_res) {
+            http_res->add_scoped_resource(
+                std::make_unique<astra::resilience::LoadShedderGuard>(std::move(*guard)));
+        }
         
         m_obs_req_handler->handle(req, res);
     };
@@ -199,11 +227,12 @@ int UriShortenerApp::run() {
     m_server->router().del("/:code", resilient);
     
     // Health check bypasses load shedding
-    m_server->router().get("/health", [](router::IRequest& /*req*/, router::IResponse& res) {
-        res.set_status(200);
-        res.set_header("Content-Type", "application/json");
-        res.write(R"({"status": "ok"})");
-        res.close();
+    m_server->router().get("/health", [](std::shared_ptr<router::IRequest> /*req*/, 
+                                          std::shared_ptr<router::IResponse> res) {
+        res->set_status(200);
+        res->set_header("Content-Type", "application/json");
+        res->write(R"({"status": "ok"})");
+        res->close();
     });
 
     obs::info("URI Shortener listening");

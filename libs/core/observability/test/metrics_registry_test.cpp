@@ -1,17 +1,15 @@
 #include <MetricsRegistry.h>
 #include <Provider.h>
-#include <Config.h>
 #include <gtest/gtest.h>
 
 class MetricsRegistryTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        obs::Config config{
-            .service_name = "test-service",
-            .service_version = "1.0.0",
-            .environment = "test",
-            .otlp_endpoint = "http://localhost:4317"
-        };
+        ::observability::Config config;
+        config.set_service_name("test-service");
+        config.set_service_version("1.0.0");
+        config.set_environment("test");
+        config.set_otlp_endpoint("http://localhost:4317");
         ASSERT_TRUE(obs::Provider::instance().init(config));
     }
     

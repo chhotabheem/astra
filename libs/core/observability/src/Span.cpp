@@ -1,6 +1,8 @@
 #include <Span.h>
+#include "SpanImpl.h"
 #include "ProviderImpl.h"
 #include <Provider.h>
+#include <Log.h>
 
 #include <opentelemetry/trace/provider.h>
 #include <opentelemetry/trace/tracer.h>
@@ -9,27 +11,25 @@
 
 namespace obs {
 
-namespace trace_api = opentelemetry::trace;
-namespace nostd = opentelemetry::nostd;
-
-// Pimpl - hide OTel SDK types
-struct Span::Impl {
-    nostd::shared_ptr<trace_api::Span> otel_span;
-    Context span_context;
-    
-    Impl(nostd::shared_ptr<trace_api::Span> span, const Context& ctx)
-        : otel_span(std::move(span)), span_context(ctx) {}
-    
-    ~Impl() {
-        if (otel_span) {
-            otel_span->End();
-            
-            // Pop from active span stack
-            auto& provider = Provider::instance();
-            provider.impl().pop_active_span();
-        }
+// Span::Impl methods
+void Span::Impl::end_span() {
+    if (!ended && otel_span) {
+        otel_span->End();
+        
+        // Pop from active span stack
+        auto& provider = Provider::instance();
+        provider.impl().pop_active_span();
+        ended = true;
     }
-};
+}
+
+Span::Impl::~Impl() {
+    // Auto-end if not explicitly ended (RAII fallback)
+    if (!ended && otel_span) {
+        obs::warn("Span destroyed without explicit end() - auto-ending");
+        end_span();
+    }
+}
 
 // Constructor
 Span::Span(Impl* impl) : m_impl(impl) {}
@@ -37,36 +37,61 @@ Span::Span(Impl* impl) : m_impl(impl) {}
 // Destructor
 Span::~Span() = default;
 
+
 // Move constructor
-Span::Span(Span&&) noexcept = default;
+Span::Span(Span&& other) noexcept 
+    : m_impl(std::move(other.m_impl))
+    , m_ended(other.m_ended) {
+    other.m_ended = true;  // Prevent double-end
+}
 
 // Move assignment
-Span& Span::operator=(Span&&) noexcept = default;
+Span& Span::operator=(Span&& other) noexcept {
+    if (this != &other) {
+        m_impl = std::move(other.m_impl);
+        m_ended = other.m_ended;
+        other.m_ended = true;
+    }
+    return *this;
+}
+
+// Explicit end
+void Span::end() {
+    if (!m_ended && m_impl) {
+        m_impl->end_span();
+        m_ended = true;
+    }
+}
+
+// Check if ended
+bool Span::is_ended() const {
+    return m_ended || (m_impl && m_impl->ended);
+}
 
 // Attributes
 Span& Span::attr(std::string_view key, std::string_view value) {
-    if (m_impl && m_impl->otel_span) {
+    if (m_impl && m_impl->otel_span && !m_ended) {
         m_impl->otel_span->SetAttribute(std::string(key), std::string(value));
     }
     return *this;
 }
 
 Span& Span::attr(std::string_view key, int64_t value) {
-    if (m_impl && m_impl->otel_span) {
+    if (m_impl && m_impl->otel_span && !m_ended) {
         m_impl->otel_span->SetAttribute(std::string(key), value);
     }
     return *this;
 }
 
 Span& Span::attr(std::string_view key, double value) {
-    if (m_impl && m_impl->otel_span) {
+    if (m_impl && m_impl->otel_span && !m_ended) {
         m_impl->otel_span->SetAttribute(std::string(key), value);
     }
     return *this;
 }
 
 Span& Span::attr(std::string_view key, bool value) {
-    if (m_impl && m_impl->otel_span) {
+    if (m_impl && m_impl->otel_span && !m_ended) {
         m_impl->otel_span->SetAttribute(std::string(key), value);
     }
     return *this;
@@ -74,7 +99,7 @@ Span& Span::attr(std::string_view key, bool value) {
 
 // Status
 Span& Span::set_status(StatusCode code, std::string_view message) {
-    if (m_impl && m_impl->otel_span) {
+    if (m_impl && m_impl->otel_span && !m_ended) {
         trace_api::StatusCode otel_code;
         switch (code) {
             case StatusCode::Unset:
@@ -96,7 +121,7 @@ Span& Span::set_status(StatusCode code, std::string_view message) {
 
 // Kind
 Span& Span::kind(SpanKind kind) {
-    if (m_impl && m_impl->otel_span) {
+    if (m_impl && m_impl->otel_span && !m_ended) {
         const char* kind_str = "internal";
         switch (kind) {
             case SpanKind::Internal: kind_str = "internal"; break;
@@ -112,14 +137,14 @@ Span& Span::kind(SpanKind kind) {
 
 // Events
 Span& Span::add_event(std::string_view name) {
-    if (m_impl && m_impl->otel_span) {
+    if (m_impl && m_impl->otel_span && !m_ended) {
         m_impl->otel_span->AddEvent(std::string(name));
     }
     return *this;
 }
 
 Span& Span::add_event(std::string_view name, Attributes attrs) {
-    if (m_impl && m_impl->otel_span) {
+    if (m_impl && m_impl->otel_span && !m_ended) {
         // Store strings to ensure they outlive the OTel call
         std::vector<std::pair<std::string, std::string>> stored_attrs;
         stored_attrs.reserve(attrs.size());
@@ -147,71 +172,10 @@ Context Span::context() const {
 
 // Recording check
 bool Span::is_recording() const {
-    if (m_impl && m_impl->otel_span) {
+    if (m_impl && m_impl->otel_span && !m_ended) {
         return m_impl->otel_span->IsRecording();
     }
     return false;
-}
-
-// Span creation functions
-Span span(std::string_view name) {
-    auto& provider = Provider::instance();
-    auto& impl = provider.impl();
-    
-    auto tracer = impl.get_tracer();
-    if (!tracer) {
-        return Span{nullptr};
-    }
-    
-    auto parent_ctx = impl.get_active_context();
-    
-    trace_api::StartSpanOptions options;
-    if (parent_ctx.is_valid()) {
-        options.parent = impl.context_to_otel(parent_ctx);
-    }
-    
-    auto otel_span = tracer->StartSpan(std::string(name), options);
-    
-    // Create new context with proper span_id
-    Context ctx;
-    if (parent_ctx.is_valid()) {
-        // Child span - inherit trace_id from parent
-        ctx = parent_ctx;
-        ctx.span_id.value = impl.generate_span_id();
-    } else {
-        // Root span - new trace_id AND span_id
-        ctx = Context::create();
-        ctx.span_id.value = impl.generate_span_id();  // FIX: Generate span_id for root span
-    }
-    
-    Span span{new Span::Impl{otel_span, ctx}};
-    impl.push_active_span(ctx);
-    
-    return span;
-}
-
-Span span(std::string_view name, const Context& parent) {
-    auto& provider = Provider::instance();
-    auto& impl = provider.impl();
-    
-    auto tracer = impl.get_tracer();
-    if (!tracer) {
-        return Span{nullptr};
-    }
-    
-    trace_api::StartSpanOptions options;
-    if (parent.is_valid()) {
-        options.parent = impl.context_to_otel(parent);
-    }
-    
-    auto otel_span = tracer->StartSpan(std::string(name), options);
-    
-    Context ctx = parent.child(SpanId{impl.generate_span_id()});
-    
-    Span span{new Span::Impl{otel_span, ctx}};
-    impl.push_active_span(ctx);
-    
-    return span;
 }
 
 } // namespace obs

@@ -4,6 +4,9 @@
 
 namespace astra::execution {
 
+SharedQueue::SharedQueue(const ::execution::SharedQueueConfig& config)
+    : SharedQueue(config.num_workers(), config.max_queue_size()) {}
+
 SharedQueue::SharedQueue(size_t num_workers, size_t max_messages) 
     : m_num_workers(num_workers), m_max_messages(max_messages) {
 }

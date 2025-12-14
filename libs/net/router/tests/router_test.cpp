@@ -12,7 +12,7 @@ protected:
 
 TEST_F(RouterTest, ExactMatch) {
     bool called = false;
-    m_router.get("/users", [&](const IRequest&, IResponse&) {
+    m_router.get("/users", [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {
         called = true;
     });
     
@@ -22,7 +22,7 @@ TEST_F(RouterTest, ExactMatch) {
 }
 
 TEST_F(RouterTest, ParamMatch) {
-    m_router.get("/users/:id", [&](const IRequest&, IResponse&) {});
+    m_router.get("/users/:id", [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {});
     
     auto result = m_router.match("GET", "/users/123");
     EXPECT_NE(result.handler, nullptr);
@@ -31,7 +31,7 @@ TEST_F(RouterTest, ParamMatch) {
 }
 
 TEST_F(RouterTest, NestedParams) {
-    m_router.get("/users/:userId/posts/:postId", [&](const IRequest&, IResponse&) {});
+    m_router.get("/users/:userId/posts/:postId", [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {});
     
     auto result = m_router.match("GET", "/users/123/posts/456");
     EXPECT_NE(result.handler, nullptr);
@@ -44,8 +44,8 @@ TEST_F(RouterTest, CollisionPriority) {
     bool static_called = false;
     bool dynamic_called = false;
     
-    m_router.get("/users/profile", [&](const IRequest&, IResponse&) { static_called = true; });
-    m_router.get("/users/:id", [&](const IRequest&, IResponse&) { dynamic_called = true; });
+    m_router.get("/users/profile", [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) { static_called = true; });
+    m_router.get("/users/:id", [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) { dynamic_called = true; });
     
     // Test Static Priority
     auto result_static = m_router.match("GET", "/users/profile");
@@ -59,7 +59,7 @@ TEST_F(RouterTest, CollisionPriority) {
 }
 
 TEST_F(RouterTest, NoMatch) {
-    m_router.get("/users", [&](const IRequest&, IResponse&) {});
+    m_router.get("/users", [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {});
     
     auto result = m_router.match("GET", "/unknown");
     EXPECT_EQ(result.handler, nullptr);
@@ -67,3 +67,4 @@ TEST_F(RouterTest, NoMatch) {
     auto result_method = m_router.match("POST", "/users");
     EXPECT_EQ(result_method.handler, nullptr);
 }
+

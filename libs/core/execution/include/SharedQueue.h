@@ -1,6 +1,7 @@
 #pragma once
 
-#include "ISharedQueue.h"
+#include "IQueue.h"
+#include "execution.pb.h"
 #include <vector>
 #include <thread>
 #include <queue>
@@ -16,13 +17,14 @@ namespace astra::execution {
  * Workers consume messages from a shared queue. No session affinity.
  * Use when work distribution doesn't require session stickiness.
  */
-class SharedQueue : public ISharedQueue {
+class SharedQueue : public IQueue {
 public:
+    explicit SharedQueue(const ::execution::SharedQueueConfig& config);
     SharedQueue(size_t num_workers, size_t max_messages = 10000);
-    ~SharedQueue() override;
+    ~SharedQueue();
 
-    void start() override;
-    void stop() override;
+    void start();
+    void stop();
     bool submit(Message msg) override;
 
 private:
@@ -40,3 +42,4 @@ private:
 };
 
 } // namespace astra::execution
+

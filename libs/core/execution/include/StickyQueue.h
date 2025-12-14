@@ -2,6 +2,8 @@
 
 #include "Message.h"
 #include "IMessageHandler.h"
+#include "IQueue.h"
+#include "execution.pb.h"
 #include <vector>
 #include <memory>
 #include <atomic>
@@ -19,8 +21,13 @@ namespace astra::execution {
  * Ensures ordering within a session.
  * Uses modulo: worker_index = session_id % num_workers
  */
-class StickyQueue {
+class StickyQueue : public IQueue {
 public:
+    /**
+     * @brief Construct from proto config.
+     */
+    StickyQueue(const ::execution::StickyQueueConfig& config, IMessageHandler& handler);
+    
     /**
      * @brief Construct a sticky queue.
      * @param num_workers Number of worker threads
@@ -54,7 +61,7 @@ public:
      * @param msg Message to deliver
      * @return true if submitted successfully, false if pool is stopped
      */
-    bool submit(Message msg);
+    bool submit(Message msg) override;
     
     /**
      * @brief Get number of worker threads.

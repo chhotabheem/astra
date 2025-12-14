@@ -20,6 +20,14 @@ public:
     std::map<std::string, std::string> headers;
 };
 
+/// Connection state for lazy connection pattern
+enum class ConnectionState {
+    DISCONNECTED,
+    CONNECTING,
+    CONNECTED,
+    FAILED
+};
+
 class ClientImpl {
 public:
     ClientImpl(const http2client::Config& config);
@@ -31,8 +39,12 @@ public:
                 ResponseHandler handler);
 
     bool is_connected() const;
+    
+    /// Get current connection state
+    ConnectionState state() const;
 
 private:
+    void ensure_connected();
     void connect();
     void start_io_service();
     void stop_io_service();
@@ -43,8 +55,9 @@ private:
     std::thread m_io_thread;
     
     std::unique_ptr<nghttp2::asio_http2::client::session> m_session;
-    std::atomic<bool> m_connected{false};
-    std::mutex m_session_mutex;
+    std::atomic<ConnectionState> m_state{ConnectionState::DISCONNECTED};
+    std::mutex m_connect_mutex;
 };
 
 } // namespace http2client
+

@@ -60,8 +60,8 @@ bool Client::is_connected() const {
 // ============================================================================
 
 ClientImpl::ClientImpl(const http2client::Config& config) : m_config(config) {
+    // Lazy connection: only start io_service, don't connect yet
     start_io_service();
-    connect();
 }
 
 ClientImpl::~ClientImpl() {
@@ -81,10 +81,13 @@ void ClientImpl::start_io_service() {
 }
 
 void ClientImpl::stop_io_service() {
-    if (m_session) {
+    // Only attempt graceful shutdown if session was successfully connected.
+    // If connection failed, the nghttp2 session handle inside m_session is null
+    // and calling shutdown() will SEGFAULT.
+    if (m_session && m_state.load(std::memory_order_acquire) == ConnectionState::CONNECTED) {
         m_session->shutdown();
-        m_session.reset();
     }
+    m_session.reset();
     
     m_work.reset();
     m_io_context.stop();
@@ -92,6 +95,27 @@ void ClientImpl::stop_io_service() {
     if (m_io_thread.joinable()) {
         m_io_thread.join();
     }
+}
+
+
+void ClientImpl::ensure_connected() {
+    // Fast path: already connected
+    if (m_state.load(std::memory_order_acquire) == ConnectionState::CONNECTED) {
+        return;
+    }
+    
+    // Slow path: need to connect (with mutex to prevent multiple connect attempts)
+    std::lock_guard<std::mutex> lock(m_connect_mutex);
+    
+    // Double-check after acquiring lock
+    ConnectionState current = m_state.load(std::memory_order_acquire);
+    if (current == ConnectionState::CONNECTED || current == ConnectionState::CONNECTING) {
+        return;
+    }
+    
+    // Reset from FAILED state if needed
+    m_state.store(ConnectionState::CONNECTING, std::memory_order_release);
+    connect();
 }
 
 void ClientImpl::connect() {
@@ -103,22 +127,27 @@ void ClientImpl::connect() {
             m_io_context, m_config.host(), port_str);
 
         m_session->on_connect([this](boost::asio::ip::tcp::resolver::results_type::iterator endpoint_it) {
-            m_connected = true;
+            m_state.store(ConnectionState::CONNECTED, std::memory_order_release);
             obs::info("Connected to " + m_config.host() + ":" + std::to_string(m_config.port()));
         });
 
         m_session->on_error([this](const boost::system::error_code& ec) {
-            m_connected = false;
+            m_state.store(ConnectionState::FAILED, std::memory_order_release);
             obs::error("Connection error: " + ec.message());
         });
 
     } catch (const std::exception& e) {
+        m_state.store(ConnectionState::FAILED, std::memory_order_release);
         obs::error("Failed to create session: " + std::string(e.what()));
     }
 }
 
 bool ClientImpl::is_connected() const {
-    return m_connected;
+    return m_state.load(std::memory_order_acquire) == ConnectionState::CONNECTED;
+}
+
+ConnectionState ClientImpl::state() const {
+    return m_state.load(std::memory_order_acquire);
 }
 
 void ClientImpl::submit(const std::string& method, const std::string& path, 
@@ -126,9 +155,20 @@ void ClientImpl::submit(const std::string& method, const std::string& path,
                         const std::map<std::string, std::string>& headers,
                         ResponseHandler handler) {
     
+    // Lazy connection: ensure connected before submitting
+    ensure_connected();
+    
     boost::asio::post(m_io_context, [this, method, path, body, headers, handler]() {
-        if (!m_connected) {
+        ConnectionState current_state = m_state.load(std::memory_order_acquire);
+        if (current_state != ConnectionState::CONNECTED && current_state != ConnectionState::CONNECTING) {
             handler(Response(), Error{1, "Not connected"});
+            return;
+        }
+
+        // If still connecting, wait a bit (simple approach)
+        // In production, you might queue requests until connected
+        if (current_state == ConnectionState::CONNECTING) {
+            handler(Response(), Error{1, "Connection in progress, try again"});
             return;
         }
 
@@ -197,3 +237,4 @@ void ClientImpl::submit(const std::string& method, const std::string& path,
 }
 
 } // namespace http2client
+

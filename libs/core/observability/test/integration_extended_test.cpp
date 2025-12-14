@@ -2,6 +2,7 @@
 #include <Metrics.h>
 #include <MetricsRegistry.h>
 #include <Span.h>
+#include <Tracer.h>
 #include <Log.h>
 #include <gtest/gtest.h>
 #include <thread>
@@ -10,12 +11,18 @@
 
 class IntegrationExtendedTest : public ::testing::Test {
 protected:
+    std::shared_ptr<obs::Tracer> tracer;
+    
     void SetUp() override {
-        obs::Config config{.service_name = "integration-test", .environment = "test"};
+        ::observability::Config config;
+        config.set_service_name("integration-test");
+        config.set_environment("test");
         obs::init(config);
+        tracer = obs::Provider::instance().get_tracer("integration-test");
     }
     
     void TearDown() override {
+        tracer.reset();
         obs::shutdown();
     }
 };
@@ -26,8 +33,8 @@ TEST_F(IntegrationExtendedTest, HTTPRequestFullFlow) {
     metrics.counter("requests", "http.requests")
            .duration_histogram("latency", "http.latency");
     
-    auto span = obs::span("http.request");
-    span.kind(obs::SpanKind::Server)
+    auto span = tracer->start_span("http.request");
+    span->kind(obs::SpanKind::Server)
         .attr("method", "GET")
         .attr("path", "/api/users");
     
@@ -41,7 +48,8 @@ TEST_F(IntegrationExtendedTest, HTTPRequestFullFlow) {
     metrics.counter("requests").inc();
     metrics.duration_histogram("latency").record(std::chrono::steady_clock::now() - start);
     
-    span.set_status(obs::StatusCode::Ok);
+    span->set_status(obs::StatusCode::Ok);
+    span->end();
     obs::info("Request completed", {{"status", "200"}});
     
     SUCCEED();
@@ -49,12 +57,12 @@ TEST_F(IntegrationExtendedTest, HTTPRequestFullFlow) {
 
 // Database query flow
 TEST_F(IntegrationExtendedTest, DatabaseQueryFlow) {
-    auto parent = obs::span("api.call");
-    parent.kind(obs::SpanKind::Server);
+    auto parent = tracer->start_span("api.call");
+    parent->kind(obs::SpanKind::Server);
     
     {
-        auto db_span = obs::span("db.query");
-        db_span.kind(obs::SpanKind::Client)
+        auto db_span = tracer->start_span("db.query", parent->context());
+        db_span->kind(obs::SpanKind::Client)
                .attr("db.system", "postgresql")
                .attr("db.operation", "SELECT");
         
@@ -63,10 +71,12 @@ TEST_F(IntegrationExtendedTest, DatabaseQueryFlow) {
         // Simulate query
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
         
-        db_span.set_status(obs::StatusCode::Ok);
+        db_span->set_status(obs::StatusCode::Ok);
+        db_span->end();
     }
     
-    parent.set_status(obs::StatusCode::Ok);
+    parent->set_status(obs::StatusCode::Ok);
+    parent->end();
     
     SUCCEED();
 }
@@ -76,15 +86,16 @@ TEST_F(IntegrationExtendedTest, ErrorHandlingFlow) {
     obs::MetricsRegistry metrics;
     metrics.counter("errors", "app.errors");
     
-    auto span = obs::span("operation.with.error");
+    auto span = tracer->start_span("operation.with.error");
     
     try {
         throw std::runtime_error("Simulated error");
     } catch (const std::exception& e) {
-        span.set_status(obs::StatusCode::Error, e.what());
+        span->set_status(obs::StatusCode::Error, e.what());
         obs::error("Operation failed", {{"error", e.what()}});
         metrics.counter("errors").inc();
     }
+    span->end();
     
     SUCCEED();
 }
@@ -94,10 +105,10 @@ TEST_F(IntegrationExtendedTest, RetryLogicWithObservability) {
     obs::MetricsRegistry metrics;
     metrics.counter("retries", "operation.retries");
     
-    auto span = obs::span("operation.with.retries");
+    auto span = tracer->start_span("operation.with.retries");
     
     for (int attempt = 1; attempt <= 3; ++attempt) {
-        span.add_event("retry.attempt", {{"attempt", std::to_string(attempt)}});
+        span->add_event("retry.attempt", {{"attempt", std::to_string(attempt)}});
         
         obs::warn("Retry attempt", {{"attempt", std::to_string(attempt)}});
         
@@ -106,28 +117,31 @@ TEST_F(IntegrationExtendedTest, RetryLogicWithObservability) {
         }
     }
     
-    span.set_status(obs::StatusCode::Ok);
+    span->set_status(obs::StatusCode::Ok);
+    span->end();
     
     SUCCEED();
 }
 
 // Fan-out/fan-in pattern
 TEST_F(IntegrationExtendedTest, FanOutFanInPattern) {
-    auto parent = obs::span("fan.out.operation");
-    auto parent_ctx = parent.context();
+    auto parent = tracer->start_span("fan.out.operation");
+    auto parent_ctx = parent->context();
+    auto local_tracer = tracer;
     
     std::vector<std::thread> workers;
     
     for (int i = 0; i < 5; ++i) {
-        workers.emplace_back([parent_ctx, i]() {
-            auto worker_span = obs::span("worker." + std::to_string(i), parent_ctx);
-            worker_span.attr("worker_id", static_cast<int64_t>(i));
+        workers.emplace_back([local_tracer, parent_ctx, i]() {
+            auto worker_span = local_tracer->start_span("worker." + std::to_string(i), parent_ctx);
+            worker_span->attr("worker_id", static_cast<int64_t>(i));
             
             obs::debug("Worker processing", {{"id", std::to_string(i)}});
             
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
             
-            worker_span.set_status(obs::StatusCode::Ok);
+            worker_span->set_status(obs::StatusCode::Ok);
+            worker_span->end();
         });
     }
     
@@ -135,7 +149,8 @@ TEST_F(IntegrationExtendedTest, FanOutFanInPattern) {
         worker.join();
     }
     
-    parent.set_status(obs::StatusCode::Ok);
+    parent->set_status(obs::StatusCode::Ok);
+    parent->end();
     
     SUCCEED();
 }
@@ -146,30 +161,32 @@ TEST_F(IntegrationExtendedTest, BatchProcessing) {
     metrics.counter("processed", "batch.items.processed")
            .histogram("batchsize", "batch.size");
     
-    auto batch_span = obs::span("batch.process");
+    auto batch_span = tracer->start_span("batch.process");
     
     constexpr int batch_size = 100;
-    batch_span.attr("batch.size", static_cast<int64_t>(batch_size));
+    batch_span->attr("batch.size", static_cast<int64_t>(batch_size));
     
     for (int i = 0; i < batch_size; ++i) {
-        auto item_span = obs::span("process.item");
-        item_span.attr("index", static_cast<int64_t>(i));
+        auto item_span = tracer->start_span("process.item", batch_span->context());
+        item_span->attr("index", static_cast<int64_t>(i));
+        item_span->end();
         
         metrics.counter("processed").inc();
     }
     
     metrics.histogram("batch_size").record(static_cast<double>(batch_size));
-    batch_span.set_status(obs::StatusCode::Ok);
+    batch_span->set_status(obs::StatusCode::Ok);
+    batch_span->end();
     
     SUCCEED();
 }
 
 // Long-running operation
 TEST_F(IntegrationExtendedTest, LongRunningOperation) {
-    auto span = obs::span("long.running.operation");
+    auto span = tracer->start_span("long.running.operation");
     
     for (int checkpoint = 1; checkpoint <= 5; ++checkpoint) {
-        span.add_event("checkpoint", {
+        span->add_event("checkpoint", {
             {"number", std::to_string(checkpoint)},
             {"progress", std::to_string(checkpoint * 20) + "%"}
         });
@@ -179,37 +196,42 @@ TEST_F(IntegrationExtendedTest, LongRunningOperation) {
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
     
-    span.set_status(obs::StatusCode::Ok);
+    span->set_status(obs::StatusCode::Ok);
+    span->end();
     
     SUCCEED();
 }
 
 // Multiple components interaction
 TEST_F(IntegrationExtendedTest, MultipleComponentsInteraction) {
-    auto root = obs::span("request");
+    auto root = tracer->start_span("request");
     
     {
-        auto auth = obs::span("auth.validate");
-        auth.kind(obs::SpanKind::Internal);
+        auto auth = tracer->start_span("auth.validate", root->context());
+        auth->kind(obs::SpanKind::Internal);
         obs::debug("Validating auth token");
-        auth.set_status(obs::StatusCode::Ok);
+        auth->set_status(obs::StatusCode::Ok);
+        auth->end();
     }
     
     {
-        auto cache = obs::span("cache.lookup");
-        cache.kind(obs::SpanKind::Client);
+        auto cache = tracer->start_span("cache.lookup", root->context());
+        cache->kind(obs::SpanKind::Client);
         obs::debug("Looking up cache");
-        cache.set_status(obs::StatusCode::Ok);
+        cache->set_status(obs::StatusCode::Ok);
+        cache->end();
     }
     
     {
-        auto db = obs::span("db.query");
-        db.kind(obs::SpanKind::Client);
+        auto db = tracer->start_span("db.query", root->context());
+        db->kind(obs::SpanKind::Client);
         obs::debug("Querying database");
-        db.set_status(obs::StatusCode::Ok);
+        db->set_status(obs::StatusCode::Ok);
+        db->end();
     }
     
-    root.set_status(obs::StatusCode::Ok);
+    root->set_status(obs::StatusCode::Ok);
+    root->end();
     
     SUCCEED();
 }
@@ -222,8 +244,9 @@ TEST_F(IntegrationExtendedTest, HighThroughputSimulation) {
     auto start = std::chrono::steady_clock::now();
     
     for (int i = 0; i < 1000; ++i) {
-        auto span = obs::span("fast.op");
-        span.attr("index", static_cast<int64_t>(i));
+        auto span = tracer->start_span("fast.op");
+        span->attr("index", static_cast<int64_t>(i));
+        span->end();
         metrics.counter("ops").inc();
     }
     
@@ -243,7 +266,7 @@ TEST_F(IntegrationExtendedTest, MixedObservabilityWorkload) {
            .gauge("active", "active");
     
     for (int i = 0; i < 100; ++i) {
-        auto span = obs::span("mixed.op");
+        auto span = tracer->start_span("mixed.op");
         
         metrics.counter("requests").inc();
         metrics.gauge("active").add(1);
@@ -253,7 +276,8 @@ TEST_F(IntegrationExtendedTest, MixedObservabilityWorkload) {
         auto latency = static_cast<double>(i % 50);
         metrics.histogram("latency").record(latency);
         
-        span.set_status(obs::StatusCode::Ok);
+        span->set_status(obs::StatusCode::Ok);
+        span->end();
         
         metrics.gauge("active").add(-1);
     }
@@ -263,38 +287,42 @@ TEST_F(IntegrationExtendedTest, MixedObservabilityWorkload) {
 
 // Nested service calls
 TEST_F(IntegrationExtendedTest, NestedServiceCalls) {
-    auto api1 = obs::span("api.service1");
-    api1.kind(obs::SpanKind::Server);
+    auto api1 = tracer->start_span("api.service1");
+    api1->kind(obs::SpanKind::Server);
     
     obs::info("Service 1 called");
     
     {
-        auto svc2_client = obs::span("call.service2");
-        svc2_client.kind(obs::SpanKind::Client);
+        auto svc2_client = tracer->start_span("call.service2", api1->context());
+        svc2_client->kind(obs::SpanKind::Client);
         
-        auto svc2_ctx = svc2_client.context();
+        auto svc2_ctx = svc2_client->context();
         
         // Simulate cross-service call
         {
-            auto api2 = obs::span("api.service2", svc2_ctx);
-            api2.kind(obs::SpanKind::Server);
+            auto api2 = tracer->start_span("api.service2", svc2_ctx);
+            api2->kind(obs::SpanKind::Server);
             
             obs::info("Service 2 called");
             
             {
-                auto db = obs::span("db.service2");
-                db.kind(obs::SpanKind::Client);
+                auto db = tracer->start_span("db.service2", api2->context());
+                db->kind(obs::SpanKind::Client);
                 obs::debug("Service 2 DB query");
-                db.set_status(obs::StatusCode::Ok);
+                db->set_status(obs::StatusCode::Ok);
+                db->end();
             }
             
-            api2.set_status(obs::StatusCode::Ok);
+            api2->set_status(obs::StatusCode::Ok);
+            api2->end();
         }
         
-        svc2_client.set_status(obs::StatusCode::Ok);
+        svc2_client->set_status(obs::StatusCode::Ok);
+        svc2_client->end();
     }
     
-    api1.set_status(obs::StatusCode::Ok);
+    api1->set_status(obs::StatusCode::Ok);
+    api1->end();
     
     SUCCEED();
 }
@@ -308,10 +336,11 @@ TEST_F(IntegrationExtendedTest, ObservabilityOverheadMeasurement) {
     // Measure observability operations
     auto start = std::chrono::steady_clock::now();
     for (int i = 0; i < iterations; ++i) {
-        auto span = obs::span("overhead.test");
+        auto span = tracer->start_span("overhead.test");
         auto counter = obs::counter("overhead.counter");
         counter.inc();
         obs::debug("Operation");
+        span->end();
     }
     auto duration = std::chrono::steady_clock::now() - start;
     
@@ -342,8 +371,8 @@ TEST_F(IntegrationExtendedTest, RealWorldAPIEndpoint) {
            .duration_histogram("latency", "api.latency")
            .gauge("concurrent", "api.concurrent_requests");
     
-    auto span = obs::span("POST /api/users");
-    span.kind(obs::SpanKind::Server)
+    auto span = tracer->start_span("POST /api/users");
+    span->kind(obs::SpanKind::Server)
         .attr("http.method", "POST")
         .attr("http.route", "/api/users")
         .attr("http.scheme", "https");
@@ -361,34 +390,38 @@ TEST_F(IntegrationExtendedTest, RealWorldAPIEndpoint) {
     
     // Validation
     {
-        auto validation = obs::span("validate.request");
+        auto validation = tracer->start_span("validate.request", span->context());
         obs::debug("Validating request body");
-        validation.set_status(obs::StatusCode::Ok);
+        validation->set_status(obs::StatusCode::Ok);
+        validation->end();
     }
     
     // Business logic
     {
-        auto logic = obs::span("business.logic");
+        auto logic = tracer->start_span("business.logic", span->context());
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        logic.set_status(obs::StatusCode::Ok);
+        logic->set_status(obs::StatusCode::Ok);
+        logic->end();
     }
     
     // Database
     {
-        auto db = obs::span("db.insert");
-        db.kind(obs::SpanKind::Client)
+        auto db = tracer->start_span("db.insert", span->context());
+        db->kind(obs::SpanKind::Client)
           .attr("db.system", "postgresql")
           .attr("db.operation", "INSERT");
         
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
-        db.set_status(obs::StatusCode::Ok);
+        db->set_status(obs::StatusCode::Ok);
+        db->end();
     }
     
     auto duration = std::chrono::steady_clock::now() - start;
     metrics.duration_histogram("latency").record(duration);
     
-    span.attr("http.status_code", static_cast<int64_t>(201));
-    span.set_status(obs::StatusCode::Ok);
+    span->attr("http.status_code", static_cast<int64_t>(201));
+    span->set_status(obs::StatusCode::Ok);
+    span->end();
     
     obs::info("Request completed", {{"status", "201"}});
     
@@ -396,3 +429,4 @@ TEST_F(IntegrationExtendedTest, RealWorldAPIEndpoint) {
     
     SUCCEED();
 }
+

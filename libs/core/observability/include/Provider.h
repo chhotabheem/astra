@@ -1,18 +1,23 @@
 #pragma once
-#include "Config.h"
+#include "observability.pb.h"
 #include <memory>
+#include <string_view>
 
 namespace obs {
 
 class ProviderImpl;
+class Tracer;
 
 class Provider {
 public:
     static Provider& instance();
     
-    // Initialize with parameters. Returns bool to indicate success/failure.
-    bool init(const InitParams& params);
+    // Initialize with proto config
+    bool init(const ::observability::Config& config);
     bool shutdown();
+    
+    // Get tracer for creating spans
+    std::shared_ptr<Tracer> get_tracer(std::string_view name);
     
     // Public alias for accessing implementation (needed by Metrics.cpp)
     using Impl = ProviderImpl;
@@ -28,7 +33,7 @@ private:
 };
 
 // Convenience functions
-bool init(const InitParams& params);
+bool init(const ::observability::Config& config);
 bool shutdown();
 
 } // namespace obs

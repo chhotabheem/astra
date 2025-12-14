@@ -9,7 +9,8 @@
 class MetricsExtendedTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        obs::Config config{.service_name = "metrics-test"};
+        ::observability::Config config;
+        config.set_service_name("metrics-test");
         obs::init(config);
     }
     

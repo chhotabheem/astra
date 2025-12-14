@@ -5,6 +5,7 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS config/http2client.proto)
 # Sources
 set(HTTP2CLIENT_SOURCES
     src/Http2Client.cpp
+    src/Http2ClientPool.cpp
     ${PROTO_SRCS}
 )
 
@@ -41,3 +42,9 @@ target_link_libraries(http2client
         Boost::thread
         Boost::chrono
 )
+
+# Add tests if testing is enabled
+if(BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
+

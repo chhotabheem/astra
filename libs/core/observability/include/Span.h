@@ -9,8 +9,9 @@
 
 namespace obs {
 
-// Forward declaration
+// Forward declarations
 class Provider;
+class TracerImpl;
 
 // Span status codes (OpenTelemetry standard)
 enum class StatusCode {
@@ -32,22 +33,19 @@ enum class SpanKind {
 using Attributes = std::initializer_list<std::pair<std::string_view, std::string_view>>;
 
 /**
- * RAII Span - Move-only value type
+ * Span - Represents a unit of work in a trace
  * 
- * Usage:
- *   {
- *       auto span = obs::span("operation");
- *       span.attr("key", "value");
- *       span.kind(SpanKind::Server);
- *       
- *       // ... do work ...
- *       
- *       span.set_status(StatusCode::Ok);
- *   } // Span auto-ends here (RAII)
+ * Spans are created via Tracer::start_span() and returned as shared_ptr.
+ * Call end() when the work is complete:
+ * 
+ *   auto tracer = obs::Provider::instance().get_tracer("my-service");
+ *   auto span = tracer->start_span("operation");
+ *   // ... async work ...
+ *   span->end();
  */
 class Span {
 public:
-    // Destructor - auto-ends span
+    // Destructor - auto-ends if not already ended (with warning)
     ~Span();
     
     // Move-only (no copy)
@@ -72,6 +70,13 @@ public:
     Span& add_event(std::string_view name);
     Span& add_event(std::string_view name, Attributes attrs);
     
+    // Explicit end - call when async work completes
+    // Safe to call multiple times (no-op after first call)
+    void end();
+    
+    // Check if span has been ended
+    bool is_ended() const;
+    
     // Get span context (for propagation)
     Context context() const;
     
@@ -82,18 +87,14 @@ public:
     struct Impl;
     
 private:
-    friend Span span(std::string_view name);
-    friend Span span(std::string_view name, const Context& parent);
+    friend class TracerImpl;
     friend class Provider;
     
-    // Private constructor (only callable by span() functions)
+    // Private constructor (only callable by TracerImpl)
     explicit Span(Impl* impl);
     
     std::unique_ptr<Impl> m_impl;
+    bool m_ended = false;
 };
-
-// Span creation functions
-Span span(std::string_view name);
-Span span(std::string_view name, const Context& parent);
 
 } // namespace obs

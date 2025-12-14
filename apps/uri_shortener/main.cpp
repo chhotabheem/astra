@@ -10,10 +10,10 @@
 int main(int argc, char* argv[]) {
     // Bootstrap: minimal observability for startup errors
     // (Will be re-initialized with full config later in UriShortenerApp::create)
-    obs::InitParams bootstrap_obs;
-    bootstrap_obs.service_name = "uri-shortener";
-    bootstrap_obs.service_version = "1.0.0";
-    bootstrap_obs.environment = "bootstrap";
+    ::observability::Config bootstrap_obs;
+    bootstrap_obs.set_service_name("uri-shortener");
+    bootstrap_obs.set_service_version("1.0.0");
+    bootstrap_obs.set_environment("bootstrap");
     obs::init(bootstrap_obs);
 
     // Determine config path

@@ -1,4 +1,5 @@
 #include <Span.h>
+#include <Tracer.h>
 #include <Log.h>
 #include <Metrics.h>
 #include <MetricsRegistry.h>
@@ -9,15 +10,18 @@
 
 class IntegrationTest : public ::testing::Test {
 protected:
+    std::shared_ptr<obs::Tracer> tracer;
+    
     void SetUp() override {
-        obs::Config config{
-            .service_name = "integration-test",
-            .service_version = "1.0.0"
-        };
+        ::observability::Config config;
+        config.set_service_name("integration-test");
+        config.set_service_version("1.0.0");
         obs::init(config);
+        tracer = obs::Provider::instance().get_tracer("integration-test");
     }
     
     void TearDown() override {
+        tracer.reset();
         obs::shutdown();
     }
 };
@@ -34,10 +38,10 @@ TEST_F(IntegrationTest, FullObservabilityStack) {
             {"client.ip", "192.168.1.1"}
         });
         
-        auto span = obs::span("handle_request");
-        span.kind(obs::SpanKind::Server);
-        span.attr("http.method", "GET");
-        span.attr("http.route", "/api/test");
+        auto span = tracer->start_span("handle_request");
+        span->kind(obs::SpanKind::Server);
+        span->attr("http.method", "GET");
+        span->attr("http.route", "/api/test");
         
         auto start = std::chrono::steady_clock::now();
         
@@ -47,25 +51,27 @@ TEST_F(IntegrationTest, FullObservabilityStack) {
         // Simulate work
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         
-        span.add_event("processing_started");
+        span->add_event("processing_started");
         
         {
-            auto db_span = obs::span("database_query");
-            db_span.kind(obs::SpanKind::Client);
-            db_span.attr("db.system", "postgresql");
+            auto db_span = tracer->start_span("database_query", span->context());
+            db_span->kind(obs::SpanKind::Client);
+            db_span->attr("db.system", "postgresql");
             
             obs::debug("Executing database query");
             
             // Simulate DB work
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
             
-            db_span.set_status(obs::StatusCode::Ok);
+            db_span->set_status(obs::StatusCode::Ok);
+            db_span->end();
         }
         
         auto duration = std::chrono::steady_clock::now() - start;
         latency_hist.record(duration);
         
-        span.set_status(obs::StatusCode::Ok);
+        span->set_status(obs::StatusCode::Ok);
+        span->end();
         obs::info("Request completed", {
             {"duration_ms", std::to_string(
                 std::chrono::duration_cast<std::chrono::milliseconds>(duration).count()
@@ -80,19 +86,20 @@ TEST_F(IntegrationTest, ErrorHandling) {
     auto error_counter = obs::register_counter("test.errors");
     
     {
-        auto span = obs::span("failing_operation");
+        auto span = tracer->start_span("failing_operation");
         
         try {
             obs::warn("About to fail");
             throw std::runtime_error("Simulated error");
         } catch (const std::exception& e) {
             error_counter.inc();
-            span.set_status(obs::StatusCode::Error, e.what());
+            span->set_status(obs::StatusCode::Error, e.what());
             obs::error("Operation failed", {
                 {"error.type", "runtime_error"},
                 {"error.message", e.what()}
             });
         }
+        span->end();
     }
 }
 
@@ -105,7 +112,7 @@ TEST_F(IntegrationTest, MetricsRegistryWithSpansAndLogs) {
         .gauge("active", "test.active_requests");
     
     {
-        auto span = obs::span("operation");
+        auto span = tracer->start_span("operation");
         obs::ScopedLogAttributes scoped({{"operation", "test"}});
         
         metrics.counter("requests").inc();
@@ -123,7 +130,8 @@ TEST_F(IntegrationTest, MetricsRegistryWithSpansAndLogs) {
         
         metrics.gauge("active").add(-1);
         
-        span.set_status(obs::StatusCode::Ok);
+        span->set_status(obs::StatusCode::Ok);
+        span->end();
         obs::info("Operation completed");
     }
 }
@@ -132,47 +140,52 @@ TEST_F(IntegrationTest, NestedSpansWithMetricsAndLogs) {
     auto counter = obs::register_counter("nested.operations");
     
     {
-        auto parent_span = obs::span("parent");
-        parent_span.attr("level", "parent");
+        auto parent_span = tracer->start_span("parent");
+        parent_span->attr("level", "parent");
         
         obs::info("Parent operation started");
         counter.inc();
         
         {
-            auto child_span = obs::span("child");
-            child_span.attr("level", "child");
+            auto child_span = tracer->start_span("child", parent_span->context());
+            child_span->attr("level", "child");
             
             obs::debug("Child operation started");
             
             {
-                auto grandchild_span = obs::span("grandchild");
-                grandchild_span.attr("level", "grandchild");
+                auto grandchild_span = tracer->start_span("grandchild", child_span->context());
+                grandchild_span->attr("level", "grandchild");
                 
                 obs::trace("Grandchild operation");
                 
-                grandchild_span.set_status(obs::StatusCode::Ok);
+                grandchild_span->set_status(obs::StatusCode::Ok);
+                grandchild_span->end();
             }
             
-            child_span.set_status(obs::StatusCode::Ok);
+            child_span->set_status(obs::StatusCode::Ok);
+            child_span->end();
         }
         
-        parent_span.set_status(obs::StatusCode::Ok);
+        parent_span->set_status(obs::StatusCode::Ok);
+        parent_span->end();
         obs::info("Parent operation completed");
     }
 }
 
 TEST_F(IntegrationTest, MultipleAttributeTypes) {
-    auto span = obs::span("typed_attributes");
+    auto span = tracer->start_span("typed_attributes");
     
-    span.attr("string_attr", "value");
-    span.attr("int_attr", static_cast<int64_t>(42));
-    span.attr("double_attr", 3.14);
-    span.attr("bool_attr", true);
+    span->attr("string_attr", "value");
+    span->attr("int_attr", static_cast<int64_t>(42));
+    span->attr("double_attr", 3.14);
+    span->attr("bool_attr", true);
     
     obs::info("Multiple attribute types", {
         {"attr1", "string"},
         {"attr2", "value2"}
     });
     
-    span.set_status(obs::StatusCode::Ok);
+    span->set_status(obs::StatusCode::Ok);
+    span->end();
 }
+

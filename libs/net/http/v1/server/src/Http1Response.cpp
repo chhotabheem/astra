@@ -30,4 +30,9 @@ void Response::close() {
     }
 }
 
+bool Response::is_alive() const noexcept {
+    return !closed_;
+}
+
 } // namespace http1
+

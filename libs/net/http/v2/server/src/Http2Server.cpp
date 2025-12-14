@@ -16,8 +16,9 @@ public:
 Server::Server(const http2server::Config& config)
     : m_impl(std::make_unique<Impl>(config)) {
     
-    // Default handler: Dispatch to Router
-    m_impl->backend.handle("*", "/", [this](Request& req, Response& res) {
+    // Default handler: Dispatch to Router with shared_ptr
+    m_impl->backend.handle("*", "/", [this](std::shared_ptr<router::IRequest> req, 
+                                             std::shared_ptr<router::IResponse> res) {
         m_router.dispatch(req, res);
     });
 }

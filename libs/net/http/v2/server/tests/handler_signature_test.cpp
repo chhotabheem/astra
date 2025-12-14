@@ -27,20 +27,20 @@ http2server::Config make_config(const std::string& address, uint32_t port, uint3
 
 /**
  * Handler signature tests for HTTP/2 Server
- * Verifies Request& and Response& handler interface
+ * Verifies that handlers work with shared_ptr<IRequest/IResponse>
  */
 
-// Test 1: Handler receives references to concrete types
+// Test 1: Handler receives shared_ptr to types
 TEST(HandlerSignatureTest, HandlerReceivesReferences) {
     auto server = std::make_unique<http2server::Server>(make_config("127.0.0.1", 9100));
     
     bool handler_called = false;
     
-    // Handler signature: Request&, Response&
+    // Handler signature: shared_ptr<IRequest>, shared_ptr<IResponse>
     server->handle("GET", "/test", 
-        [&](http2server::Request& req, http2server::Response& res) {
+        [&](std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res) {
             handler_called = true;
-            res.close();
+            res->close();
         });
     
     // If compilation succeeds, test passes
@@ -52,13 +52,13 @@ TEST(HandlerSignatureTest, MultipleHandlers) {
     auto server = std::make_unique<http2server::Server>(make_config("127.0.0.1", 9101));
     
     server->handle("GET", "/path1", 
-        [](http2server::Request& req, http2server::Response& res) {
-            res.close();
+        [](std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res) {
+            res->close();
         });
     
     server->handle("POST", "/path2",
-        [](http2server::Request& req, http2server::Response& res) {
-            res.close();
+        [](std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res) {
+            res->close();
         });
     
     SUCCEED();
@@ -69,15 +69,15 @@ TEST(HandlerSignatureTest, AccessRequestResponseMethods) {
     auto server = std::make_unique<http2server::Server>(make_config("127.0.0.1", 9102));
     
     server->handle("GET", "/test",
-        [](http2server::Request& req, http2server::Response& res) {
+        [](std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res) {
             // Access request methods
-            [[maybe_unused]] auto path = req.path();
-            [[maybe_unused]] auto method = req.method();
+            [[maybe_unused]] auto path = req->path();
+            [[maybe_unused]] auto method = req->method();
             
             // Access response methods
-            res.set_status(200);
-            res.write("OK");
-            res.close();
+            res->set_status(200);
+            res->write("OK");
+            res->close();
         });
     
     SUCCEED();
@@ -87,10 +87,10 @@ TEST(HandlerSignatureTest, AccessRequestResponseMethods) {
 TEST(HandlerSignatureTest, RouterIntegration) {
     auto server = std::make_unique<http2server::Server>(make_config("127.0.0.1", 9103));
     
-    // Access router directly
-    server->router().get("/route", [](router::IRequest& req, router::IResponse& res) {
-        res.set_status(200);
-        res.close();
+    // Access router directly - now uses shared_ptr
+    server->router().get("/route", [](std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res) {
+        res->set_status(200);
+        res->close();
     });
     
     SUCCEED();
@@ -99,9 +99,10 @@ TEST(HandlerSignatureTest, RouterIntegration) {
 // Test 5: Handler signature matches Server::Handler type
 TEST(HandlerSignatureTest, HandlerTypeCompatible) {
     http2server::Server::Handler handler = 
-        [](http2server::Request& req, http2server::Response& res) {
-            res.close();
+        [](std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res) {
+            res->close();
         };
     
     EXPECT_TRUE(handler != nullptr);
 }
+

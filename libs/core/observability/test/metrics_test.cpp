@@ -9,10 +9,9 @@ namespace {
 class MetricsV2Test : public ::testing::Test {
 protected:
     void SetUp() override {
-        obs::Config config{
-            .service_name = "test-metrics",
-            .otlp_endpoint = "http://localhost:4317"
-        };
+        ::observability::Config config;
+        config.set_service_name("test-metrics");
+        config.set_otlp_endpoint("http://localhost:4317");
         ASSERT_TRUE(obs::init(config));
     }
     

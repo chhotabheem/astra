@@ -2,7 +2,7 @@
 
 // Main observability API - Provider pattern
 #include "Provider.h"
-#include "Config.h"
+#include "Tracer.h"
 #include "Context.h"
 #include "Span.h"
 #include "Log.h"
@@ -13,12 +13,16 @@ namespace obs {
 
 // Convenience initialization functions
 // Usage (C++17):
-//   obs::InitParams params;
-//   params.service_name = "my_service";
-//   params.otlp_endpoint = "http://localhost:4317";
-//   obs::init(params);
+//   ::observability::Config config;
+//   config.set_service_name("my_service");
+//   config.set_otlp_endpoint("http://localhost:4317");
+//   obs::init(config);
 //   
-//   auto span = obs::span("operation");
+//   auto tracer = obs::Provider::instance().get_tracer("my_service");
+//   auto span = tracer->start_span("operation");
+//   span->attr("key", "value");
+//   span->end();
+//   
 //   obs::info("Log message");
 //   
 

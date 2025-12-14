@@ -1,20 +1,23 @@
 #pragma once
 
-#include "Middleware.h"
+#include "IRequest.h"
+#include "IResponse.h"
 #include <vector>
 #include <string_view>
 #include <string>
 #include <unordered_map>
 #include <memory>
+#include <functional>
 
 namespace router {
+
+/// Handler takes shared_ptr to request and response
+using Handler = std::function<void(std::shared_ptr<IRequest>, std::shared_ptr<IResponse>)>;
 
 class Router {
 public:
     Router();
     ~Router();
-
-    void use(Middleware middleware);
     
     void get(std::string_view path, Handler handler);
     void post(std::string_view path, Handler handler);
@@ -27,7 +30,7 @@ public:
     };
     
     [[nodiscard]] MatchResult match(std::string_view method, std::string_view path) const;
-    void dispatch(router::IRequest& req, router::IResponse& res);
+    void dispatch(std::shared_ptr<IRequest> req, std::shared_ptr<IResponse> res);
 
 private:
     struct Node {
@@ -38,10 +41,8 @@ private:
     };
 
     std::unordered_map<std::string, std::unique_ptr<Node>> m_roots;
-    std::vector<Middleware> m_middlewares;
 
     void add_route(std::string_view method, std::string_view path, Handler handler);
-    void run_middleware(size_t index, router::IRequest& req, router::IResponse& res);
 };
 
 } // namespace router

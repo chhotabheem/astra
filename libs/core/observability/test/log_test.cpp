@@ -1,16 +1,22 @@
 #include <Log.h>
 #include <Span.h>
+#include <Tracer.h>
 #include <Provider.h>
 #include <gtest/gtest.h>
 
 class LogTest : public ::testing::Test {
 protected:
+    std::shared_ptr<obs::Tracer> tracer;
+    
     void SetUp() override {
-        obs::Config config{.service_name = "test-service"};
+        ::observability::Config config;
+        config.set_service_name("test-service");
         obs::init(config);
+        tracer = obs::Provider::instance().get_tracer("test-service");
     }
     
     void TearDown() override {
+        tracer.reset();
         obs::shutdown();
     }
 };
@@ -53,14 +59,15 @@ TEST_F(LogTest, ScopedAttributes) {
 
 TEST_F(LogTest, AutomaticTraceCorrelation) {
     {
-        auto span = obs::span("test.operation");
-        auto ctx = span.context();
+        auto span = tracer->start_span("test.operation");
+        auto ctx = span->context();
         
         // Log within span should automatically include trace_id and span_id
         EXPECT_NO_THROW(obs::info("log with trace correlation"));
         
         // Note: Actual verification would require capturing log output
         // and checking for trace_id/span_id attributes
+        span->end();
     }
 }
 
@@ -82,8 +89,8 @@ TEST_F(LogTest, NestedScopedAttributes) {
 
 TEST_F(LogTest, LogWithinSpanAndScope) {
     {
-        auto span = obs::span("request");
-        span.attr("request.id", "req-123");
+        auto span = tracer->start_span("request");
+        span->attr("request.id", "req-123");
         
         obs::ScopedLogAttributes scoped({
             {"user.id", "user-456"}
@@ -93,6 +100,7 @@ TEST_F(LogTest, LogWithinSpanAndScope) {
         // - trace_id, span_id (from span)
         // - user.id (from scoped)
         EXPECT_NO_THROW(obs::info("complete log"));
+        span->end();
     }
 }
 
@@ -104,3 +112,4 @@ TEST_F(LogTest, AllLogLevels) {
     EXPECT_NO_THROW(obs::log(obs::Level::Error, "error"));
     EXPECT_NO_THROW(obs::log(obs::Level::Fatal, "fatal"));
 }
+

@@ -6,7 +6,6 @@
 #include "InMemoryLinkRepository.h"
 #include "ShortLink.h"
 #include <Provider.h>
-#include <Config.h>
 
 namespace url_shortener::test {
 
@@ -14,11 +13,10 @@ class ObservableLinkRepositoryTest : public ::testing::Test {
 protected:
     void SetUp() override {
         // Initialize observability with Provider pattern
-        obs::Config obs_config{
-            .service_name = "uri_shortener_test",
-            .service_version = "1.0.0",
-            .environment = "test"
-        };
+        ::observability::Config obs_config;
+        obs_config.set_service_name("uri_shortener_test");
+        obs_config.set_service_version("1.0.0");
+        obs_config.set_environment("test");
         obs::init(obs_config);
         
         m_inner = std::make_shared<infrastructure::InMemoryLinkRepository>();

@@ -43,4 +43,12 @@ void Response::add_scoped_resource(std::unique_ptr<astra::execution::IScopedReso
     }
 }
 
+bool Response::is_alive() const noexcept {
+    if (auto handle = m_handle.lock()) {
+        return handle->is_alive();
+    }
+    return false;
+}
+
 } // namespace http2server
+

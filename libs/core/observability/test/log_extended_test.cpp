@@ -1,5 +1,6 @@
 #include <Log.h>
 #include <Span.h>
+#include <Tracer.h>
 #include <Provider.h>
 #include <gtest/gtest.h>
 #include <thread>
@@ -7,12 +8,17 @@
 
 class LogExtendedTest : public ::testing::Test {
 protected:
+    std::shared_ptr<obs::Tracer> tracer;
+    
     void SetUp() override {
-        obs::Config config{.service_name = "log-test"};
+        ::observability::Config config;
+        config.set_service_name("log-test");
         obs::init(config);
+        tracer = obs::Provider::instance().get_tracer("log-test");
     }
     
     void TearDown() override {
+        tracer.reset();
         obs::shutdown();
     }
 };
@@ -196,8 +202,9 @@ TEST_F(LogExtendedTest, EmptyScope) {
 
 // Log with active span
 TEST_F(LogExtendedTest, LogWithActiveSpan) {
-    auto span = obs::span("operation");
+    auto span = tracer->start_span("operation");
     obs::info("Log during span");
+    span->end();
     
     SUCCEED();
 }
@@ -211,18 +218,22 @@ TEST_F(LogExtendedTest, LogWithoutActiveSpan) {
 
 // Cross-thread log correlation
 TEST_F(LogExtendedTest, CrossThreadLogCorrelation) {
-    auto span = obs::span("parent");
-    auto ctx = span.context();
+    auto span = tracer->start_span("parent");
+    auto ctx = span->context();
+    auto local_tracer = tracer;
     
-    std::thread t([ctx]() {
-        auto child_span = obs::span("child", ctx);
+    std::thread t([local_tracer, ctx]() {
+        auto child_span = local_tracer->start_span("child", ctx);
         obs::info("Child thread log");
+        child_span->end();
     });
     
     t.join();
+    span->end();
     
     SUCCEED();
 }
+
 
 // Log after provider shutdown
 TEST_F(LogExtendedTest, LogAfterShutdown) {

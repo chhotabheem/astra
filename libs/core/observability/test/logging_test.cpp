@@ -2,15 +2,21 @@
 #include <Provider.h>
 #include <Log.h>
 #include <Span.h>
+#include <Tracer.h>
 
 class LoggingTest : public ::testing::Test {
 protected:
+    std::shared_ptr<obs::Tracer> tracer;
+    
     void SetUp() override {
-        obs::Config config{.service_name = "test"};
+        ::observability::Config config;
+        config.set_service_name("test");
         obs::init(config);
+        tracer = obs::Provider::instance().get_tracer("test");
     }
     
     void TearDown() override {
+        tracer.reset();
         obs::shutdown();
     }
 };
@@ -30,8 +36,9 @@ TEST_F(LoggingTest, StructuredAttributes) {
 
 TEST_F(LoggingTest, AutomaticTraceContext) {
     // Log within a span - should auto-correlate
-    auto span = obs::span("operation");
+    auto span = tracer->start_span("operation");
     obs::info("Log message");
+    span->end();
     SUCCEED();
 }
 
@@ -40,3 +47,4 @@ TEST_F(LoggingTest, LogLevels) {
     obs::fatal("fatal message");
     SUCCEED();
 }
+

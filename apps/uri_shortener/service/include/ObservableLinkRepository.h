@@ -6,6 +6,8 @@
 #include "ILinkRepository.h"
 #include <MetricsRegistry.h>
 #include <Span.h>
+#include <Tracer.h>
+#include <Provider.h>
 #include <Log.h>
 #include <chrono>
 #include <memory>
@@ -25,6 +27,7 @@ class ObservableLinkRepository : public domain::ILinkRepository {
 public:
     explicit ObservableLinkRepository(std::shared_ptr<domain::ILinkRepository> inner)
         : m_inner(std::move(inner))
+        , m_tracer(obs::Provider::instance().get_tracer("uri-shortener"))
     {
         // Register all metrics using MetricsRegistry pattern
         m_metrics
@@ -40,8 +43,8 @@ public:
     }
 
     astra::Result<void, domain::DomainError> save(const domain::ShortLink& link) override {
-        auto span = obs::span("LinkRepository.save");
-        span.attr("short_code", std::string(link.code().value()));
+        auto span = m_tracer->start_span("LinkRepository.save");
+        span->attr("short_code", std::string(link.code().value()));
         
         auto start = std::chrono::steady_clock::now();
         auto result = m_inner->save(link);
@@ -51,20 +54,21 @@ public:
         
         if (result.is_ok()) {
             m_metrics.counter("save_success").inc();
-            span.set_status(obs::StatusCode::Ok);
+            span->set_status(obs::StatusCode::Ok);
             obs::debug("Link saved", {{"code", link.code().value()}});
         } else {
             m_metrics.counter("save_error").inc();
-            span.set_status(obs::StatusCode::Error, "save failed");
+            span->set_status(obs::StatusCode::Error, "save failed");
             obs::warn("Save failed", {{"code", link.code().value()}});
         }
         
+        span->end();
         return result;
     }
 
     astra::Result<void, domain::DomainError> remove(const domain::ShortCode& code) override {
-        auto span = obs::span("LinkRepository.remove");
-        span.attr("short_code", std::string(code.value()));
+        auto span = m_tracer->start_span("LinkRepository.remove");
+        span->attr("short_code", std::string(code.value()));
         
         auto start = std::chrono::steady_clock::now();
         auto result = m_inner->remove(code);
@@ -74,18 +78,19 @@ public:
         
         if (result.is_ok()) {
             m_metrics.counter("remove_success").inc();
-            span.set_status(obs::StatusCode::Ok);
+            span->set_status(obs::StatusCode::Ok);
         } else {
             m_metrics.counter("remove_error").inc();
-            span.set_status(obs::StatusCode::Error, "remove failed");
+            span->set_status(obs::StatusCode::Error, "remove failed");
         }
         
+        span->end();
         return result;
     }
 
     astra::Result<domain::ShortLink, domain::DomainError> find_by_code(const domain::ShortCode& code) override {
-        auto span = obs::span("LinkRepository.find_by_code");
-        span.attr("short_code", std::string(code.value()));
+        auto span = m_tracer->start_span("LinkRepository.find_by_code");
+        span->attr("short_code", std::string(code.value()));
         
         auto start = std::chrono::steady_clock::now();
         auto result = m_inner->find_by_code(code);
@@ -95,12 +100,13 @@ public:
         
         if (result.is_ok()) {
             m_metrics.counter("find_success").inc();
-            span.set_status(obs::StatusCode::Ok);
+            span->set_status(obs::StatusCode::Ok);
         } else {
             m_metrics.counter("find_miss").inc();
-            span.attr("found", "false");
+            span->attr("found", "false");
         }
         
+        span->end();
         return result;
     }
 
@@ -110,7 +116,9 @@ public:
 
 private:
     std::shared_ptr<domain::ILinkRepository> m_inner;
+    std::shared_ptr<obs::Tracer> m_tracer;
     obs::MetricsRegistry m_metrics;  // ONE member variable for ALL metrics
 };
 
 } // namespace url_shortener::infrastructure
+

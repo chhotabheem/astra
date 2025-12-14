@@ -43,3 +43,42 @@ add_executable(proto_config_loader_test proto_config_loader_test.cpp)
 target_link_libraries(proto_config_loader_test PRIVATE uri_shortener_config GTest::gtest GTest::gtest_main)
 target_include_directories(proto_config_loader_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../config/include)
 gtest_discover_tests(proto_config_loader_test)
+
+# HTTP Data Service Adapter tests
+add_executable(http_data_service_adapter_test
+    ../service/tests/http_data_service_adapter_test.cpp
+)
+target_link_libraries(http_data_service_adapter_test
+    PRIVATE
+        uri_shortener_domain
+        http2client
+        GTest::gtest
+        GTest::gtest_main
+        GTest::gmock
+)
+target_include_directories(http_data_service_adapter_test
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/../service/include
+        ${CMAKE_SOURCE_DIR}/libs/net/http/v2/client/include
+)
+gtest_discover_tests(http_data_service_adapter_test)
+
+# Data Service Handler tests
+add_executable(data_service_handler_test
+    ../service/tests/data_service_handler_test.cpp
+)
+target_link_libraries(data_service_handler_test
+    PRIVATE
+        uri_shortener_domain
+        GTest::gtest
+        GTest::gtest_main
+        GTest::gmock
+)
+target_include_directories(data_service_handler_test
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/../service/include
+        ${CMAKE_SOURCE_DIR}/libs/core/execution/include
+        ${CMAKE_SOURCE_DIR}/libs/core/observability/include
+)
+gtest_discover_tests(data_service_handler_test)
+

@@ -22,7 +22,7 @@ thread_local std::vector<Context> active_span_stack;
 // Initialization / Shutdown
 // =============================================================================
 
-bool ProviderImpl::init(const InitParams& params) {
+bool ProviderImpl::init(const ::observability::Config& config) {
     std::lock_guard<std::mutex> lock(m_registration_mutex);
     
     // Already initialized check - if meter exists, skip
@@ -33,9 +33,9 @@ bool ProviderImpl::init(const InitParams& params) {
     try {
         // Create resource attributes
         auto resource_attrs = opentelemetry::sdk::resource::Resource::Create({
-            {"service.name", params.service_name},
-            {"service.version", params.service_version},
-            {"deployment.environment", params.environment}
+            {"service.name", config.service_name()},
+            {"service.version", config.service_version()},
+            {"deployment.environment", config.environment()}
         });
         
         // ===== METRICS =====
@@ -49,8 +49,8 @@ bool ProviderImpl::init(const InitParams& params) {
         metrics_api::Provider::SetMeterProvider(m_meter_provider);
         
         m_meter = metrics_api::Provider::GetMeterProvider()->GetMeter(
-            params.service_name,
-            params.service_version);
+            config.service_name(),
+            config.service_version());
         
         if (!m_meter) {
             return false;
@@ -67,7 +67,7 @@ bool ProviderImpl::init(const InitParams& params) {
         trace_api::Provider::SetTracerProvider(m_tracer_provider);
         
         m_tracer = trace_api::Provider::GetTracerProvider()->GetTracer(
-            params.service_name, params.service_version);
+            config.service_name(), config.service_version());
         
         if (!m_tracer) {
             return false;
@@ -83,7 +83,7 @@ bool ProviderImpl::init(const InitParams& params) {
         logs_api::Provider::SetLoggerProvider(m_logger_provider);
         
         m_logger = logs_api::Provider::GetLoggerProvider()->GetLogger(
-            params.service_name, params.service_version);
+            config.service_name(), config.service_version());
         
         if (!m_logger) {
             return false;

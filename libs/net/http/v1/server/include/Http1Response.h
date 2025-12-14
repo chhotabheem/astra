@@ -17,6 +17,7 @@ public:
     void set_header(std::string_view name, std::string_view value) override;
     void write(std::string_view content) override;
     void close() override;
+    [[nodiscard]] bool is_alive() const noexcept override;
 
 private:
     boost::beast::http::response<boost::beast::http::string_body> res_;
@@ -25,3 +26,4 @@ private:
 };
 
 } // namespace http1
+

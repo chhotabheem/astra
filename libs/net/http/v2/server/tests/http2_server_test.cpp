@@ -30,8 +30,8 @@ TEST(Http2ServerTest, Construction) {
 TEST(Http2ServerTest, HandlerRegistration) {
     auto server = std::make_unique<http2server::Server>(make_config("127.0.0.1", 9002));
     
-    server->handle("GET", "/test", [&](http2server::Request&, http2server::Response& res) {
-        res.close();
+    server->handle("GET", "/test", [&](std::shared_ptr<router::IRequest>, std::shared_ptr<router::IResponse> res) {
+        res->close();
     });
     
     // If we reached here without crash, it passed
@@ -41,12 +41,13 @@ TEST(Http2ServerTest, HandlerRegistration) {
 TEST(Http2ServerTest, MultipleHandlers) {
     auto server = std::make_unique<http2server::Server>(make_config("127.0.0.1", 9003));
     
-    server->handle("GET", "/path1", [](auto&, auto& res) { res.close(); });
-    server->handle("POST", "/path2", [](auto&, auto& res) { res.close(); });
-    server->handle("GET", "/path3", [](auto&, auto& res) { res.close(); });
+    server->handle("GET", "/path1", [](auto, auto res) { res->close(); });
+    server->handle("POST", "/path2", [](auto, auto res) { res->close(); });
+    server->handle("GET", "/path3", [](auto, auto res) { res->close(); });
     
     SUCCEED();
 }
+
 
 TEST(Http2ServerTest, ThreadConfiguration) {
     EXPECT_NO_THROW({

@@ -1,14 +1,20 @@
 find_package(Threads REQUIRED)
+find_package(Protobuf REQUIRED)
+
+# Generate protobuf code
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS config/execution.proto)
 
 add_library(astra_execution
     src/SharedQueue.cpp
     src/StickyQueue.cpp
     src/ObservableMessagePool.cpp
+    ${PROTO_SRCS}
 )
 
 target_include_directories(astra_execution
     PUBLIC
         include
+        ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 target_link_libraries(astra_execution
@@ -17,6 +23,7 @@ target_link_libraries(astra_execution
         Threads::Threads
     PUBLIC
         observability
+        protobuf::libprotobuf
 )
 
 # Add tests if testing is enabled

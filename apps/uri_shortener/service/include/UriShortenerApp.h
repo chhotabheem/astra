@@ -13,6 +13,7 @@
 #include "ObservableMessageHandler.h"
 #include "UriShortenerRequestHandler.h"
 #include "ObservableRequestHandler.h"
+#include "HttpDataServiceAdapter.h"
 #include <StickyQueue.h>
 #include "IRequest.h"
 #include "IResponse.h"
@@ -22,8 +23,9 @@
 #include <string>
 #include <thread>
 
-// Forward declaration
+// Forward declarations
 namespace http2server { class Server; }
+namespace http2client { class Http2ClientPool; }
 
 namespace url_shortener {
 
@@ -38,39 +40,24 @@ enum class AppError {
  * 
  * Factory pattern with static create() method.
  * Uses message-passing architecture with SEDA semantics.
- * Accepts proto config from uri_shortener::Config.
  */
 class UriShortenerApp {
 public:
-    /// Optional overrides for testing (inject dependencies)
     struct Overrides {
         std::shared_ptr<domain::ILinkRepository> repository;
         std::shared_ptr<domain::ICodeGenerator> code_generator;
     };
 
-    /**
-     * @brief Factory method - creates and configures the app from proto config
-     * @param config Protobuf configuration (loaded from JSON)
-     * @param overrides Optional dependency overrides for testing
-     * @return Ok(App) on success, Err(AppError) on failure
-     */
     [[nodiscard]] static astra::Result<UriShortenerApp, AppError> create(
         const uri_shortener::Config& config,
         const Overrides& overrides = {});
 
-    /**
-     * @brief Run the application (blocking)
-     * @return Exit code (0 = success)
-     */
     [[nodiscard]] int run();
 
-    /// Moveable
     UriShortenerApp(UriShortenerApp&&) noexcept;
     UriShortenerApp& operator=(UriShortenerApp&&) noexcept;
-
     ~UriShortenerApp();
 
-    /// Not copyable
     UriShortenerApp(const UriShortenerApp&) = delete;
     UriShortenerApp& operator=(const UriShortenerApp&) = delete;
 
@@ -81,6 +68,8 @@ private:
         std::shared_ptr<application::ShortenLink> shorten,
         std::shared_ptr<application::ResolveLink> resolve,
         std::shared_ptr<application::DeleteLink> del,
+        std::unique_ptr<http2client::Http2ClientPool> client_pool,
+        std::shared_ptr<service::IDataServiceAdapter> data_adapter,
         std::unique_ptr<UriShortenerMessageHandler> msg_handler,
         std::unique_ptr<ObservableMessageHandler> obs_msg_handler,
         std::unique_ptr<astra::execution::StickyQueue> pool,
@@ -90,7 +79,6 @@ private:
         std::unique_ptr<astra::resilience::AtomicLoadShedder> load_shedder
     );
 
-    // Error mapping
     static int domain_error_to_status(domain::DomainError err);
     static std::string domain_error_to_message(domain::DomainError err);
 
@@ -101,7 +89,11 @@ private:
     std::shared_ptr<application::ResolveLink> m_resolve;
     std::shared_ptr<application::DeleteLink> m_delete;
     
-    // Message-passing components (order matters for destruction)
+    // Backend HTTP client (destruction order: adapter uses pool)
+    std::unique_ptr<http2client::Http2ClientPool> m_client_pool;
+    std::shared_ptr<service::IDataServiceAdapter> m_data_adapter;
+    
+    // Message-passing components
     std::unique_ptr<UriShortenerMessageHandler> m_msg_handler;
     std::unique_ptr<ObservableMessageHandler> m_obs_msg_handler;
     std::unique_ptr<astra::execution::StickyQueue> m_pool;
@@ -116,3 +108,4 @@ private:
 };
 
 } // namespace url_shortener
+

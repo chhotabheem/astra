@@ -2,6 +2,7 @@
 #include <Metrics.h>
 #include <MetricsRegistry.h>
 #include <Span.h>
+#include <Tracer.h>
 #include <Log.h>
 #include <gtest/gtest.h>
 #include <thread>
@@ -11,12 +12,17 @@
 
 class ThreadSafetyExtendedTest : public ::testing::Test {
 protected:
+    std::shared_ptr<obs::Tracer> tracer;
+    
     void SetUp() override {
-        obs::Config config{.service_name = "thread-safety-test"};
+        ::observability::Config config;
+        config.set_service_name("thread-safety-test");
         obs::init(config);
+        tracer = obs::Provider::instance().get_tracer("thread-safety-test");
     }
     
     void TearDown() override {
+        tracer.reset();
         obs::shutdown();
     }
 };
@@ -51,7 +57,8 @@ TEST_F(ThreadSafetyExtendedTest, InitVsMetricCreationRace) {
     obs::shutdown();
     
     std::thread t1([]() {
-        obs::Config config{.service_name = "test"};
+        ::observability::Config config;
+        config.set_service_name("test");
         obs::init(config);
     });
     
@@ -92,16 +99,20 @@ TEST_F(ThreadSafetyExtendedTest, ShutdownVsActiveOperations) {
 // Active span stack thread isolation
 TEST_F(ThreadSafetyExtendedTest, ActiveSpanStackIsolation) {
     std::vector<std::thread> threads;
+    auto local_tracer = tracer;
     
     for (int i = 0; i < 50; ++i) {
-        threads.emplace_back([i]() {
-            auto span1 = obs::span("thread." + std::to_string(i) + ".span1");
+        threads.emplace_back([local_tracer, i]() {
+            auto span1 = local_tracer->start_span("thread." + std::to_string(i) + ".span1");
             {
-                auto span2 = obs::span("thread." + std::to_string(i) + ".span2");
+                auto span2 = local_tracer->start_span("thread." + std::to_string(i) + ".span2", span1->context());
                 {
-                    auto span3 = obs::span("thread." + std::to_string(i) + ".span3");
+                    auto span3 = local_tracer->start_span("thread." + std::to_string(i) + ".span3", span2->context());
+                    span3->end();
                 }
+                span2->end();
             }
+            span1->end();
         });
     }
     
@@ -179,20 +190,22 @@ TEST_F(ThreadSafetyExtendedTest, ProviderConcurrentAccess) {
 
 // Concurrent context extraction
 TEST_F(ThreadSafetyExtendedTest, ConcurrentContextExtraction) {
-    auto span = obs::span("shared");
+    auto span = tracer->start_span("shared");
     
     std::vector<std::thread> threads;
     std::vector<obs::Context> contexts(100);
     
     for (int i = 0; i < 100; ++i) {
         threads.emplace_back([i, &span, &contexts]() {
-            contexts[i] = span.context();
+            contexts[i] = span->context();
         });
     }
     
     for (auto& t : threads) {
         t.join();
     }
+    
+    span->end();
     
     // All should be same
     for (int i = 1; i < 100; ++i) {
@@ -204,17 +217,20 @@ TEST_F(ThreadSafetyExtendedTest, ConcurrentContextExtraction) {
 // Span parent-child race
 TEST_F(ThreadSafetyExtendedTest, SpanParentChildRace) {
     std::vector<std::thread> threads;
+    auto local_tracer = tracer;
     
     for (int i = 0; i < 50; ++i) {
-        threads.emplace_back([]() {
-            auto parent = obs::span("parent");
-            auto parent_ctx = parent.context();
+        threads.emplace_back([local_tracer]() {
+            auto parent = local_tracer->start_span("parent");
+            auto parent_ctx = parent->context();
             
-            std::thread child_thread([parent_ctx]() {
-                auto child = obs::span("child", parent_ctx);
+            std::thread child_thread([local_tracer, parent_ctx]() {
+                auto child = local_tracer->start_span("child", parent_ctx);
+                child->end();
             });
             
             child_thread.join();
+            parent->end();
         });
     }
     
@@ -228,11 +244,13 @@ TEST_F(ThreadSafetyExtendedTest, SpanParentChildRace) {
 // Shutdown during active spans
 TEST_F(ThreadSafetyExtendedTest, ShutdownDuringActiveSpans) {
     std::atomic<bool> stop{false};
+    auto local_tracer = tracer;
     
-    std::thread worker([&stop]() {
+    std::thread worker([&stop, local_tracer]() {
         while (!stop.load()) {
-            auto span = obs::span("active");
-            span.attr("key", "value");
+            auto span = local_tracer->start_span("active");
+            span->attr("key", "value");
+            span->end();
         }
     });
     
@@ -274,17 +292,19 @@ TEST_F(ThreadSafetyExtendedTest, TLSIsolationVerification) {
 TEST_F(ThreadSafetyExtendedTest, HighContentionScenario) {
     auto counter = obs::counter("high.contention");
     auto hist = obs::histogram("high.contention.hist");
+    auto local_tracer = tracer;
     
     std::vector<std::thread> threads;
     
     for (int i = 0; i < 200; ++i) {
-        threads.emplace_back([&counter, &hist, i]() {
+        threads.emplace_back([&counter, &hist, local_tracer, i]() {
             for (int j = 0; j < 100; ++j) {
                 counter.inc();
                 hist.record(static_cast<double>(i * j));
                 
-                auto span = obs::span("contention");
-                span.attr("thread", static_cast<int64_t>(i));
+                auto span = local_tracer->start_span("contention");
+                span->attr("thread", static_cast<int64_t>(i));
+                span->end();
                 
                 obs::info("High contention", {{"t", std::to_string(i)}});
             }
@@ -301,12 +321,14 @@ TEST_F(ThreadSafetyExtendedTest, HighContentionScenario) {
 // Concurrent span creation with same name
 TEST_F(ThreadSafetyExtendedTest, ConcurrentSpansSameName) {
     std::vector<std::thread> threads;
+    auto local_tracer = tracer;
     
     for (int i = 0; i < 100; ++i) {
-        threads.emplace_back([]() {
-            auto span = obs::span("same.name");
+        threads.emplace_back([local_tracer]() {
+            auto span = local_tracer->start_span("same.name");
             std::hash<std::thread::id> hasher;
-            span.attr("unique", std::to_string(hasher(std::this_thread::get_id())));
+            span->attr("unique", std::to_string(hasher(std::this_thread::get_id())));
+            span->end();
         });
     }
     
@@ -342,6 +364,7 @@ TEST_F(ThreadSafetyExtendedTest, ConcurrentLoggingWithScopes) {
 TEST_F(ThreadSafetyExtendedTest, MixedWorkloadStress) {
     std::atomic<bool> stop{false};
     std::vector<std::thread> threads;
+    auto local_tracer = tracer;
     
     // Metrics thread
     threads.emplace_back([&stop]() {
@@ -352,10 +375,11 @@ TEST_F(ThreadSafetyExtendedTest, MixedWorkloadStress) {
     });
     
     // Span thread
-    threads.emplace_back([&stop]() {
+    threads.emplace_back([&stop, local_tracer]() {
         while (!stop.load()) {
-            auto span = obs::span("stress.span");
-            span.attr("stress", "true");
+            auto span = local_tracer->start_span("stress.span");
+            span->attr("stress", "true");
+            span->end();
         }
     });
     
@@ -376,3 +400,4 @@ TEST_F(ThreadSafetyExtendedTest, MixedWorkloadStress) {
     
     SUCCEED();
 }
+

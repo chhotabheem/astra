@@ -13,8 +13,8 @@ using namespace url_shortener;
 class UriMessagesTest : public ::testing::Test {};
 
 TEST_F(UriMessagesTest, UriPayloadVariantHoldsHttpRequestMsg) {
-    http2server::Request req;
-    http2server::Response resp;
+    auto req = std::make_shared<http2server::Request>();
+    auto resp = std::make_shared<http2server::Response>();
     
     UriPayload payload = HttpRequestMsg{req, resp};
     
@@ -22,7 +22,7 @@ TEST_F(UriMessagesTest, UriPayloadVariantHoldsHttpRequestMsg) {
 }
 
 TEST_F(UriMessagesTest, UriPayloadVariantHoldsDbQueryMsg) {
-    http2server::Response resp;
+    auto resp = std::make_shared<http2server::Response>();
     
     UriPayload payload = DbQueryMsg{"shorten", "http://test.com", resp};
     
@@ -34,7 +34,7 @@ TEST_F(UriMessagesTest, UriPayloadVariantHoldsDbQueryMsg) {
 }
 
 TEST_F(UriMessagesTest, UriPayloadVariantHoldsDbResponseMsg) {
-    http2server::Response resp;
+    auto resp = std::make_shared<http2server::Response>();
     
     UriPayload payload = DbResponseMsg{"abc123", true, "", resp};
     
@@ -46,10 +46,11 @@ TEST_F(UriMessagesTest, UriPayloadVariantHoldsDbResponseMsg) {
 }
 
 TEST_F(UriMessagesTest, OverloadedVisitorDispatchesCorrectly) {
-    http2server::Response resp;
+    auto resp = std::make_shared<http2server::Response>();
+    auto req = std::make_shared<http2server::Request>();
     
     std::vector<UriPayload> payloads = {
-        HttpRequestMsg{http2server::Request(), resp},
+        HttpRequestMsg{req, resp},
         DbQueryMsg{"resolve", "abc", resp},
         DbResponseMsg{"result", true, "", resp}
     };
@@ -59,7 +60,8 @@ TEST_F(UriMessagesTest, OverloadedVisitorDispatchesCorrectly) {
     auto visitor = overloaded{
         [&](HttpRequestMsg&) { dispatched.push_back(0); },
         [&](DbQueryMsg&) { dispatched.push_back(1); },
-        [&](DbResponseMsg&) { dispatched.push_back(2); }
+        [&](DbResponseMsg&) { dispatched.push_back(2); },
+        [&](service::DataServiceResponse&) { dispatched.push_back(3); }
     };
     
     for (auto& payload : payloads) {
@@ -73,7 +75,7 @@ TEST_F(UriMessagesTest, OverloadedVisitorDispatchesCorrectly) {
 }
 
 TEST_F(UriMessagesTest, DbQueryMsgHoldsData) {
-    http2server::Response resp;
+    auto resp = std::make_shared<http2server::Response>();
     
     DbQueryMsg query{"delete", "xyz789", resp};
     
@@ -82,10 +84,11 @@ TEST_F(UriMessagesTest, DbQueryMsgHoldsData) {
 }
 
 TEST_F(UriMessagesTest, DbResponseMsgHoldsError) {
-    http2server::Response resp;
+    auto resp = std::make_shared<http2server::Response>();
     
     DbResponseMsg response{"", false, "Not found", resp};
     
     EXPECT_FALSE(response.success);
     EXPECT_EQ(response.error, "Not found");
 }
+

@@ -3,6 +3,9 @@
 
 namespace astra::execution {
 
+StickyQueue::StickyQueue(const ::execution::StickyQueueConfig& config, IMessageHandler& handler)
+    : StickyQueue(config.num_workers(), handler) {}
+
 StickyQueue::StickyQueue(size_t num_workers, IMessageHandler& handler)
     : m_num_workers(num_workers)
     , m_handler(handler) {

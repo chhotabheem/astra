@@ -83,11 +83,11 @@ void NgHttp2Server::handle(const std::string& method, const std::string& path, S
             if (len > 0) {
                 ctx->request_data->body.append(reinterpret_cast<const char*>(data), len);
             } else {
-                // Request complete, create lightweight Request and Response handles
-                Request request(ctx->request_data);
-                Response response(ctx->response_handle);
+                // Request complete, create shared_ptr Request and Response
+                auto request = std::make_shared<Request>(ctx->request_data);
+                auto response = std::make_shared<Response>(ctx->response_handle);
                 
-                // Call user handler with references
+                // Call user handler with shared_ptr
                 ctx->handler(request, response);
             }
         });

@@ -1,5 +1,5 @@
 #pragma once
-#include <Config.h>
+#include "observability.pb.h"
 #include <Metrics.h>
 #include <Context.h>
 #include <memory>
@@ -43,7 +43,7 @@ constexpr uint32_t MAX_GAUGES = 256;
  */
 class ProviderImpl {
 public:
-    bool init(const InitParams& params);
+    bool init(const ::observability::Config& config);
     bool shutdown();
     
     // Metric registration (called at startup, returns ID)

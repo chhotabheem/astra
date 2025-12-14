@@ -1,5 +1,6 @@
 #include <Context.h>
 #include <Span.h>
+#include <Tracer.h>
 #include <Provider.h>
 #include <gtest/gtest.h>
 #include <set>
@@ -7,12 +8,17 @@
 
 class ContextExtendedTest : public ::testing::Test {
 protected:
+    std::shared_ptr<obs::Tracer> tracer;
+    
     void SetUp() override {
-        obs::Config config{.service_name = "context-test"};
+        ::observability::Config config;
+        config.set_service_name("context-test");
         obs::init(config);
+        tracer = obs::Provider::instance().get_tracer("context-test");
     }
     
     void TearDown() override {
+        tracer.reset();
         obs::shutdown();
     }
 };
@@ -36,11 +42,12 @@ TEST_F(ContextExtendedTest, SpanIdUniqueness1000Samples) {
     std::set<uint64_t> span_ids;
     
     for (int i = 0; i < 1000; ++i) {
-        auto span = obs::span("test");
-        auto ctx = span.context();
+        auto span = tracer->start_span("test");
+        auto ctx = span->context();
         
         EXPECT_EQ(span_ids.count(ctx.span_id.value), 0);
         span_ids.insert(ctx.span_id.value);
+        span->end();
     }
 }
 
@@ -222,12 +229,13 @@ TEST_F(ContextExtendedTest, TraceIdHexConversion) {
 
 // SpanId hex conversion
 TEST_F(ContextExtendedTest, SpanIdHexConversion) {
-    auto span = obs::span("test");
-    auto ctx = span.context();
+    auto span = tracer->start_span("test");
+    auto ctx = span->context();
     auto hex = ctx.span_id.to_hex();
     
     // Should be 16 hex characters
     EXPECT_EQ(hex.length(), 16);
+    span->end();
 }
 
 // Empty baggage header
@@ -266,3 +274,4 @@ TEST_F(ContextExtendedTest, ConcurrentContextCreation) {
         EXPECT_TRUE(contexts[i].is_valid());
     }
 }
+

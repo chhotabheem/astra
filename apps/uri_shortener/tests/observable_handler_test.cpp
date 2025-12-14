@@ -6,6 +6,8 @@
 #include <Message.h>
 #include <Span.h>
 #include <Context.h>
+#include <Http2Request.h>
+#include <Http2Response.h>
 #include <atomic>
 
 using namespace url_shortener;
@@ -39,8 +41,9 @@ protected:
 TEST_F(ObservableHandlerTest, DelegatesToInnerHandler) {
     ObservableMessageHandler observable(inner);
     
-    http2server::Response resp;
-    HttpRequestMsg http_msg{http2server::Request(), resp};
+    auto req = std::make_shared<http2server::Request>();
+    auto resp = std::make_shared<http2server::Response>();
+    HttpRequestMsg http_msg{req, resp};
     
     Message msg{42, obs::Context::create(), UriPayload{std::move(http_msg)}};
     
@@ -54,11 +57,12 @@ TEST_F(ObservableHandlerTest, HandlesMultipleMessages) {
     ObservableMessageHandler observable(inner);
     
     for (int i = 0; i < 5; ++i) {
-        http2server::Response resp;
+        auto req = std::make_shared<http2server::Request>();
+        auto resp = std::make_shared<http2server::Response>();
         Message msg{
             static_cast<uint64_t>(i),
             obs::Context::create(),
-            UriPayload{HttpRequestMsg{http2server::Request(), resp}}
+            UriPayload{HttpRequestMsg{req, resp}}
         };
         observable.handle(msg);
     }
@@ -70,8 +74,9 @@ TEST_F(ObservableHandlerTest, PropagatesExceptionsAfterRecording) {
     inner.m_should_throw = true;
     ObservableMessageHandler observable(inner);
     
-    http2server::Response resp;
-    Message msg{1, obs::Context::create(), UriPayload{HttpRequestMsg{http2server::Request(), resp}}};
+    auto req = std::make_shared<http2server::Request>();
+    auto resp = std::make_shared<http2server::Response>();
+    Message msg{1, obs::Context::create(), UriPayload{HttpRequestMsg{req, resp}}};
     
     EXPECT_THROW(observable.handle(msg), std::runtime_error);
     
@@ -90,3 +95,4 @@ TEST_F(ObservableHandlerTest, HandlesNonUriPayload) {
     
     EXPECT_EQ(inner.m_handled_count, 1);
 }
+

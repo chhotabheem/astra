@@ -1,6 +1,7 @@
 #include <Provider.h>
 #include <Metrics.h>
 #include <Span.h>
+#include <Tracer.h>
 #include <Log.h>
 #include <gtest/gtest.h>
 #include <thread>
@@ -17,7 +18,8 @@ protected:
 // Multiple init/shutdown cycles
 TEST_F(ProviderExtendedTest, MultipleInitShutdownCycles) {
     for (int i = 0; i < 10; ++i) {
-        obs::Config config{.service_name = "test"};
+        ::observability::Config config;
+        config.set_service_name("test");
         EXPECT_TRUE(obs::init(config));
         EXPECT_TRUE(obs::shutdown());
     }
@@ -30,7 +32,8 @@ TEST_F(ProviderExtendedTest, ConcurrentInit) {
     
     for (int i = 0; i < 10; ++i) {
         threads.emplace_back([&success_count]() {
-            obs::Config config{.service_name = "test"};
+            ::observability::Config config;
+            config.set_service_name("test");
             if (obs::init(config)) {
                 success_count++;
             }
@@ -47,14 +50,16 @@ TEST_F(ProviderExtendedTest, ConcurrentInit) {
 
 // Init with empty service name
 TEST_F(ProviderExtendedTest, InitWithEmptyServiceName) {
-    obs::Config config{.service_name = ""};
+    ::observability::Config config;
+    config.set_service_name("");
     EXPECT_TRUE(obs::init(config));  // Should handle gracefully
 }
 
 // Init with very long service name
 TEST_F(ProviderExtendedTest, InitWithLongServiceName) {
     std::string long_name(10000, 'a');
-    obs::Config config{.service_name = long_name};
+    ::observability::Config config;
+    config.set_service_name(long_name);
     EXPECT_TRUE(obs::init(config));
 }
 
@@ -65,7 +70,8 @@ TEST_F(ProviderExtendedTest, ShutdownWithoutInit) {
 
 // Shutdown idempotency
 TEST_F(ProviderExtendedTest, MultipleShutdowns) {
-    obs::Config config{.service_name = "test"};
+    ::observability::Config config;
+    config.set_service_name("test");
     EXPECT_TRUE(obs::init(config));
     EXPECT_TRUE(obs::shutdown());
     EXPECT_TRUE(obs::shutdown());  // Second shutdown should be safe
@@ -74,31 +80,35 @@ TEST_F(ProviderExtendedTest, MultipleShutdowns) {
 
 // Provider state after shutdown
 TEST_F(ProviderExtendedTest, OperationsAfterShutdown) {
-    obs::Config config{.service_name = "test"};
+    ::observability::Config config;
+    config.set_service_name("test");
     obs::init(config);
+    auto tracer = obs::Provider::instance().get_tracer("test");
     obs::shutdown();
     
     // Operations after shutdown should not crash
     auto counter = obs::counter("test.counter");
     EXPECT_NO_THROW(counter.inc());
     
-    auto span = obs::span("test");
-    EXPECT_NO_THROW(span.attr("key", "value"));
+    auto span = tracer->start_span("test");
+    EXPECT_NO_THROW(span->attr("key", "value"));
+    span->end();
 }
+
 
 // Config with special characters
 TEST_F(ProviderExtendedTest, ConfigWithSpecialCharacters) {
-    obs::Config config{
-        .service_name = "test-service!@#$%^&*()",
-        .service_version = "1.0.0-beta+sha.abc123",
-        .environment = "dev/staging/prod"
-    };
+    ::observability::Config config;
+    config.set_service_name("test-service!@#$%^&*()");
+    config.set_service_version("1.0.0-beta+sha.abc123");
+    config.set_environment("dev/staging/prod");
     EXPECT_TRUE(obs::init(config));
 }
 
 // Concurrent shutdown
 TEST_F(ProviderExtendedTest, ConcurrentShutdown) {
-    obs::Config config{.service_name = "test"};
+    ::observability::Config config;
+    config.set_service_name("test");
     obs::init(config);
     
     std::vector<std::thread> threads;
@@ -118,7 +128,8 @@ TEST_F(ProviderExtendedTest, ConcurrentShutdown) {
 
 // Init during shutdown race condition
 TEST_F(ProviderExtendedTest, InitDuringShutdownRace) {
-    obs::Config config{.service_name = "test"};
+    ::observability::Config config;
+    config.set_service_name("test");
     obs::init(config);
     
     std::thread shutdown_thread([]() {
@@ -126,7 +137,8 @@ TEST_F(ProviderExtendedTest, InitDuringShutdownRace) {
     });
     
     std::thread init_thread([]() {
-        obs::Config config{.service_name = "test2"};
+        ::observability::Config config;
+        config.set_service_name("test2");
         obs::init(config);
     });
     
@@ -160,42 +172,44 @@ TEST_F(ProviderExtendedTest, SingletonThreadSafety) {
 
 // Config validation - all fields populated
 TEST_F(ProviderExtendedTest, ConfigAllFieldsPopulated) {
-    obs::Config config{
-        .service_name = "my-service",
-        .service_version = "2.0.0",
-        .environment = "staging"
-    };
+    ::observability::Config config;
+    config.set_service_name("my-service");
+    config.set_service_version("2.0.0");
+    config.set_environment("staging");
     EXPECT_TRUE(obs::init(config));
 }
 
 // Re-init after failed shutdown
 TEST_F(ProviderExtendedTest, ReinitAfterShutdown) {
-    obs::Config config1{.service_name = "service1"};
+    ::observability::Config config1;
+    config1.set_service_name("service1");
     obs::init(config1);
     obs::shutdown();
     
-    obs::Config config2{.service_name = "service2"};
+    ::observability::Config config2;
+    config2.set_service_name("service2");
     EXPECT_TRUE(obs::init(config2));
 }
 
 // Config with minimal values
 TEST_F(ProviderExtendedTest, ConfigMinimalValues) {
-    obs::Config config{.service_name = "s"};  // Single character
+    ::observability::Config config;
+    config.set_service_name("s");  // Single character
     EXPECT_TRUE(obs::init(config));
 }
 
 // Config with Unicode
 TEST_F(ProviderExtendedTest, ConfigWithUnicode) {
-    obs::Config config{
-        .service_name = "服务-サービス-सेवा",
-        .environment = "производство"
-    };
+    ::observability::Config config;
+    config.set_service_name("服务-サービス-सेवा");
+    config.set_environment("производство");
     EXPECT_TRUE(obs::init(config));
 }
 
 // Thread-local storage cleanup verification
 TEST_F(ProviderExtendedTest, ThreadLocalStorageCleanup) {
-    obs::Config config{.service_name = "test"};
+    ::observability::Config config;
+    config.set_service_name("test");
     obs::init(config);
     
     // Create metrics in thread
@@ -211,15 +225,16 @@ TEST_F(ProviderExtendedTest, ThreadLocalStorageCleanup) {
 
 // Init with null/default config values
 TEST_F(ProviderExtendedTest, InitWithDefaultConfig) {
-    obs::Config config;  // All defaults
-    config.service_name = "test";  // Only set service name
+    ::observability::Config config;
+    config.set_service_name("test");  // Only set service name
     EXPECT_TRUE(obs::init(config));
 }
 
 // Rapid init/shutdown stress test
 TEST_F(ProviderExtendedTest, RapidInitShutdownStress) {
     for (int i = 0; i < 100; ++i) {
-        obs::Config config{.service_name = "test"};
+        ::observability::Config config;
+        config.set_service_name("test");
         obs::init(config);
         obs::shutdown();
     }

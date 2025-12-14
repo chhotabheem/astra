@@ -24,7 +24,8 @@ public:
     Server(const Server&) = delete;
     Server& operator=(const Server&) = delete;
 
-    using Handler = std::function<void(Request&, Response&)>;
+    /// Handler uses shared_ptr (same as router::Handler)
+    using Handler = router::Handler;
 
     /**
      * @brief Register a handler for a specific method and path

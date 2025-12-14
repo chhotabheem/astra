@@ -5,14 +5,14 @@
 #include <IRequest.h>
 #include <IResponse.h>
 #include <Context.h>
+#include <memory>
 
 namespace url_shortener {
 
 /**
  * @brief Request Handler for URI Shortener
  * 
- * Entry point for HTTP requests. Creates HttpRequestMsg and submits to pool.
- * This replaces direct handler registration with router.
+ * Entry point for HTTP requests. Submits to pool for async processing.
  */
 class UriShortenerRequestHandler {
 public:
@@ -21,20 +21,15 @@ public:
     /**
      * @brief Handle incoming HTTP request
      * 
-     * Creates HttpRequestMsg with copies of request/response,
-     * then submits to pool for async processing.
+     * Submits to pool for async processing.
      */
-    void handle(router::IRequest& req, router::IResponse& res);
+    void handle(std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res);
 
 private:
     astra::execution::StickyQueue& m_pool;
     
-    /**
-     * @brief Generate session ID from request
-     * 
-     * Uses request path hash for session affinity.
-     */
     uint64_t generate_session_id(router::IRequest& req);
 };
 
 } // namespace url_shortener
+
