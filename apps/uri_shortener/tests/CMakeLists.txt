@@ -82,3 +82,19 @@ target_include_directories(data_service_handler_test
 )
 gtest_discover_tests(data_service_handler_test)
 
+# Benchmarks (only when Benchmark is enabled)
+if(ENABLE_BENCHMARK)
+    # Service layer benchmarks
+    add_executable(service_benchmark ../service/tests/service_benchmark.cpp)
+    target_link_libraries(service_benchmark PRIVATE uri_shortener_domain benchmark::benchmark)
+    target_include_directories(service_benchmark PRIVATE ${CMAKE_SOURCE_DIR}/libs/core/outcome/include)
+    add_test(NAME service_benchmark COMMAND service_benchmark)
+    set_tests_properties(service_benchmark PROPERTIES LABELS bench)
+    
+    # Domain layer benchmarks
+    add_executable(domain_benchmark ../domain/tests/domain_benchmark.cpp)
+    target_link_libraries(domain_benchmark PRIVATE uri_shortener_domain benchmark::benchmark)
+    target_include_directories(domain_benchmark PRIVATE ${CMAKE_SOURCE_DIR}/libs/core/outcome/include)
+    add_test(NAME domain_benchmark COMMAND domain_benchmark)
+    set_tests_properties(domain_benchmark PROPERTIES LABELS bench)
+endif()

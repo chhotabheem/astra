@@ -64,10 +64,11 @@ void Router::add_route(std::string_view method, std::string_view path, Handler h
             current = current->wildcard_child.get();
         } else {
             // Static Segment
-            if (current->children.find(segment) == current->children.end()) {
-                current->children[segment] = std::make_unique<Node>();
+            std::string segment_str(segment);
+            if (current->children.find(segment_str) == current->children.end()) {
+                current->children[segment_str] = std::make_unique<Node>();
             }
-            current = current->children[segment].get();
+            current = current->children[segment_str].get();
         }
     }
     
@@ -88,7 +89,8 @@ Router::MatchResult Router::match(std::string_view method, std::string_view path
     for (const auto& segment : segments) {
         if (segment.empty()) continue;
         
-        auto child_it = current->children.find(segment);
+        std::string segment_str(segment);
+        auto child_it = current->children.find(segment_str);
         if (child_it != current->children.end()) {
             current = child_it->second.get();
         } else if (current->wildcard_child) {

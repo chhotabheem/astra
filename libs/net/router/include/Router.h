@@ -34,7 +34,7 @@ public:
 
 private:
     struct Node {
-        std::unordered_map<std::string_view, std::unique_ptr<Node>> children;
+        std::unordered_map<std::string, std::unique_ptr<Node>> children;
         std::unique_ptr<Node> wildcard_child;
         std::string param_name;
         Handler handler;

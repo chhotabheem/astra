@@ -68,3 +68,11 @@ astra_add_test(
     LIBRARIES http2server
     INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
+
+# Benchmarks (only when Benchmark is enabled)
+if(ENABLE_BENCHMARK)
+    add_executable(http2_server_benchmark tests/http2_server_benchmark.cpp)
+    target_link_libraries(http2_server_benchmark PRIVATE http2server benchmark::benchmark)
+    add_test(NAME http2_server_benchmark COMMAND http2_server_benchmark)
+    set_tests_properties(http2_server_benchmark PROPERTIES LABELS bench)
+endif()

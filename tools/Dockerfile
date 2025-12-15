@@ -85,6 +85,17 @@ RUN chmod +x /tmp/build-googletest.sh && \
     rm /tmp/build-googletest.sh
 
 # -----------------------------------------------------------------------------
+# Build Google Benchmark (for performance testing)
+# -----------------------------------------------------------------------------
+COPY scripts/build-benchmark.sh /tmp/
+RUN chmod +x /tmp/build-benchmark.sh && \
+    /tmp/build-benchmark.sh && \
+    rm /tmp/build-benchmark.sh
+
+# NOTE: FuzzTest is downloaded via CMake FetchContent when ENABLE_FUZZTEST=ON
+# No pre-installation needed
+
+# -----------------------------------------------------------------------------
 # Build MongoDB C++ Driver (uses system C driver)
 # -----------------------------------------------------------------------------
 COPY scripts/build-mongo-cxx-driver.sh /tmp/

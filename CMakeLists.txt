@@ -32,6 +32,12 @@ find_package(GTest REQUIRED)  # Pre-installed in Docker image
 include(AddAstraTest)
 include(Sanitizers)
 
+# FuzzTest Support (downloads via FetchContent when ENABLE_FUZZTEST=ON)
+include(FuzzTest)
+
+# Benchmark Support (uses pre-installed Google Benchmark when ENABLE_BENCHMARK=ON)
+include(Benchmark)
+
 # Subdirectories
 add_subdirectory(libs)
 add_subdirectory(apps)

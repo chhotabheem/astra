@@ -3,6 +3,7 @@ find_package(Boost REQUIRED)
 
 # Create library
 add_library(json STATIC
+    src/boost_json_impl.cpp
     src/JsonWriter.cpp
     src/JsonDocument.cpp
 )
@@ -48,3 +49,19 @@ target_link_libraries(test_json_document
 include(GoogleTest)
 gtest_discover_tests(test_json_writer)
 gtest_discover_tests(test_json_document)
+
+# Fuzz tests (only when FuzzTest is enabled)
+if(ENABLE_FUZZTEST)
+    add_executable(json_fuzz_test tests/json_fuzz_test.cpp)
+    target_link_libraries(json_fuzz_test PRIVATE json)
+    link_fuzztest(json_fuzz_test)
+    gtest_discover_tests(json_fuzz_test PROPERTIES LABELS fuzz)
+endif()
+
+# Benchmarks (only when Benchmark is enabled)
+if(ENABLE_BENCHMARK)
+    add_executable(json_benchmark tests/json_benchmark.cpp)
+    target_link_libraries(json_benchmark PRIVATE json benchmark::benchmark)
+    add_test(NAME json_benchmark COMMAND json_benchmark)
+    set_tests_properties(json_benchmark PROPERTIES LABELS bench)
+endif()

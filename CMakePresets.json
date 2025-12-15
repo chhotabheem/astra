@@ -122,6 +122,38 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "SANITIZE_MODE": "undefined"
       }
+    },
+    {
+      "name": "clang-unit-fuzz",
+      "inherits": "clang-base",
+      "displayName": "Clang Unit Fuzz Testing",
+      "description": "Build with FuzzTest for CI - fuzz tests run quickly as unit tests",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "ENABLE_FUZZTEST": "ON"
+      }
+    },
+    {
+      "name": "clang-deep-fuzz",
+      "inherits": "clang-base",
+      "displayName": "Clang Deep Fuzz Testing",
+      "description": "Build with FuzzTest for deep bug hunting with coverage instrumentation",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "ENABLE_FUZZTEST": "ON",
+        "FUZZTEST_FUZZING_MODE": "ON",
+        "SANITIZE_MODE": "address"
+      }
+    },
+    {
+      "name": "clang-bench",
+      "inherits": "clang-base",
+      "displayName": "Clang Benchmarks",
+      "description": "Build with Google Benchmark for performance testing",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "ENABLE_BENCHMARK": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -160,6 +192,18 @@
     {
       "name": "clang-ubsan",
       "configurePreset": "clang-ubsan"
+    },
+    {
+      "name": "clang-unit-fuzz",
+      "configurePreset": "clang-unit-fuzz"
+    },
+    {
+      "name": "clang-deep-fuzz",
+      "configurePreset": "clang-deep-fuzz"
+    },
+    {
+      "name": "clang-bench",
+      "configurePreset": "clang-bench"
     }
   ],
   "testPresets": [
@@ -224,6 +268,42 @@
       "configurePreset": "clang-ubsan",
       "output": {
         "outputOnFailure": true
+      }
+    },
+    {
+      "name": "clang-unit-fuzz",
+      "configurePreset": "clang-unit-fuzz",
+      "output": {
+        "outputOnFailure": true
+      },
+      "filter": {
+        "include": {
+          "label": "fuzz"
+        }
+      }
+    },
+    {
+      "name": "clang-deep-fuzz",
+      "configurePreset": "clang-deep-fuzz",
+      "output": {
+        "outputOnFailure": true
+      },
+      "filter": {
+        "include": {
+          "label": "fuzz"
+        }
+      }
+    },
+    {
+      "name": "clang-bench",
+      "configurePreset": "clang-bench",
+      "output": {
+        "outputOnFailure": true
+      },
+      "filter": {
+        "include": {
+          "label": "bench"
+        }
       }
     }
   ]
