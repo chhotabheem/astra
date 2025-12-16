@@ -69,36 +69,36 @@ bool Span::is_ended() const {
 }
 
 // Attributes
-Span& Span::attr(std::string_view key, std::string_view value) {
+Span& Span::attr(const std::string& key, const std::string& value) {
     if (m_impl && m_impl->otel_span && !m_ended) {
-        m_impl->otel_span->SetAttribute(std::string(key), std::string(value));
+        m_impl->otel_span->SetAttribute(key, value);
     }
     return *this;
 }
 
-Span& Span::attr(std::string_view key, int64_t value) {
+Span& Span::attr(const std::string& key, int64_t value) {
     if (m_impl && m_impl->otel_span && !m_ended) {
-        m_impl->otel_span->SetAttribute(std::string(key), value);
+        m_impl->otel_span->SetAttribute(key, value);
     }
     return *this;
 }
 
-Span& Span::attr(std::string_view key, double value) {
+Span& Span::attr(const std::string& key, double value) {
     if (m_impl && m_impl->otel_span && !m_ended) {
-        m_impl->otel_span->SetAttribute(std::string(key), value);
+        m_impl->otel_span->SetAttribute(key, value);
     }
     return *this;
 }
 
-Span& Span::attr(std::string_view key, bool value) {
+Span& Span::attr(const std::string& key, bool value) {
     if (m_impl && m_impl->otel_span && !m_ended) {
-        m_impl->otel_span->SetAttribute(std::string(key), value);
+        m_impl->otel_span->SetAttribute(key, value);
     }
     return *this;
 }
 
 // Status
-Span& Span::set_status(StatusCode code, std::string_view message) {
+Span& Span::set_status(StatusCode code, const std::string& message) {
     if (m_impl && m_impl->otel_span && !m_ended) {
         trace_api::StatusCode otel_code;
         switch (code) {
@@ -114,7 +114,7 @@ Span& Span::set_status(StatusCode code, std::string_view message) {
             default:
                 otel_code = trace_api::StatusCode::kUnset;
         }
-        m_impl->otel_span->SetStatus(otel_code, std::string(message));
+        m_impl->otel_span->SetStatus(otel_code, message);
     }
     return *this;
 }
@@ -136,28 +136,21 @@ Span& Span::kind(SpanKind kind) {
 }
 
 // Events
-Span& Span::add_event(std::string_view name) {
+Span& Span::add_event(const std::string& name) {
     if (m_impl && m_impl->otel_span && !m_ended) {
-        m_impl->otel_span->AddEvent(std::string(name));
+        m_impl->otel_span->AddEvent(name);
     }
     return *this;
 }
 
-Span& Span::add_event(std::string_view name, Attributes attrs) {
+Span& Span::add_event(const std::string& name, Attributes attrs) {
     if (m_impl && m_impl->otel_span && !m_ended) {
-        // Store strings to ensure they outlive the OTel call
-        std::vector<std::pair<std::string, std::string>> stored_attrs;
-        stored_attrs.reserve(attrs.size());
-        for (const auto& attr : attrs) {
-            stored_attrs.emplace_back(std::string(attr.first), std::string(attr.second));
-        }
-        
-        // Build OTel attributes map using stored strings
+        // Build OTel attributes map
         std::map<std::string, opentelemetry::common::AttributeValue> otel_attrs;
-        for (const auto& attr : stored_attrs) {
+        for (const auto& attr : attrs) {
             otel_attrs[attr.first] = attr.second;
         }
-        m_impl->otel_span->AddEvent(std::string(name), otel_attrs);
+        m_impl->otel_span->AddEvent(name, otel_attrs);
     }
     return *this;
 }

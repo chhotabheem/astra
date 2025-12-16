@@ -9,25 +9,25 @@ namespace astra::router {
 Router::Router() = default;
 Router::~Router() = default;
 
-void Router::get(std::string_view path, Handler handler) {
+void Router::get(const std::string& path, Handler handler) {
     add_route("GET", path, std::move(handler));
 }
 
-void Router::post(std::string_view path, Handler handler) {
+void Router::post(const std::string& path, Handler handler) {
     add_route("POST", path, std::move(handler));
 }
 
-void Router::put(std::string_view path, Handler handler) {
+void Router::put(const std::string& path, Handler handler) {
     add_route("PUT", path, std::move(handler));
 }
 
-void Router::del(std::string_view path, Handler handler) {
+void Router::del(const std::string& path, Handler handler) {
     add_route("DELETE", path, std::move(handler));
 }
 
 // Helper to split path into segments
-std::vector<std::string_view> split_path(std::string_view path) {
-    std::vector<std::string_view> segments;
+std::vector<std::string> split_path(const std::string& path) {
+    std::vector<std::string> segments;
     size_t start = 0;
     if (!path.empty() && path[0] == '/') start = 1; // Skip leading slash
     
@@ -43,13 +43,12 @@ std::vector<std::string_view> split_path(std::string_view path) {
     return segments;
 }
 
-void Router::add_route(std::string_view method, std::string_view path, Handler handler) {
-    std::string method_str(method);
-    if (m_roots.find(method_str) == m_roots.end()) {
-        m_roots[method_str] = std::make_unique<Node>();
+void Router::add_route(const std::string& method, const std::string& path, Handler handler) {
+    if (m_roots.find(method) == m_roots.end()) {
+        m_roots[method] = std::make_unique<Node>();
     }
     
-    Node* current = m_roots[method_str].get();
+    Node* current = m_roots[method].get();
     auto segments = split_path(path);
     
     for (const auto& segment : segments) {
@@ -64,20 +63,18 @@ void Router::add_route(std::string_view method, std::string_view path, Handler h
             current = current->wildcard_child.get();
         } else {
             // Static Segment
-            std::string segment_str(segment);
-            if (current->children.find(segment_str) == current->children.end()) {
-                current->children[segment_str] = std::make_unique<Node>();
+            if (current->children.find(segment) == current->children.end()) {
+                current->children[segment] = std::make_unique<Node>();
             }
-            current = current->children[segment_str].get();
+            current = current->children[segment].get();
         }
     }
     
     current->handler = std::move(handler);
 }
 
-Router::MatchResult Router::match(std::string_view method, std::string_view path) const {
-    std::string method_str(method);
-    auto it = m_roots.find(method_str);
+Router::MatchResult Router::match(const std::string& method, const std::string& path) const {
+    auto it = m_roots.find(method);
     if (it == m_roots.end()) {
         return {nullptr, {}};
     }
@@ -89,12 +86,11 @@ Router::MatchResult Router::match(std::string_view method, std::string_view path
     for (const auto& segment : segments) {
         if (segment.empty()) continue;
         
-        std::string segment_str(segment);
-        auto child_it = current->children.find(segment_str);
+        auto child_it = current->children.find(segment);
         if (child_it != current->children.end()) {
             current = child_it->second.get();
         } else if (current->wildcard_child) {
-            params[std::string(current->wildcard_child->param_name)] = std::string(segment);
+            params[current->wildcard_child->param_name] = segment;
             current = current->wildcard_child.get();
         } else {
             return {nullptr, {}};
@@ -122,4 +118,3 @@ void Router::dispatch(std::shared_ptr<IRequest> req, std::shared_ptr<IResponse> 
 }
 
 } // namespace astra::router
-

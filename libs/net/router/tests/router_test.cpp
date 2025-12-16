@@ -18,24 +18,25 @@ public:
     MockRequest(std::string path, std::string method) 
         : m_path(std::move(path)), m_method(std::move(method)) {}
     
-    std::string_view path() const override { return m_path; }
-    std::string_view method() const override { return m_method; }
-    std::string_view body() const override { return ""; }
-    std::string_view header(std::string_view) const override { return ""; }
-    std::string_view path_param(std::string_view) const override { return ""; }
-    std::string_view query_param(std::string_view) const override { return ""; }
+    const std::string& path() const override { return m_path; }
+    const std::string& method() const override { return m_method; }
+    const std::string& body() const override { return m_empty; }
+    std::string header(const std::string&) const override { return ""; }
+    std::string path_param(const std::string&) const override { return ""; }
+    std::string query_param(const std::string&) const override { return ""; }
     void set_path_params(std::unordered_map<std::string, std::string>) override {}
     
 private:
     std::string m_path;
     std::string m_method;
+    std::string m_empty;
 };
 
 class MockResponse : public IResponse {
 public:
     void set_status(int) noexcept override {}
-    void set_header(std::string_view, std::string_view) override {}
-    void write(std::string_view) override {}
+    void set_header(const std::string&, const std::string&) override {}
+    void write(const std::string&) override {}
     void close() override {}
     bool is_alive() const noexcept override { return true; }
 };

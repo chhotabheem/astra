@@ -3,7 +3,6 @@
 #include "IRequest.h"
 #include "IResponse.h"
 #include <vector>
-#include <string_view>
 #include <string>
 #include <unordered_map>
 #include <memory>
@@ -19,17 +18,17 @@ public:
     Router();
     ~Router();
     
-    void get(std::string_view path, Handler handler);
-    void post(std::string_view path, Handler handler);
-    void put(std::string_view path, Handler handler);
-    void del(std::string_view path, Handler handler);
+    void get(const std::string& path, Handler handler);
+    void post(const std::string& path, Handler handler);
+    void put(const std::string& path, Handler handler);
+    void del(const std::string& path, Handler handler);
     
     struct MatchResult {
         Handler handler;
         std::unordered_map<std::string, std::string> params;
     };
     
-    [[nodiscard]] MatchResult match(std::string_view method, std::string_view path) const;
+    [[nodiscard]] MatchResult match(const std::string& method, const std::string& path) const;
     void dispatch(std::shared_ptr<IRequest> req, std::shared_ptr<IResponse> res);
 
 private:
@@ -42,7 +41,7 @@ private:
 
     std::unordered_map<std::string, std::unique_ptr<Node>> m_roots;
 
-    void add_route(std::string_view method, std::string_view path, Handler handler);
+    void add_route(const std::string& method, const std::string& path, Handler handler);
 };
 
 } // namespace astra::router

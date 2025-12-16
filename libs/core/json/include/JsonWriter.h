@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <string_view>
 #include <memory>
 
 namespace astra::json {
@@ -16,16 +15,15 @@ public:
     JsonWriter(JsonWriter&&) noexcept;
     JsonWriter& operator=(JsonWriter&&) noexcept;
 
-    void add(std::string_view key, std::string_view value);
-    void add(std::string_view key, const std::string& value);
-    void add(std::string_view key, const char* value);
-    void add(std::string_view key, int value);
-    void add(std::string_view key, long value);
-    void add(std::string_view key, unsigned long value);
-    void add(std::string_view key, bool value);
-    void add(std::string_view key, double value);
+    void add(const std::string& key, const std::string& value);
+    void add(const std::string& key, const char* value);
+    void add(const std::string& key, int value);
+    void add(const std::string& key, long value);
+    void add(const std::string& key, unsigned long value);
+    void add(const std::string& key, bool value);
+    void add(const std::string& key, double value);
 
-    void start_object(std::string_view key);
+    void start_object(const std::string& key);
     void end_object();
 
     std::string get_string() const;

@@ -32,7 +32,10 @@ private:
     size_t m_length;
     std::mt19937 m_gen;
     std::uniform_int_distribution<size_t> m_dist;
-    static constexpr std::string_view m_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    static const std::string m_chars;
 };
+
+// Define static member in cpp file would be better, but for header-only:
+inline const std::string RandomCodeGenerator::m_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 } // namespace url_shortener::infrastructure

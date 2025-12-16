@@ -83,16 +83,16 @@ ZookeeperClient::ZookeeperClient(const std::string& connection_string)
 
 ZookeeperClient::~ZookeeperClient() = default;
 
-bool ZookeeperClient::create(std::string_view path, std::string_view value, bool ephemeral) {
-    return impl_->create(std::string(path), std::string(value), ephemeral);
+bool ZookeeperClient::create(const std::string& path, const std::string& value, bool ephemeral) {
+    return impl_->create(path, value, ephemeral);
 }
 
-std::string ZookeeperClient::get(std::string_view path) {
-    return impl_->get(std::string(path));
+std::string ZookeeperClient::get(const std::string& path) {
+    return impl_->get(path);
 }
 
-bool ZookeeperClient::exists(std::string_view path) {
-    return impl_->exists(std::string(path));
+bool ZookeeperClient::exists(const std::string& path) {
+    return impl_->exists(path);
 }
 
 } // namespace astra::zookeeper

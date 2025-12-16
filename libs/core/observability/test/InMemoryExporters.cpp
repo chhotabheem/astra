@@ -30,7 +30,7 @@ std::vector<InMemorySpanExporter::Span> InMemorySpanExporter::get_spans() const 
     return m_spans;
 }
 
-InMemorySpanExporter::Span InMemorySpanExporter::find_span(std::string_view name) const {
+InMemorySpanExporter::Span InMemorySpanExporter::find_span(const std::string& name) const {
     std::lock_guard lock(m_mutex);
     for (const auto& span : m_spans) {
         if (span.name == name) {

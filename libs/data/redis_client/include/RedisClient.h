@@ -19,10 +19,10 @@ public:
     RedisClient& operator=(const RedisClient&) = delete;
 
     // Basic operations
-    void set(std::string_view key, std::string_view value) override;
-    [[nodiscard]] std::optional<std::string> get(std::string_view key) override;
-    bool del(std::string_view key) override;
-    long long incr(std::string_view key) override;
+    void set(const std::string& key, const std::string& value) override;
+    [[nodiscard]] std::optional<std::string> get(const std::string& key) override;
+    bool del(const std::string& key) override;
+    long long incr(const std::string& key) override;
     
     // Check connection
     bool ping() override;

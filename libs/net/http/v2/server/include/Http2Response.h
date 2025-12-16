@@ -3,7 +3,6 @@
 #include "IResponse.h"
 #include <memory>
 #include <string>
-#include <string_view>
 #include <map>
 #include <optional>
 #include <IScopedResource.h>
@@ -25,8 +24,8 @@ public:
     ~ServerResponse() override = default;
 
     void set_status(int code) noexcept override;
-    void set_header(std::string_view key, std::string_view value) override;
-    void write(std::string_view data) override;
+    void set_header(const std::string& key, const std::string& value) override;
+    void write(const std::string& data) override;
     void close() override;
     [[nodiscard]] bool is_alive() const noexcept override;
     

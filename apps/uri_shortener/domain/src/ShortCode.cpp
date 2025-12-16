@@ -7,7 +7,7 @@
 
 namespace url_shortener::domain {
 
-ShortCode::CreateResult ShortCode::create(std::string_view raw) {
+ShortCode::CreateResult ShortCode::create(const std::string& raw) {
     // Validate length
     if (raw.length() < kMinCodeLength || raw.length() > kMaxCodeLength) {
         return CreateResult::Err(DomainError::InvalidShortCode);
@@ -22,7 +22,7 @@ ShortCode::CreateResult ShortCode::create(std::string_view raw) {
         return CreateResult::Err(DomainError::InvalidShortCode);
     }
 
-    return CreateResult::Ok(ShortCode(std::string(raw)));
+    return CreateResult::Ok(ShortCode(raw));
 }
 
 ShortCode ShortCode::from_trusted(std::string raw) {

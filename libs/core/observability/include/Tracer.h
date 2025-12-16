@@ -3,7 +3,6 @@
 #include <Context.h>
 #include <memory>
 #include <string>
-#include <string_view>
 
 namespace astra::observability {
 
@@ -25,13 +24,13 @@ public:
     virtual ~Tracer() = default;
     
     // Create a new span (uses current active context as parent)
-    [[nodiscard]] virtual std::shared_ptr<Span> start_span(std::string_view name) = 0;
+    [[nodiscard]] virtual std::shared_ptr<Span> start_span(const std::string& name) = 0;
     
     // Create a new span with explicit parent context
-    [[nodiscard]] virtual std::shared_ptr<Span> start_span(std::string_view name, const Context& parent) = 0;
+    [[nodiscard]] virtual std::shared_ptr<Span> start_span(const std::string& name, const Context& parent) = 0;
     
     // Get tracer name/service
-    [[nodiscard]] virtual std::string_view name() const = 0;
+    [[nodiscard]] virtual const std::string& name() const = 0;
 };
 
 } // namespace astra::observability

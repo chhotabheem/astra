@@ -48,9 +48,9 @@ public:
     
     // Metric registration (called at startup, returns ID)
     // Creates OTel instrument immediately - thread safe via mutex
-    uint32_t register_counter(std::string_view name, Unit unit);
-    uint32_t register_histogram(std::string_view name, Unit unit);
-    uint32_t register_gauge(std::string_view name, Unit unit);
+    uint32_t register_counter(const std::string& name, Unit unit);
+    uint32_t register_histogram(const std::string& name, Unit unit);
+    uint32_t register_gauge(const std::string& name, Unit unit);
     
     // Get OTel instrument (hot path, no locks)
     // OTel instruments are thread-safe for Add/Record operations

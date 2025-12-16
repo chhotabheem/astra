@@ -17,7 +17,7 @@ namespace {
         std::vector<std::pair<std::string, std::string>> vec;
         vec.reserve(attrs.size());
         for (const auto& [key, val] : attrs) {
-            vec.emplace_back(std::string(key), std::string(val));
+            vec.emplace_back(key, val);
         }
         return vec;
     }
@@ -42,12 +42,12 @@ void Counter::inc(uint64_t delta, Attributes attrs) const noexcept {
     }
 }
 
-Counter register_counter(std::string_view name, Unit unit) {
+Counter register_counter(const std::string& name, Unit unit) {
     uint32_t id = Provider::instance().impl().register_counter(name, unit);
     return Counter{id};
 }
 
-Counter counter(std::string_view name, Unit unit) {
+Counter counter(const std::string& name, Unit unit) {
     // Thread-local cache for ad-hoc counters
     thread_local std::unordered_map<std::string, Counter> cache;
     
@@ -56,14 +56,13 @@ Counter counter(std::string_view name, Unit unit) {
         cache.clear();  // Simple strategy: clear entire cache
     }
     
-    std::string key(name);
-    auto it = cache.find(key);
+    auto it = cache.find(name);
     if (it != cache.end()) {
         return it->second;
     }
     
     auto c = register_counter(name, unit);
-    cache[key] = c;
+    cache[name] = c;
     return c;
 }
 
@@ -89,12 +88,12 @@ void Histogram::record(double value, Attributes attrs) const noexcept {
     }
 }
 
-Histogram register_histogram(std::string_view name, Unit unit) {
+Histogram register_histogram(const std::string& name, Unit unit) {
     uint32_t id = Provider::instance().impl().register_histogram(name, unit);
     return Histogram{id};
 }
 
-Histogram histogram(std::string_view name, Unit unit) {
+Histogram histogram(const std::string& name, Unit unit) {
     thread_local std::unordered_map<std::string, Histogram> cache;
     
     // Fix #3: Prevent unbounded growth
@@ -102,14 +101,13 @@ Histogram histogram(std::string_view name, Unit unit) {
         cache.clear();
     }
     
-    std::string key(name);
-    auto it = cache.find(key);
+    auto it = cache.find(name);
     if (it != cache.end()) {
         return it->second;
     }
     
     auto h = register_histogram(name, unit);
-    cache[key] = h;
+    cache[name] = h;
     return h;
 }
 
@@ -134,7 +132,7 @@ void DurationHistogram::record_ms(double ms, Attributes attrs) const noexcept {
     }
 }
 
-DurationHistogram register_duration_histogram(std::string_view name) {
+DurationHistogram register_duration_histogram(const std::string& name) {
     uint32_t id = Provider::instance().impl().register_histogram(name, Unit::Milliseconds);
     return DurationHistogram{id};
 }
@@ -192,12 +190,12 @@ void Gauge::add(int64_t delta, Attributes attrs) const noexcept {
     }
 }
 
-Gauge register_gauge(std::string_view name, Unit unit) {
+Gauge register_gauge(const std::string& name, Unit unit) {
     uint32_t id = Provider::instance().impl().register_gauge(name, unit);
     return Gauge{id};
 }
 
-Gauge gauge(std::string_view name, Unit unit) {
+Gauge gauge(const std::string& name, Unit unit) {
     thread_local std::unordered_map<std::string, Gauge> cache;
     
     // Fix #3: Prevent unbounded growth
@@ -205,14 +203,13 @@ Gauge gauge(std::string_view name, Unit unit) {
         cache.clear();
     }
     
-    std::string key(name);
-    auto it = cache.find(key);
+    auto it = cache.find(name);
     if (it != cache.end()) {
         return it->second;
     }
     
     auto g = register_gauge(name, unit);
-    cache[key] = g;
+    cache[name] = g;
     return g;
 }
 

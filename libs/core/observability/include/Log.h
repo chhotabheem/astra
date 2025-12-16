@@ -1,10 +1,9 @@
 #pragma once
 
-#include <string_view>
+#include <string>
 #include <initializer_list>
 #include <utility>
 #include <map>
-#include <string>
 
 namespace astra::observability {
 
@@ -18,34 +17,34 @@ enum class Level {
     Fatal = 21   // FATAL
 };
 
-// Attributes for logs (string_view for zero-copy at call site)
-using Attributes = std::initializer_list<std::pair<std::string_view, std::string_view>>;
+// Attributes for logs
+using Attributes = std::initializer_list<std::pair<std::string, std::string>>;
 
 // Core logging function
-void log(Level level, std::string_view message, Attributes attrs = {});
+void log(Level level, const std::string& message, Attributes attrs = {});
 
 // Convenience functions
-inline void trace(std::string_view msg, Attributes attrs = {}) {
+inline void trace(const std::string& msg, Attributes attrs = {}) {
     log(Level::Trace, msg, attrs);
 }
 
-inline void debug(std::string_view msg, Attributes attrs = {}) {
+inline void debug(const std::string& msg, Attributes attrs = {}) {
     log(Level::Debug, msg, attrs);
 }
 
-inline void info(std::string_view msg, Attributes attrs = {}) {
+inline void info(const std::string& msg, Attributes attrs = {}) {
     log(Level::Info, msg, attrs);
 }
 
-inline void warn(std::string_view msg, Attributes attrs = {}) {
+inline void warn(const std::string& msg, Attributes attrs = {}) {
     log(Level::Warn, msg, attrs);
 }
 
-inline void error(std::string_view msg, Attributes attrs = {}) {
+inline void error(const std::string& msg, Attributes attrs = {}) {
     log(Level::Error, msg, attrs);
 }
 
-inline void fatal(std::string_view msg, Attributes attrs = {}) {
+inline void fatal(const std::string& msg, Attributes attrs = {}) {
     log(Level::Fatal, msg, attrs);
 }
 

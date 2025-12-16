@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <string>
-#include <string_view>
 #include <map>
 
 namespace astra::observability {
@@ -48,10 +47,10 @@ struct Context {
     [[nodiscard]] Context child(SpanId new_span) const;
     
     [[nodiscard]] std::string to_traceparent() const;
-    [[nodiscard]] static Context from_traceparent(std::string_view header);
+    [[nodiscard]] static Context from_traceparent(const std::string& header);
     
     [[nodiscard]] std::string to_baggage_header() const;
-    static void parse_baggage(Context& ctx, std::string_view header);
+    static void parse_baggage(Context& ctx, const std::string& header);
 };
 
 } // namespace astra::observability

@@ -24,40 +24,36 @@ JsonWriter::~JsonWriter() = default;
 JsonWriter::JsonWriter(JsonWriter&&) noexcept = default;
 JsonWriter& JsonWriter::operator=(JsonWriter&&) noexcept = default;
 
-void JsonWriter::add(std::string_view key, std::string_view value) {
+void JsonWriter::add(const std::string& key, const std::string& value) {
     m_impl->stack.back().second.emplace(key, value);
 }
 
-void JsonWriter::add(std::string_view key, const std::string& value) {
+void JsonWriter::add(const std::string& key, const char* value) {
     m_impl->stack.back().second.emplace(key, value);
 }
 
-void JsonWriter::add(std::string_view key, const char* value) {
+void JsonWriter::add(const std::string& key, int value) {
     m_impl->stack.back().second.emplace(key, value);
 }
 
-void JsonWriter::add(std::string_view key, int value) {
+void JsonWriter::add(const std::string& key, long value) {
     m_impl->stack.back().second.emplace(key, value);
 }
 
-void JsonWriter::add(std::string_view key, long value) {
+void JsonWriter::add(const std::string& key, unsigned long value) {
     m_impl->stack.back().second.emplace(key, value);
 }
 
-void JsonWriter::add(std::string_view key, unsigned long value) {
+void JsonWriter::add(const std::string& key, bool value) {
     m_impl->stack.back().second.emplace(key, value);
 }
 
-void JsonWriter::add(std::string_view key, bool value) {
+void JsonWriter::add(const std::string& key, double value) {
     m_impl->stack.back().second.emplace(key, value);
 }
 
-void JsonWriter::add(std::string_view key, double value) {
-    m_impl->stack.back().second.emplace(key, value);
-}
-
-void JsonWriter::start_object(std::string_view key) {
-    m_impl->stack.emplace_back(std::string(key), boost::json::object());
+void JsonWriter::start_object(const std::string& key) {
+    m_impl->stack.emplace_back(key, boost::json::object());
 }
 
 void JsonWriter::end_object() {

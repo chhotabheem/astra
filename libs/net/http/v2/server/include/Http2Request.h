@@ -3,7 +3,7 @@
 #include "IRequest.h"
 #include <memory>
 #include <unordered_map>
-#include <string_view>
+#include <string>
 
 namespace astra::http2 {
 
@@ -31,18 +31,19 @@ public:
     
     ~Request() override = default;
 
-    [[nodiscard]] std::string_view method() const override;
-    [[nodiscard]] std::string_view path() const override;
-    [[nodiscard]] std::string_view header(std::string_view key) const override;
-    [[nodiscard]] std::string_view body() const override;
+    [[nodiscard]] const std::string& method() const override;
+    [[nodiscard]] const std::string& path() const override;
+    [[nodiscard]] std::string header(const std::string& key) const override;
+    [[nodiscard]] const std::string& body() const override;
 
-    [[nodiscard]] std::string_view path_param(std::string_view key) const override;
-    [[nodiscard]] std::string_view query_param(std::string_view key) const override;
+    [[nodiscard]] std::string path_param(const std::string& key) const override;
+    [[nodiscard]] std::string query_param(const std::string& key) const override;
 
     void set_path_params(std::unordered_map<std::string, std::string> params) override;
 
 private:
     std::weak_ptr<RequestData> m_data;
+    mutable std::string m_empty;  // For returning empty reference
 };
 
 } // namespace astra::http2

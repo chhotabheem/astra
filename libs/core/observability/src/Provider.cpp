@@ -22,8 +22,8 @@ bool Provider::shutdown() {
     return m_impl->shutdown();
 }
 
-std::shared_ptr<Tracer> Provider::get_tracer(std::string_view name) {
-    return std::make_shared<TracerImpl>(std::string(name), *m_impl);
+std::shared_ptr<Tracer> Provider::get_tracer(const std::string& name) {
+    return std::make_shared<TracerImpl>(name, *m_impl);
 }
 
 Provider::Impl& Provider::impl() {

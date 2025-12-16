@@ -9,17 +9,17 @@ namespace url_shortener::domain {
 namespace {
 
 /// C++17 compatible starts_with helper
-bool starts_with(std::string_view str, std::string_view prefix) {
+bool starts_with(const std::string& str, const std::string& prefix) {
     return str.size() >= prefix.size() && str.substr(0, prefix.size()) == prefix;
 }
 
 /// Check if URL starts with valid scheme
-bool has_valid_scheme(std::string_view url) {
+bool has_valid_scheme(const std::string& url) {
     return starts_with(url, "http://") || starts_with(url, "https://");
 }
 
 /// Get the part after the scheme
-std::string_view get_authority_and_path(std::string_view url) {
+std::string get_authority_and_path(const std::string& url) {
     if (starts_with(url, "https://")) {
         return url.substr(8);
     }
@@ -30,23 +30,23 @@ std::string_view get_authority_and_path(std::string_view url) {
 }
 
 /// Check for invalid URL characters
-bool has_invalid_characters(std::string_view url) {
+bool has_invalid_characters(const std::string& url) {
     // Basic check for obviously invalid characters
-    constexpr std::string_view invalid_chars = " <>\"{}|\\^`";
+    const std::string invalid_chars = " <>\"{}|\\^`";
     return std::any_of(url.begin(), url.end(), [&](char c) {
-        return invalid_chars.find(c) != std::string_view::npos;
+        return invalid_chars.find(c) != std::string::npos;
     });
 }
 
 /// Check if authority (host) portion is valid
-bool has_valid_authority(std::string_view authority_and_path) {
+bool has_valid_authority(const std::string& authority_and_path) {
     if (authority_and_path.empty()) {
         return false;
     }
     
     // Extract authority (before first /, ?, or #)
     auto end_of_authority = authority_and_path.find_first_of("/?#");
-    std::string_view authority = (end_of_authority == std::string_view::npos) 
+    std::string authority = (end_of_authority == std::string::npos) 
         ? authority_and_path 
         : authority_and_path.substr(0, end_of_authority);
     
@@ -57,7 +57,7 @@ bool has_valid_authority(std::string_view authority_and_path) {
     
     // Strip port if present
     auto port_pos = authority.rfind(':');
-    if (port_pos != std::string_view::npos) {
+    if (port_pos != std::string::npos) {
         authority = authority.substr(0, port_pos);
     }
     
@@ -67,7 +67,7 @@ bool has_valid_authority(std::string_view authority_and_path) {
 
 } // namespace
 
-OriginalUrl::CreateResult OriginalUrl::create(std::string_view raw) {
+OriginalUrl::CreateResult OriginalUrl::create(const std::string& raw) {
     // Check not empty
     if (raw.empty()) {
         return CreateResult::Err(DomainError::InvalidUrl);
@@ -89,7 +89,7 @@ OriginalUrl::CreateResult OriginalUrl::create(std::string_view raw) {
         return CreateResult::Err(DomainError::InvalidUrl);
     }
 
-    return CreateResult::Ok(OriginalUrl(std::string(raw)));
+    return CreateResult::Ok(OriginalUrl(raw));
 }
 
 OriginalUrl OriginalUrl::from_trusted(std::string raw) {

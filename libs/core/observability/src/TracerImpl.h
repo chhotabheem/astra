@@ -4,7 +4,6 @@
 #include <Context.h>
 #include <memory>
 #include <string>
-#include <string_view>
 
 namespace astra::observability {
 
@@ -24,10 +23,10 @@ public:
     TracerImpl(TracerImpl&&) noexcept = default;
     TracerImpl& operator=(TracerImpl&&) = delete;
     
-    std::shared_ptr<Span> start_span(std::string_view name) override;
-    std::shared_ptr<Span> start_span(std::string_view name, const Context& parent) override;
+    std::shared_ptr<Span> start_span(const std::string& name) override;
+    std::shared_ptr<Span> start_span(const std::string& name, const Context& parent) override;
     
-    std::string_view name() const override { return m_name; }
+    const std::string& name() const override { return m_name; }
 
 private:
     std::string m_name;
@@ -35,4 +34,3 @@ private:
 };
 
 } // namespace astra::observability
-

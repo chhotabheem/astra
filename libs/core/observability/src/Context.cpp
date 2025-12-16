@@ -84,7 +84,7 @@ std::string Context::to_traceparent() const {
     return oss.str();
 }
 
-Context Context::from_traceparent(std::string_view header) {
+Context Context::from_traceparent(const std::string& header) {
     // Format: 00-{trace_id:32}-{span_id:16}-{flags:2}
     // Length: 2 + 1 + 32 + 1 + 16 + 1 + 2 = 55
     if (header.length() < 55) {
@@ -129,15 +129,15 @@ std::string Context::to_baggage_header() const {
     return oss.str();
 }
 
-void Context::parse_baggage(Context& ctx, std::string_view header) {
+void Context::parse_baggage(Context& ctx, const std::string& header) {
     // Simple parsing: key=value,key=value
     size_t pos = 0;
     while (pos < header.length()) {
         size_t eq = header.find('=', pos);
-        if (eq == std::string_view::npos) break;
+        if (eq == std::string::npos) break;
         
         size_t comma = header.find(',', eq);
-        if (comma == std::string_view::npos) comma = header.length();
+        if (comma == std::string::npos) comma = header.length();
         
         std::string key(header.substr(pos, eq - pos));
         std::string value(header.substr(eq + 1, comma - eq - 1));

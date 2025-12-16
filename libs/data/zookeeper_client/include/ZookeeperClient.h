@@ -15,9 +15,9 @@ public:
     ZookeeperClient(const ZookeeperClient&) = delete;
     ZookeeperClient& operator=(const ZookeeperClient&) = delete;
 
-    [[nodiscard]] bool create(std::string_view path, std::string_view value, bool ephemeral = false);
-    [[nodiscard]] std::string get(std::string_view path);
-    [[nodiscard]] bool exists(std::string_view path);
+    [[nodiscard]] bool create(const std::string& path, const std::string& value, bool ephemeral = false);
+    [[nodiscard]] std::string get(const std::string& path);
+    [[nodiscard]] bool exists(const std::string& path);
 
 private:
     class Impl;

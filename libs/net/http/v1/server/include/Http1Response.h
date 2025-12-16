@@ -14,8 +14,8 @@ public:
     explicit Response(SendCallback callback);
 
     void set_status(int status_code) noexcept override;
-    void set_header(std::string_view name, std::string_view value) override;
-    void write(std::string_view content) override;
+    void set_header(const std::string& name, const std::string& value) override;
+    void write(const std::string& content) override;
     void close() override;
     [[nodiscard]] bool is_alive() const noexcept override;
 
@@ -26,4 +26,3 @@ private:
 };
 
 } // namespace astra::http1
-

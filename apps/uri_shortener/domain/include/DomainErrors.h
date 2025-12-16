@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <string_view>
+#include <string>
 
 namespace url_shortener::domain {
 
@@ -23,7 +23,7 @@ enum class DomainError {
 };
 
 /// Convert error to human-readable string (for logging/debugging)
-constexpr std::string_view to_string(DomainError error) noexcept {
+inline std::string to_string(DomainError error) noexcept {
     switch (error) {
         case DomainError::InvalidShortCode:     return "Invalid short code format";
         case DomainError::InvalidUrl:           return "Invalid URL format";

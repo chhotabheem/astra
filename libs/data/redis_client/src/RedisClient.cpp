@@ -14,7 +14,7 @@ RedisClient::RedisClient(const std::string& uri) {
 
 RedisClient::~RedisClient() = default;
 
-void RedisClient::set(std::string_view key, std::string_view value) {
+void RedisClient::set(const std::string& key, const std::string& value) {
     try {
         redis_->set(key, value);
     } catch (const std::exception& e) {
@@ -23,7 +23,7 @@ void RedisClient::set(std::string_view key, std::string_view value) {
     }
 }
 
-std::optional<std::string> RedisClient::get(std::string_view key) {
+std::optional<std::string> RedisClient::get(const std::string& key) {
     try {
         auto val = redis_->get(key);
         if (val) {
@@ -36,7 +36,7 @@ std::optional<std::string> RedisClient::get(std::string_view key) {
     }
 }
 
-bool RedisClient::del(std::string_view key) {
+bool RedisClient::del(const std::string& key) {
     try {
         return redis_->del(key) > 0;
     } catch (const std::exception& e) {
@@ -45,7 +45,7 @@ bool RedisClient::del(std::string_view key) {
     }
 }
 
-long long RedisClient::incr(std::string_view key) {
+long long RedisClient::incr(const std::string& key) {
     try {
         return redis_->incr(key);
     } catch (const std::exception& e) {

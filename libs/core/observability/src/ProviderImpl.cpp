@@ -127,17 +127,15 @@ bool ProviderImpl::shutdown() {
 // Metric Registration (cold path, mutex protected)
 // =============================================================================
 
-uint32_t ProviderImpl::register_counter(std::string_view name, Unit unit) {
+uint32_t ProviderImpl::register_counter(const std::string& name, Unit unit) {
     std::lock_guard<std::mutex> lock(m_registration_mutex);
     
     if (!m_meter) {
         return 0;  // Not initialized or shut down
     }
     
-    std::string name_str(name);
-    
     // Check deduplication
-    auto it = m_counter_names.find(name_str);
+    auto it = m_counter_names.find(name);
     if (it != m_counter_names.end()) {
         return it->second;
     }
@@ -148,22 +146,20 @@ uint32_t ProviderImpl::register_counter(std::string_view name, Unit unit) {
     }
     
     // Create OTel instrument immediately
-    m_counters[id] = m_meter->CreateUInt64Counter(name_str, "", unit_to_string(unit));
-    m_counter_names[name_str] = id;
+    m_counters[id] = m_meter->CreateUInt64Counter(name, "", unit_to_string(unit));
+    m_counter_names[name] = id;
     
     return id;
 }
 
-uint32_t ProviderImpl::register_histogram(std::string_view name, Unit unit) {
+uint32_t ProviderImpl::register_histogram(const std::string& name, Unit unit) {
     std::lock_guard<std::mutex> lock(m_registration_mutex);
     
     if (!m_meter) {
         return 0;
     }
     
-    std::string name_str(name);
-    
-    auto it = m_histogram_names.find(name_str);
+    auto it = m_histogram_names.find(name);
     if (it != m_histogram_names.end()) {
         return it->second;
     }
@@ -173,22 +169,20 @@ uint32_t ProviderImpl::register_histogram(std::string_view name, Unit unit) {
         return 0;
     }
     
-    m_histograms[id] = m_meter->CreateDoubleHistogram(name_str, "", unit_to_string(unit));
-    m_histogram_names[name_str] = id;
+    m_histograms[id] = m_meter->CreateDoubleHistogram(name, "", unit_to_string(unit));
+    m_histogram_names[name] = id;
     
     return id;
 }
 
-uint32_t ProviderImpl::register_gauge(std::string_view name, Unit unit) {
+uint32_t ProviderImpl::register_gauge(const std::string& name, Unit unit) {
     std::lock_guard<std::mutex> lock(m_registration_mutex);
     
     if (!m_meter) {
         return 0;
     }
     
-    std::string name_str(name);
-    
-    auto it = m_gauge_names.find(name_str);
+    auto it = m_gauge_names.find(name);
     if (it != m_gauge_names.end()) {
         return it->second;
     }
@@ -198,8 +192,8 @@ uint32_t ProviderImpl::register_gauge(std::string_view name, Unit unit) {
         return 0;
     }
     
-    m_gauges[id] = m_meter->CreateInt64UpDownCounter(name_str, "", unit_to_string(unit));
-    m_gauge_names[name_str] = id;
+    m_gauges[id] = m_meter->CreateInt64UpDownCounter(name, "", unit_to_string(unit));
+    m_gauge_names[name] = id;
     
     return id;
 }

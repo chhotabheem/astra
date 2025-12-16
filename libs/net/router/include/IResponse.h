@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string_view>
+#include <string>
 
 namespace astra::router {
 
@@ -9,8 +9,8 @@ public:
     virtual ~IResponse() = default;
 
     virtual void set_status(int code) noexcept = 0;
-    virtual void set_header(std::string_view key, std::string_view value) = 0;
-    virtual void write(std::string_view data) = 0;
+    virtual void set_header(const std::string& key, const std::string& value) = 0;
+    virtual void write(const std::string& data) = 0;
     virtual void close() = 0;
     
     /// Check if the client connection is still alive

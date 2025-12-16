@@ -7,41 +7,41 @@ namespace astra::observability {
 // =============================================================================
 
 MetricsRegistry& MetricsRegistry::counter(
-    std::string_view key, 
-    std::string_view full_name, 
+    const std::string& key, 
+    const std::string& full_name, 
     Unit unit) {
     
     auto c = register_counter(full_name, unit);
-    m_counters.emplace(std::string(key), c);
+    m_counters.emplace(key, c);
     return *this;
 }
 
 MetricsRegistry& MetricsRegistry::histogram(
-    std::string_view key, 
-    std::string_view full_name, 
+    const std::string& key, 
+    const std::string& full_name, 
     Unit unit) {
     
     auto h = register_histogram(full_name, unit);
-    m_histograms.emplace(std::string(key), h);
+    m_histograms.emplace(key, h);
     return *this;
 }
 
 MetricsRegistry& MetricsRegistry::duration_histogram(
-    std::string_view key,
-    std::string_view full_name) {
+    const std::string& key,
+    const std::string& full_name) {
     
     auto dh = register_duration_histogram(full_name);
-    m_duration_histograms.emplace(std::string(key), dh);
+    m_duration_histograms.emplace(key, dh);
     return *this;
 }
 
 MetricsRegistry& MetricsRegistry::gauge(
-    std::string_view key, 
-    std::string_view full_name, 
+    const std::string& key, 
+    const std::string& full_name, 
     Unit unit) {
     
     auto g = register_gauge(full_name, unit);
-    m_gauges.emplace(std::string(key), g);
+    m_gauges.emplace(key, g);
     return *this;
 }
 
@@ -49,8 +49,8 @@ MetricsRegistry& MetricsRegistry::gauge(
 // Lookup by Key
 // =============================================================================
 
-Counter MetricsRegistry::counter(std::string_view key) const {
-    auto it = m_counters.find(std::string(key));
+Counter MetricsRegistry::counter(const std::string& key) const {
+    auto it = m_counters.find(key);
     if (it != m_counters.end()) {
         return it->second;
     }
@@ -58,24 +58,24 @@ Counter MetricsRegistry::counter(std::string_view key) const {
     return Counter{0};
 }
 
-Histogram MetricsRegistry::histogram(std::string_view key) const {
-    auto it = m_histograms.find(std::string(key));
+Histogram MetricsRegistry::histogram(const std::string& key) const {
+    auto it = m_histograms.find(key);
     if (it != m_histograms.end()) {
         return it->second;
     }
     return Histogram{0};
 }
 
-DurationHistogram MetricsRegistry::duration_histogram(std::string_view key) const {
-    auto it = m_duration_histograms.find(std::string(key));
+DurationHistogram MetricsRegistry::duration_histogram(const std::string& key) const {
+    auto it = m_duration_histograms.find(key);
     if (it != m_duration_histograms.end()) {
         return it->second;
     }
     return DurationHistogram{0};
 }
 
-Gauge MetricsRegistry::gauge(std::string_view key) const {
-    auto it = m_gauges.find(std::string(key));
+Gauge MetricsRegistry::gauge(const std::string& key) const {
+    auto it = m_gauges.find(key);
     if (it != m_gauges.end()) {
         return it->second;
     }

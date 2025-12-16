@@ -12,11 +12,11 @@ void ServerResponse::set_status(int code) noexcept {
     m_status = code;
 }
 
-void ServerResponse::set_header(std::string_view key, std::string_view value) {
-    m_headers[std::string(key)] = std::string(value);
+void ServerResponse::set_header(const std::string& key, const std::string& value) {
+    m_headers[key] = value;
 }
 
-void ServerResponse::write(std::string_view data) {
+void ServerResponse::write(const std::string& data) {
     m_body.append(data);
 }
 
@@ -51,4 +51,3 @@ bool ServerResponse::is_alive() const noexcept {
 }
 
 } // namespace astra::http2
-

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Context.h>
-#include <string_view>
+#include <string>
 #include <memory>
 #include <chrono>
 #include <initializer_list>
@@ -29,8 +29,8 @@ enum class SpanKind {
     Consumer    // Message consumer
 };
 
-// Attributes for spans (string_view for zero-copy at call site)
-using Attributes = std::initializer_list<std::pair<std::string_view, std::string_view>>;
+// Attributes for spans
+using Attributes = std::initializer_list<std::pair<std::string, std::string>>;
 
 /**
  * Span - Represents a unit of work in a trace
@@ -55,20 +55,20 @@ public:
     Span& operator=(const Span&) = delete;
     
     // Fluent API - set attributes (returns *this for chaining)
-    Span& attr(std::string_view key, std::string_view value);
-    Span& attr(std::string_view key, int64_t value);
-    Span& attr(std::string_view key, double value);
-    Span& attr(std::string_view key, bool value);
+    Span& attr(const std::string& key, const std::string& value);
+    Span& attr(const std::string& key, int64_t value);
+    Span& attr(const std::string& key, double value);
+    Span& attr(const std::string& key, bool value);
     
     // Set span status
-    Span& set_status(StatusCode code, std::string_view message = "");
+    Span& set_status(StatusCode code, const std::string& message = "");
     
     // Set span kind (Server, Client, Internal, Producer, Consumer)
     Span& kind(SpanKind kind);
     
     // Add timestamped event with optional attributes
-    Span& add_event(std::string_view name);
-    Span& add_event(std::string_view name, Attributes attrs);
+    Span& add_event(const std::string& name);
+    Span& add_event(const std::string& name, Attributes attrs);
     
     // Explicit end - call when async work completes
     // Safe to call multiple times (no-op after first call)

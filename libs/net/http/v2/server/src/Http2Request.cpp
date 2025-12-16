@@ -7,23 +7,23 @@ Request::Request(std::weak_ptr<RequestData> data)
     : m_data(std::move(data)) {
 }
 
-std::string_view Request::method() const {
+const std::string& Request::method() const {
     if (auto d = m_data.lock()) {
         return d->method;
     }
-    return {};
+    return m_empty;
 }
 
-std::string_view Request::path() const {
+const std::string& Request::path() const {
     if (auto d = m_data.lock()) {
         return d->path;
     }
-    return {};
+    return m_empty;
 }
 
-std::string_view Request::header(std::string_view key) const {
+std::string Request::header(const std::string& key) const {
     if (auto d = m_data.lock()) {
-        auto it = d->headers.find(std::string(key));
+        auto it = d->headers.find(key);
         if (it != d->headers.end()) {
             return it->second;
         }
@@ -31,16 +31,16 @@ std::string_view Request::header(std::string_view key) const {
     return {};
 }
 
-std::string_view Request::body() const {
+const std::string& Request::body() const {
     if (auto d = m_data.lock()) {
         return d->body;
     }
-    return {};
+    return m_empty;
 }
 
-std::string_view Request::path_param(std::string_view key) const {
+std::string Request::path_param(const std::string& key) const {
     if (auto d = m_data.lock()) {
-        auto it = d->path_params.find(std::string(key));
+        auto it = d->path_params.find(key);
         if (it != d->path_params.end()) {
             return it->second;
         }
@@ -48,7 +48,7 @@ std::string_view Request::path_param(std::string_view key) const {
     return {};
 }
 
-std::string_view Request::query_param(std::string_view /*key*/) const {
+std::string Request::query_param(const std::string& /*key*/) const {
     // TODO: Implement query param parsing
     return {};
 }

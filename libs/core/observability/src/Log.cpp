@@ -15,7 +15,7 @@ namespace nostd = opentelemetry::nostd;
 thread_local std::vector<std::map<std::string, std::string>> scoped_attributes_stack;
 
 // Core logging function
-void log(Level level, std::string_view message, Attributes attrs) {
+void log(Level level, const std::string& message, Attributes attrs) {
     auto& provider = Provider::instance();
     auto& impl = provider.impl();
     
@@ -24,12 +24,11 @@ void log(Level level, std::string_view message, Attributes attrs) {
         return;
     }
     
-    // Store attribute strings to ensure they outlive the log emission
-    // (OTel's AttributeValue may store string_view references)
+    // Build attribute vectors
     std::vector<std::pair<std::string, std::string>> stored_attrs;
     stored_attrs.reserve(attrs.size());
     for (const auto& attr : attrs) {
-        stored_attrs.emplace_back(std::string(attr.first), std::string(attr.second));
+        stored_attrs.emplace_back(attr.first, attr.second);
     }
     
     // Store trace correlation strings
@@ -76,7 +75,7 @@ void log(Level level, std::string_view message, Attributes attrs) {
     }
     
     // Emit log with all attributes stored in final_attrs
-    logger->EmitLogRecord(otel_severity, std::string(message), 
+    logger->EmitLogRecord(otel_severity, message, 
         opentelemetry::common::MakeAttributes(final_attrs));
 }
 
@@ -84,7 +83,7 @@ void log(Level level, std::string_view message, Attributes attrs) {
 ScopedLogAttributes::ScopedLogAttributes(Attributes attrs) {
     std::map<std::string, std::string> attrs_map;
     for (const auto& attr : attrs) {
-        attrs_map[std::string(attr.first)] = std::string(attr.second);
+        attrs_map[attr.first] = attr.second;
     }
     
     scoped_attributes_stack.push_back(std::move(attrs_map));

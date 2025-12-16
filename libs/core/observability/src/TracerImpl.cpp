@@ -14,12 +14,12 @@ TracerImpl::TracerImpl(std::string name, ProviderImpl& provider)
     : m_name(std::move(name))
     , m_provider(provider) {}
 
-std::shared_ptr<Span> TracerImpl::start_span(std::string_view name) {
+std::shared_ptr<Span> TracerImpl::start_span(const std::string& name) {
     auto parent_ctx = m_provider.get_active_context();
     return start_span(name, parent_ctx);
 }
 
-std::shared_ptr<Span> TracerImpl::start_span(std::string_view name, const Context& parent) {
+std::shared_ptr<Span> TracerImpl::start_span(const std::string& name, const Context& parent) {
     auto tracer = m_provider.get_tracer();
     if (!tracer) {
         astra::observability::warn("Tracer not initialized - returning null span");
@@ -31,7 +31,7 @@ std::shared_ptr<Span> TracerImpl::start_span(std::string_view name, const Contex
         options.parent = m_provider.context_to_otel(parent);
     }
     
-    auto otel_span = tracer->StartSpan(std::string(name), options);
+    auto otel_span = tracer->StartSpan(name, options);
     
     Context ctx;
     if (parent.is_valid()) {
