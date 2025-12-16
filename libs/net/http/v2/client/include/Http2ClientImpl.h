@@ -7,6 +7,7 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
+#include <queue>
 #include <Log.h>
 
 namespace astra::http2 {
@@ -26,6 +27,15 @@ enum class ConnectionState {
     CONNECTING,
     CONNECTED,
     FAILED
+};
+
+/// Pending request to be submitted after connection
+struct PendingRequest {
+    std::string method;
+    std::string path;
+    std::string body;
+    std::map<std::string, std::string> headers;
+    ResponseHandler handler;
 };
 
 class ClientImpl {
@@ -48,6 +58,11 @@ private:
     void connect();
     void start_io_service();
     void stop_io_service();
+    void do_submit(const std::string& method, const std::string& path,
+                   const std::string& body,
+                   const std::map<std::string, std::string>& headers,
+                   ResponseHandler handler);
+    void flush_pending_requests();
 
     ClientConfig m_config;
     boost::asio::io_context m_io_context;
@@ -57,6 +72,8 @@ private:
     std::unique_ptr<nghttp2::asio_http2::client::session> m_session;
     std::atomic<ConnectionState> m_state{ConnectionState::DISCONNECTED};
     std::mutex m_connect_mutex;
+    std::queue<PendingRequest> m_pending_requests;
 };
 
 } // namespace astra::http2
+
