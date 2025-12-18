@@ -7,16 +7,16 @@
 #include <unordered_map>
 #include <memory>
 #include <functional>
+#include <optional>
 
 namespace astra::router {
 
-/// Handler takes shared_ptr to request and response
 using Handler = std::function<void(std::shared_ptr<IRequest>, std::shared_ptr<IResponse>)>;
 
 class Router {
 public:
-    Router();
-    ~Router();
+    Router() = default;
+    ~Router() = default;
     
     void get(const std::string& path, Handler handler);
     void post(const std::string& path, Handler handler);
@@ -28,7 +28,7 @@ public:
         std::unordered_map<std::string, std::string> params;
     };
     
-    [[nodiscard]] MatchResult match(const std::string& method, const std::string& path) const;
+    [[nodiscard]] std::optional<MatchResult> match(const std::string& method, const std::string& path) const;
     void dispatch(std::shared_ptr<IRequest> req, std::shared_ptr<IResponse> res);
 
 private:
@@ -44,7 +44,4 @@ private:
     void add_route(const std::string& method, const std::string& path, Handler handler);
 };
 
-} // namespace astra::router
-
-// Backward compatibility alias
-namespace router = astra::router;
+}

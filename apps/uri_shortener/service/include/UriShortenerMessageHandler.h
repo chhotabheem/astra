@@ -34,8 +34,8 @@ public:
 
 private:
     void processHttpRequest(
-        std::shared_ptr<router::IRequest> req,
-        std::shared_ptr<router::IResponse> res,
+        std::shared_ptr<astra::router::IRequest> req,
+        std::shared_ptr<astra::router::IResponse> res,
         uint64_t session_id, 
         obs::Context& trace_ctx
     );

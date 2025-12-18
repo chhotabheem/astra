@@ -1,13 +1,7 @@
 #include "Router.h"
-#include <sstream>
-#include <iostream>
-#include <vector>
-#include <memory>
+#include "StringUtils.h"
 
 namespace astra::router {
-
-Router::Router() = default;
-Router::~Router() = default;
 
 void Router::get(const std::string& path, Handler handler) {
     add_route("GET", path, std::move(handler));
@@ -25,44 +19,24 @@ void Router::del(const std::string& path, Handler handler) {
     add_route("DELETE", path, std::move(handler));
 }
 
-// Helper to split path into segments
-std::vector<std::string> split_path(const std::string& path) {
-    std::vector<std::string> segments;
-    size_t start = 0;
-    if (!path.empty() && path[0] == '/') start = 1; // Skip leading slash
-    
-    for (size_t i = start; i < path.length(); ++i) {
-        if (path[i] == '/') {
-            if (i > start) segments.push_back(path.substr(start, i - start));
-            start = i + 1;
-        }
-    }
-    if (start < path.length()) {
-        segments.push_back(path.substr(start));
-    }
-    return segments;
-}
-
 void Router::add_route(const std::string& method, const std::string& path, Handler handler) {
     if (m_roots.find(method) == m_roots.end()) {
         m_roots[method] = std::make_unique<Node>();
     }
     
     Node* current = m_roots[method].get();
-    auto segments = split_path(path);
+    auto segments = utils::split(path, '/');
     
     for (const auto& segment : segments) {
         if (segment.empty()) continue;
         
         if (segment[0] == ':') {
-            // Wildcard / Parameter
             if (!current->wildcard_child) {
                 current->wildcard_child = std::make_unique<Node>();
                 current->wildcard_child->param_name = segment.substr(1);
             }
             current = current->wildcard_child.get();
         } else {
-            // Static Segment
             if (current->children.find(segment) == current->children.end()) {
                 current->children[segment] = std::make_unique<Node>();
             }
@@ -73,15 +47,15 @@ void Router::add_route(const std::string& method, const std::string& path, Handl
     current->handler = std::move(handler);
 }
 
-Router::MatchResult Router::match(const std::string& method, const std::string& path) const {
+std::optional<Router::MatchResult> Router::match(const std::string& method, const std::string& path) const {
     auto it = m_roots.find(method);
     if (it == m_roots.end()) {
-        return {nullptr, {}};
+        return std::nullopt;
     }
     
     Node* current = it->second.get();
     std::unordered_map<std::string, std::string> params;
-    auto segments = split_path(path);
+    auto segments = utils::split(path, '/');
     
     for (const auto& segment : segments) {
         if (segment.empty()) continue;
@@ -93,23 +67,23 @@ Router::MatchResult Router::match(const std::string& method, const std::string& 
             params[current->wildcard_child->param_name] = segment;
             current = current->wildcard_child.get();
         } else {
-            return {nullptr, {}};
+            return std::nullopt;
         }
     }
     
     if (!current->handler) {
-        return {nullptr, {}};
+        return std::nullopt;
     }
     
-    return {current->handler, std::move(params)};
+    return MatchResult{current->handler, std::move(params)};
 }
 
 void Router::dispatch(std::shared_ptr<IRequest> req, std::shared_ptr<IResponse> res) {
     auto result = match(req->method(), req->path());
     
-    if (result.handler) {
-        req->set_path_params(std::move(result.params));
-        result.handler(req, res);
+    if (result) {
+        req->set_path_params(std::move(result->params));
+        result->handler(req, res);
     } else {
         res->set_status(404);
         res->write("Not Found");
@@ -117,4 +91,4 @@ void Router::dispatch(std::shared_ptr<IRequest> req, std::shared_ptr<IResponse> 
     }
 }
 
-} // namespace astra::router
+}

@@ -14,8 +14,8 @@ ObservableRequestHandler::ObservableRequestHandler(UriShortenerRequestHandler& i
 }
 
 void ObservableRequestHandler::handle(
-    std::shared_ptr<router::IRequest> req, 
-    std::shared_ptr<router::IResponse> res
+    std::shared_ptr<astra::router::IRequest> req, 
+    std::shared_ptr<astra::router::IResponse> res
 ) {
     auto span = m_tracer->start_span("uri_shortener.http.request");
     span->kind(obs::SpanKind::Server);

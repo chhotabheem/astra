@@ -3,6 +3,7 @@
 #include "Http2Response.h"
 #include "ResponseHandle.h"
 #include "RequestData.h"
+#include "Url.h"
 #include <Log.h>
 #include <iostream>
 
@@ -29,8 +30,6 @@ void NgHttp2Server::handle(const std::string& method, const std::string& path, S
             return; 
         }
 
-        // Create context to hold request data and response handle
-        // Context owns the shared_ptr, keeping data alive until stream closes
         struct Context {
             std::shared_ptr<RequestData> request_data;
             std::shared_ptr<ResponseHandle> response_handle;
@@ -41,6 +40,9 @@ void NgHttp2Server::handle(const std::string& method, const std::string& path, S
         ctx->request_data = std::make_shared<RequestData>();
         ctx->request_data->method = req.method();
         ctx->request_data->path = req.uri().path;
+        if (!req.uri().raw_query.empty()) {
+            ctx->request_data->query_params = utils::Url::parse_query_string(req.uri().raw_query);
+        }
         for (const auto& h : req.header()) {
             ctx->request_data->headers[h.first] = h.second.value;
         }

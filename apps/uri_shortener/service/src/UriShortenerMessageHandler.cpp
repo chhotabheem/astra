@@ -12,8 +12,8 @@ namespace url_shortener {
 
 // Type alias for the payload pair
 using RequestResponsePair = std::pair<
-    std::shared_ptr<router::IRequest>,
-    std::shared_ptr<router::IResponse>
+    std::shared_ptr<astra::router::IRequest>,
+    std::shared_ptr<astra::router::IResponse>
 >;
 
 UriShortenerMessageHandler::UriShortenerMessageHandler(
@@ -47,8 +47,8 @@ void UriShortenerMessageHandler::handle(astra::execution::Message& msg) {
 }
 
 void UriShortenerMessageHandler::processHttpRequest(
-    std::shared_ptr<router::IRequest> req,
-    std::shared_ptr<router::IResponse> res,
+    std::shared_ptr<astra::router::IRequest> req,
+    std::shared_ptr<astra::router::IResponse> res,
     uint64_t session_id, 
     obs::Context& trace_ctx
 ) {

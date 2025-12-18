@@ -34,7 +34,7 @@ struct DataServiceRequest {
     DataServiceOperation op;
     std::string entity_id;   // e.g., short code
     std::string payload;     // JSON payload for SAVE
-    std::shared_ptr<router::IResponse> response;  // Response interface
+    std::shared_ptr<astra::router::IResponse> response;  // Response interface
     std::shared_ptr<astra::observability::Span> span;
 };
 
@@ -52,7 +52,7 @@ struct DataServiceResponse {
     int http_status = 0;     // Original HTTP status (for debugging)
     
     // Passthrough from request
-    std::shared_ptr<router::IResponse> response;  // Response interface
+    std::shared_ptr<astra::router::IResponse> response;  // Response interface
     std::shared_ptr<astra::observability::Span> span;
 };
 

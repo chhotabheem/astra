@@ -17,8 +17,8 @@ Server::Server(const ServerConfig& config)
     : m_impl(std::make_unique<Impl>(config)) {
     
     // Default handler: Dispatch to Router with shared_ptr
-    m_impl->backend.handle("*", "/", [this](std::shared_ptr<router::IRequest> req, 
-                                             std::shared_ptr<router::IResponse> res) {
+    m_impl->backend.handle("*", "/", [this](std::shared_ptr<astra::router::IRequest> req, 
+                                             std::shared_ptr<astra::router::IResponse> res) {
         m_router.dispatch(req, res);
     });
 }

@@ -48,8 +48,13 @@ std::string Request::path_param(const std::string& key) const {
     return {};
 }
 
-std::string Request::query_param(const std::string& /*key*/) const {
-    // TODO: Implement query param parsing
+std::string Request::query_param(const std::string& key) const {
+    if (auto d = m_data.lock()) {
+        auto it = d->query_params.find(key);
+        if (it != d->query_params.end()) {
+            return it->second;
+        }
+    }
     return {};
 }
 

@@ -7,7 +7,7 @@
 
 namespace astra::http1 {
 
-class Response final : public router::IResponse {
+class Response final : public astra::router::IResponse {
 public:
     using SendCallback = std::function<void(boost::beast::http::response<boost::beast::http::string_body>)>;
 

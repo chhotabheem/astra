@@ -117,3 +117,20 @@ TEST_F(RequestHandleTest, PathParamReturnsEmptyForMissingKey) {
     
     EXPECT_EQ(req.path_param("nonexistent"), "");
 }
+
+TEST_F(RequestHandleTest, QueryParamReturnsValue) {
+    auto data = make_request_data();
+    data->query_params["foo"] = "bar";
+    data->query_params["page"] = "42";
+    Request req(data);
+    
+    EXPECT_EQ(req.query_param("foo"), "bar");
+    EXPECT_EQ(req.query_param("page"), "42");
+}
+
+TEST_F(RequestHandleTest, QueryParamReturnsEmptyForMissingKey) {
+    auto data = make_request_data();
+    Request req(data);
+    
+    EXPECT_EQ(req.query_param("nonexistent"), "");
+}

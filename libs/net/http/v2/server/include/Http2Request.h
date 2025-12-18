@@ -16,7 +16,7 @@ struct RequestData;  // Forward declaration
  * and returns empty if the underlying data has expired.
  * This provides graceful behavior when the stream closes.
  */
-class Request final : public router::IRequest {
+class Request final : public astra::router::IRequest {
 public:
     Request() = default;
     explicit Request(std::weak_ptr<RequestData> data);

@@ -10,8 +10,8 @@ UriShortenerRequestHandler::UriShortenerRequestHandler(astra::execution::StickyQ
 }
 
 void UriShortenerRequestHandler::handle(
-    std::shared_ptr<router::IRequest> req, 
-    std::shared_ptr<router::IResponse> res
+    std::shared_ptr<astra::router::IRequest> req, 
+    std::shared_ptr<astra::router::IResponse> res
 ) {
     // Generate session ID for affinity
     uint64_t session_id = generate_session_id(*req);
@@ -29,7 +29,7 @@ void UriShortenerRequestHandler::handle(
     m_pool.submit(std::move(msg));
 }
 
-uint64_t UriShortenerRequestHandler::generate_session_id(router::IRequest& req) {
+uint64_t UriShortenerRequestHandler::generate_session_id(astra::router::IRequest& req) {
     // Use path + method hash for session affinity
     std::string key = std::string(req.method()) + ":" + std::string(req.path());
     return std::hash<std::string>{}(key);

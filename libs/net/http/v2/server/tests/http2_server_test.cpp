@@ -54,7 +54,7 @@ TEST(Http2ServerTest, BindToAllInterfaces) {
 TEST(Http2ServerTest, HandlerRegistration) {
     auto server = std::make_unique<astra::http2::Server>(make_config("127.0.0.1", 9002));
     
-    server->handle("GET", "/test", [&](std::shared_ptr<router::IRequest>, std::shared_ptr<router::IResponse> res) {
+    server->handle("GET", "/test", [&](std::shared_ptr<astra::router::IRequest>, std::shared_ptr<astra::router::IResponse> res) {
         res->close();
     });
     

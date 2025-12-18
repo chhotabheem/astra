@@ -18,7 +18,7 @@ class ObservableRequestHandler {
 public:
     explicit ObservableRequestHandler(UriShortenerRequestHandler& inner);
     
-    void handle(std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res);
+    void handle(std::shared_ptr<astra::router::IRequest> req, std::shared_ptr<astra::router::IResponse> res);
 
 private:
     UriShortenerRequestHandler& m_inner;

@@ -47,7 +47,7 @@ protected:
             
             try {
                 server_ = std::make_unique<astra::http1::Server>("127.0.0.1", m_port, 4);
-                server_->handle([](const router::IRequest& req, router::IResponse& res) {
+                server_->handle([](const astra::router::IRequest& req, astra::router::IResponse& res) {
                     if (req.path() == "/test") {
                         res.set_status(200);
                         res.write("Hello Test");

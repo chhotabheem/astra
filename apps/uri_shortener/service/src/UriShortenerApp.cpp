@@ -192,8 +192,8 @@ int UriShortenerApp::run() {
     auto accepted = obs::counter("load_shedder.accepted");
     auto rejected = obs::counter("load_shedder.rejected");
     
-    auto resilient = [this, accepted, rejected](std::shared_ptr<router::IRequest> req, 
-                                                  std::shared_ptr<router::IResponse> res) {
+    auto resilient = [this, accepted, rejected](std::shared_ptr<astra::router::IRequest> req, 
+                                                  std::shared_ptr<astra::router::IResponse> res) {
         auto guard = m_load_shedder->try_acquire();
         if (!guard) {
             rejected.inc();
@@ -227,8 +227,8 @@ int UriShortenerApp::run() {
     m_server->router().del("/:code", resilient);
     
     // Health check bypasses load shedding
-    m_server->router().get("/health", [](std::shared_ptr<router::IRequest> /*req*/, 
-                                          std::shared_ptr<router::IResponse> res) {
+    m_server->router().get("/health", [](std::shared_ptr<astra::router::IRequest> /*req*/, 
+                                          std::shared_ptr<astra::router::IResponse> res) {
         res->set_status(200);
         res->set_header("Content-Type", "application/json");
         res->write(R"({"status": "ok"})");

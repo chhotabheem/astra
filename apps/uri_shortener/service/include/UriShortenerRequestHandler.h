@@ -23,12 +23,12 @@ public:
      * 
      * Submits to pool for async processing.
      */
-    void handle(std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res);
+    void handle(std::shared_ptr<astra::router::IRequest> req, std::shared_ptr<astra::router::IResponse> res);
 
 private:
     astra::execution::StickyQueue& m_pool;
     
-    uint64_t generate_session_id(router::IRequest& req);
+    uint64_t generate_session_id(astra::router::IRequest& req);
 };
 
 } // namespace url_shortener

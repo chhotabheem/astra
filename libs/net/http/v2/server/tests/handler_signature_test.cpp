@@ -38,7 +38,7 @@ TEST(HandlerSignatureTest, HandlerReceivesReferences) {
     
     // Handler signature: shared_ptr<IRequest>, shared_ptr<IResponse>
     server->handle("GET", "/test", 
-        [&](std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res) {
+        [&](std::shared_ptr<astra::router::IRequest> req, std::shared_ptr<astra::router::IResponse> res) {
             handler_called = true;
             res->close();
         });
@@ -52,12 +52,12 @@ TEST(HandlerSignatureTest, MultipleHandlers) {
     auto server = std::make_unique<astra::http2::Server>(make_config("127.0.0.1", 9101));
     
     server->handle("GET", "/path1", 
-        [](std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res) {
+        [](std::shared_ptr<astra::router::IRequest> req, std::shared_ptr<astra::router::IResponse> res) {
             res->close();
         });
     
     server->handle("POST", "/path2",
-        [](std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res) {
+        [](std::shared_ptr<astra::router::IRequest> req, std::shared_ptr<astra::router::IResponse> res) {
             res->close();
         });
     
@@ -69,7 +69,7 @@ TEST(HandlerSignatureTest, AccessRequestResponseMethods) {
     auto server = std::make_unique<astra::http2::Server>(make_config("127.0.0.1", 9102));
     
     server->handle("GET", "/test",
-        [](std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res) {
+        [](std::shared_ptr<astra::router::IRequest> req, std::shared_ptr<astra::router::IResponse> res) {
             // Access request methods
             [[maybe_unused]] auto path = req->path();
             [[maybe_unused]] auto method = req->method();
@@ -88,7 +88,7 @@ TEST(HandlerSignatureTest, RouterIntegration) {
     auto server = std::make_unique<astra::http2::Server>(make_config("127.0.0.1", 9103));
     
     // Access router directly - now uses shared_ptr
-    server->router().get("/route", [](std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res) {
+    server->router().get("/route", [](std::shared_ptr<astra::router::IRequest> req, std::shared_ptr<astra::router::IResponse> res) {
         res->set_status(200);
         res->close();
     });
@@ -99,7 +99,7 @@ TEST(HandlerSignatureTest, RouterIntegration) {
 // Test 5: Handler signature matches Server::Handler type
 TEST(HandlerSignatureTest, HandlerTypeCompatible) {
     astra::http2::Server::Handler handler = 
-        [](std::shared_ptr<router::IRequest> req, std::shared_ptr<router::IResponse> res) {
+        [](std::shared_ptr<astra::router::IRequest> req, std::shared_ptr<astra::router::IResponse> res) {
             res->close();
         };
     

@@ -13,7 +13,7 @@ using namespace astra::http2;
 // =============================================================================
 
 static void BM_RouterDispatch(benchmark::State& state) {
-    router::Router router;
+    astra::router::Router router;
     router.get("/users/:id", [](auto req, auto res) {
         res->set_status(200);
         res->write("OK");

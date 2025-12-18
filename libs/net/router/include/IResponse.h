@@ -13,12 +13,7 @@ public:
     virtual void write(const std::string& data) = 0;
     virtual void close() = 0;
     
-    /// Check if the client connection is still alive
     [[nodiscard]] virtual bool is_alive() const noexcept = 0;
 };
 
-} // namespace astra::router
-
-// Backward compatibility alias
-namespace router = astra::router;
-
+}

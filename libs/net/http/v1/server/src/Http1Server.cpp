@@ -22,11 +22,11 @@ Server::Server(const std::string& address, unsigned short port, int threads)
     m_acceptor.listen(net::socket_base::max_listen_connections);
 
     // Default handler: Dispatch to Router using shared_ptr wrappers
-    m_handler = [this](router::IRequest& req, router::IResponse& res) {
+    m_handler = [this](astra::router::IRequest& req, astra::router::IResponse& res) {
         // Use aliasing constructor to create shared_ptr that doesn't own the object
         // This is safe because the request/response outlive the dispatch call
-        auto req_ptr = std::shared_ptr<router::IRequest>(std::shared_ptr<void>{}, &req);
-        auto res_ptr = std::shared_ptr<router::IResponse>(std::shared_ptr<void>{}, &res);
+        auto req_ptr = std::shared_ptr<astra::router::IRequest>(std::shared_ptr<void>{}, &req);
+        auto res_ptr = std::shared_ptr<astra::router::IResponse>(std::shared_ptr<void>{}, &res);
         m_router.dispatch(req_ptr, res_ptr);
     };
 }

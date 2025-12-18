@@ -18,6 +18,7 @@ struct RequestData {
     std::string body;
     std::map<std::string, std::string> headers;
     std::unordered_map<std::string, std::string> path_params;
+    std::unordered_map<std::string, std::string> query_params;
 };
 
 } // namespace astra::http2

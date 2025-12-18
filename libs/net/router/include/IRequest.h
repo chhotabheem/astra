@@ -20,7 +20,4 @@ public:
     virtual void set_path_params(std::unordered_map<std::string, std::string> params) = 0;
 };
 
-} // namespace astra::router
-
-// Backward compatibility alias
-namespace router = astra::router;
+}

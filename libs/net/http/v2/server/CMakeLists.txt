@@ -40,6 +40,7 @@ target_link_libraries(http2server
         astra_router
         astra_execution
     PRIVATE
+        astra_utils
         astra_sanitizers
         Boost::system 
         Boost::thread 

@@ -15,8 +15,8 @@ namespace url_shortener {
  * Contains protocol-agnostic request and response interfaces.
  */
 struct HttpRequestMsg {
-    std::shared_ptr<router::IRequest> request;
-    std::shared_ptr<router::IResponse> response;
+    std::shared_ptr<astra::router::IRequest> request;
+    std::shared_ptr<astra::router::IResponse> response;
 };
 
 /**
@@ -25,7 +25,7 @@ struct HttpRequestMsg {
 struct DbQueryMsg {
     std::string operation;
     std::string data;
-    std::shared_ptr<router::IResponse> response;
+    std::shared_ptr<astra::router::IResponse> response;
 };
 
 /**
@@ -35,7 +35,7 @@ struct DbResponseMsg {
     std::string result;
     bool success;
     std::string error;
-    std::shared_ptr<router::IResponse> response;
+    std::shared_ptr<astra::router::IResponse> response;
 };
 
 /**

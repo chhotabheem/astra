@@ -24,8 +24,8 @@ public:
     Server(const Server&) = delete;
     Server& operator=(const Server&) = delete;
 
-    /// Handler uses shared_ptr (same as router::Handler)
-    using Handler = router::Handler;
+    /// Handler uses shared_ptr (same as astra::router::Handler)
+    using Handler = astra::router::Handler;
 
     /**
      * @brief Register a handler for a specific method and path
@@ -50,12 +50,12 @@ public:
      */
     void wait_until_ready();
 
-    [[nodiscard]] router::Router& router() { return m_router; }
+    [[nodiscard]] astra::router::Router& router() { return m_router; }
 
 private:
     class Impl;
     std::unique_ptr<Impl> m_impl;
-    router::Router m_router;
+    astra::router::Router m_router;
 };
 
 } // namespace astra::http2

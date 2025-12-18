@@ -7,7 +7,7 @@
 
 namespace astra::http1 {
 
-class Request final : public router::IRequest {
+class Request final : public astra::router::IRequest {
 public:
     explicit Request(boost::beast::http::request<boost::beast::http::string_body> req);
 

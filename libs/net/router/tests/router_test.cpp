@@ -5,7 +5,7 @@
 #include <vector>
 
 using namespace testing;
-using namespace router;
+using namespace astra::router;
 
 class RouterTest : public Test {
 protected:
@@ -52,27 +52,27 @@ TEST_F(RouterTest, ExactMatch) {
     });
     
     auto result = m_router.match("GET", "/users");
-    EXPECT_NE(result.handler, nullptr);
-    EXPECT_TRUE(result.params.empty());
+    EXPECT_TRUE(result);
+    EXPECT_TRUE(result->params.empty());
 }
 
 TEST_F(RouterTest, ParamMatch) {
     m_router.get("/users/:id", [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {});
     
     auto result = m_router.match("GET", "/users/123");
-    EXPECT_NE(result.handler, nullptr);
-    EXPECT_EQ(result.params.size(), 1);
-    EXPECT_EQ(result.params.at("id"), "123");
+    EXPECT_TRUE(result);
+    EXPECT_EQ(result->params.size(), 1);
+    EXPECT_EQ(result->params.at("id"), "123");
 }
 
 TEST_F(RouterTest, NestedParams) {
     m_router.get("/users/:userId/posts/:postId", [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {});
     
     auto result = m_router.match("GET", "/users/123/posts/456");
-    EXPECT_NE(result.handler, nullptr);
-    EXPECT_EQ(result.params.size(), 2);
-    EXPECT_EQ(result.params.at("userId"), "123");
-    EXPECT_EQ(result.params.at("postId"), "456");
+    EXPECT_TRUE(result);
+    EXPECT_EQ(result->params.size(), 2);
+    EXPECT_EQ(result->params.at("userId"), "123");
+    EXPECT_EQ(result->params.at("postId"), "456");
 }
 
 TEST_F(RouterTest, CollisionPriority) {
@@ -83,22 +83,22 @@ TEST_F(RouterTest, CollisionPriority) {
     m_router.get("/users/:id", [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) { dynamic_called = true; });
     
     auto result_static = m_router.match("GET", "/users/profile");
-    EXPECT_NE(result_static.handler, nullptr);
-    EXPECT_TRUE(result_static.params.empty());
+    EXPECT_TRUE(result_static);
+    EXPECT_TRUE(result_static->params.empty());
     
     auto result_dynamic = m_router.match("GET", "/users/123");
-    EXPECT_NE(result_dynamic.handler, nullptr);
-    EXPECT_EQ(result_dynamic.params.at("id"), "123");
+    EXPECT_TRUE(result_dynamic);
+    EXPECT_EQ(result_dynamic->params.at("id"), "123");
 }
 
 TEST_F(RouterTest, NoMatch) {
     m_router.get("/users", [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {});
     
     auto result = m_router.match("GET", "/unknown");
-    EXPECT_EQ(result.handler, nullptr);
+    EXPECT_FALSE(result);
     
     auto result_method = m_router.match("POST", "/users");
-    EXPECT_EQ(result_method.handler, nullptr);
+    EXPECT_FALSE(result_method);
 }
 
 // =============================================================================
@@ -109,7 +109,7 @@ TEST_F(RouterTest, RootPath) {
     m_router.get("/", [](auto, auto) {});
     
     auto result = m_router.match("GET", "/");
-    EXPECT_NE(result.handler, nullptr);
+    EXPECT_TRUE(result);
 }
 
 TEST_F(RouterTest, TrailingSlash) {
@@ -136,28 +136,28 @@ TEST_F(RouterTest, VeryLongPath) {
     m_router.get(long_path, [](auto, auto) {});
     
     auto result = m_router.match("GET", long_path);
-    EXPECT_NE(result.handler, nullptr);
+    EXPECT_TRUE(result);
 }
 
 TEST_F(RouterTest, PathWithNumbers) {
     m_router.get("/v1/api/users", [](auto, auto) {});
     
     auto result = m_router.match("GET", "/v1/api/users");
-    EXPECT_NE(result.handler, nullptr);
+    EXPECT_TRUE(result);
 }
 
 TEST_F(RouterTest, PathWithHyphens) {
     m_router.get("/user-profiles", [](auto, auto) {});
     
     auto result = m_router.match("GET", "/user-profiles");
-    EXPECT_NE(result.handler, nullptr);
+    EXPECT_TRUE(result);
 }
 
 TEST_F(RouterTest, PathWithUnderscores) {
     m_router.get("/user_profiles", [](auto, auto) {});
     
     auto result = m_router.match("GET", "/user_profiles");
-    EXPECT_NE(result.handler, nullptr);
+    EXPECT_TRUE(result);
 }
 
 // =============================================================================
@@ -168,35 +168,35 @@ TEST_F(RouterTest, NumericParamValue) {
     m_router.get("/users/:id", [](auto, auto) {});
     
     auto result = m_router.match("GET", "/users/999999999");
-    EXPECT_NE(result.handler, nullptr);
-    EXPECT_EQ(result.params.at("id"), "999999999");
+    EXPECT_TRUE(result);
+    EXPECT_EQ(result->params.at("id"), "999999999");
 }
 
 TEST_F(RouterTest, ParamWithHyphens) {
     m_router.get("/articles/:slug", [](auto, auto) {});
     
     auto result = m_router.match("GET", "/articles/my-first-article");
-    EXPECT_NE(result.handler, nullptr);
-    EXPECT_EQ(result.params.at("slug"), "my-first-article");
+    EXPECT_TRUE(result);
+    EXPECT_EQ(result->params.at("slug"), "my-first-article");
 }
 
 TEST_F(RouterTest, ParamWithUnderscores) {
     m_router.get("/files/:name", [](auto, auto) {});
     
     auto result = m_router.match("GET", "/files/my_document_v2");
-    EXPECT_NE(result.handler, nullptr);
-    EXPECT_EQ(result.params.at("name"), "my_document_v2");
+    EXPECT_TRUE(result);
+    EXPECT_EQ(result->params.at("name"), "my_document_v2");
 }
 
 TEST_F(RouterTest, MultipleParamsInSequence) {
     m_router.get("/org/:orgId/team/:teamId/member/:memberId", [](auto, auto) {});
     
     auto result = m_router.match("GET", "/org/100/team/200/member/300");
-    EXPECT_NE(result.handler, nullptr);
-    EXPECT_EQ(result.params.size(), 3);
-    EXPECT_EQ(result.params.at("orgId"), "100");
-    EXPECT_EQ(result.params.at("teamId"), "200");
-    EXPECT_EQ(result.params.at("memberId"), "300");
+    EXPECT_TRUE(result);
+    EXPECT_EQ(result->params.size(), 3);
+    EXPECT_EQ(result->params.at("orgId"), "100");
+    EXPECT_EQ(result->params.at("teamId"), "200");
+    EXPECT_EQ(result->params.at("memberId"), "300");
 }
 
 // =============================================================================
@@ -207,25 +207,25 @@ TEST_F(RouterTest, PostMethod) {
     m_router.post("/users", [](auto, auto) {});
     
     auto result = m_router.match("POST", "/users");
-    EXPECT_NE(result.handler, nullptr);
+    EXPECT_TRUE(result);
     
     // GET should not match POST route
     auto get_result = m_router.match("GET", "/users");
-    EXPECT_EQ(get_result.handler, nullptr);
+    EXPECT_FALSE(get_result);
 }
 
 TEST_F(RouterTest, PutMethod) {
     m_router.put("/users/:id", [](auto, auto) {});
     
     auto result = m_router.match("PUT", "/users/123");
-    EXPECT_NE(result.handler, nullptr);
+    EXPECT_TRUE(result);
 }
 
 TEST_F(RouterTest, DeleteMethod) {
     m_router.del("/users/:id", [](auto, auto) {});
     
     auto result = m_router.match("DELETE", "/users/123");
-    EXPECT_NE(result.handler, nullptr);
+    EXPECT_TRUE(result);
 }
 
 TEST_F(RouterTest, SamePathDifferentMethods) {
@@ -234,17 +234,17 @@ TEST_F(RouterTest, SamePathDifferentMethods) {
     m_router.put("/users/:id", [](auto, auto) {});
     m_router.del("/users/:id", [](auto, auto) {});
     
-    EXPECT_NE(m_router.match("GET", "/users").handler, nullptr);
-    EXPECT_NE(m_router.match("POST", "/users").handler, nullptr);
-    EXPECT_NE(m_router.match("PUT", "/users/1").handler, nullptr);
-    EXPECT_NE(m_router.match("DELETE", "/users/1").handler, nullptr);
+    EXPECT_TRUE(m_router.match("GET", "/users"));
+    EXPECT_TRUE(m_router.match("POST", "/users"));
+    EXPECT_TRUE(m_router.match("PUT", "/users/1"));
+    EXPECT_TRUE(m_router.match("DELETE", "/users/1"));
 }
 
 TEST_F(RouterTest, UnknownMethod) {
     m_router.get("/users", [](auto, auto) {});
     
     auto result = m_router.match("PATCH", "/users");
-    EXPECT_EQ(result.handler, nullptr);
+    EXPECT_FALSE(result);
 }
 
 // =============================================================================
@@ -257,10 +257,10 @@ TEST_F(RouterTest, ManyRoutes) {
     }
     
     auto result = m_router.match("GET", "/route500");
-    EXPECT_NE(result.handler, nullptr);
+    EXPECT_TRUE(result);
     
     auto miss = m_router.match("GET", "/route9999");
-    EXPECT_EQ(miss.handler, nullptr);
+    EXPECT_FALSE(miss);
 }
 
 TEST_F(RouterTest, DeepNesting) {
@@ -271,7 +271,7 @@ TEST_F(RouterTest, DeepNesting) {
     m_router.get(path, [](auto, auto) {});
     
     auto result = m_router.match("GET", path);
-    EXPECT_NE(result.handler, nullptr);
+    EXPECT_TRUE(result);
 }
 
 TEST_F(RouterTest, ConcurrentMatching) {
@@ -288,7 +288,7 @@ TEST_F(RouterTest, ConcurrentMatching) {
                 auto r1 = m_router.match("GET", "/users/" + std::to_string(j));
                 auto r2 = m_router.match("GET", "/posts/" + std::to_string(j));
                 auto r3 = m_router.match("GET", "/comments/" + std::to_string(j));
-                if (r1.handler && r2.handler && r3.handler) {
+                if (r1 && r2 && r3) {
                     success_count++;
                 }
             }

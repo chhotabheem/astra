@@ -11,7 +11,7 @@ namespace astra::http2 {
 
 class ResponseHandle;
 
-class ServerResponse final : public router::IResponse {
+class ServerResponse final : public astra::router::IResponse {
 public:
     ServerResponse() = default;
     explicit ServerResponse(std::weak_ptr<ResponseHandle> handle);
