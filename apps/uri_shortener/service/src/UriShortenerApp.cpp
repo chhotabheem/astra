@@ -28,7 +28,7 @@ UriShortenerApp::UriShortenerApp(
     std::unique_ptr<astra::execution::StickyQueue> pool,
     std::unique_ptr<UriShortenerRequestHandler> req_handler,
     std::unique_ptr<ObservableRequestHandler> obs_req_handler,
-    std::unique_ptr<astra::http2::Server> server,
+    std::unique_ptr<astra::http2::Http2Server> server,
     std::unique_ptr<astra::resilience::AtomicLoadShedder> load_shedder
 )
     : m_repo(std::move(repo))
@@ -120,7 +120,7 @@ astra::outcome::Result<UriShortenerApp, AppError> UriShortenerApp::create(
     auto del = std::make_shared<application::DeleteLink>(repo);
 
     // Create HTTP server from proto config
-    auto server = std::make_unique<astra::http2::Server>(bootstrap.server());
+    auto server = std::make_unique<astra::http2::Http2Server>(bootstrap.server());
     
     // Create Http2ClientPool for backend HTTP calls
     astra::http2::ClientConfig client_config;
@@ -212,7 +212,7 @@ int UriShortenerApp::run() {
         accepted.inc();
         
         // Cast to concrete type for scoped resource
-        auto http_res = std::dynamic_pointer_cast<astra::http2::ServerResponse>(res);
+        auto http_res = std::dynamic_pointer_cast<astra::http2::Http2Response>(res);
         if (http_res) {
             http_res->add_scoped_resource(
                 std::make_unique<astra::resilience::LoadShedderGuard>(std::move(*guard)));
@@ -238,7 +238,14 @@ int UriShortenerApp::run() {
     obs::info("URI Shortener listening");
     obs::info("Using message-based architecture", {{"workers", std::to_string(m_pool->worker_count())}});
     obs::info("Load shedder enabled", {{"max_concurrent", std::to_string(m_load_shedder->max_concurrent())}});
-    m_server->run();
+    
+    auto start_result = m_server->start();
+    if (!start_result) {
+        obs::error("Failed to start server");
+        return 1;
+    }
+    
+    m_server->join();
     return 0;
 }
 

@@ -5,50 +5,29 @@
 #include <functional>
 #include "Router.h"
 #include "http2server.pb.h"
+#include "Http2ServerError.h"
+#include <Result.h>
 
 namespace astra::http2 {
 
-class Request;
-class Response;
+class Http2Request;
+class Http2Response;
 
-class Server {
+class Http2Server {
 public:
-    /**
-     * @brief Construct a new Server object
-     * @param config Proto-generated server configuration
-     */
-    explicit Server(const ServerConfig& config);
-    ~Server();
+    explicit Http2Server(const ServerConfig& config);
+    ~Http2Server();
 
-    // Prevent copying
-    Server(const Server&) = delete;
-    Server& operator=(const Server&) = delete;
+    Http2Server(const Http2Server&) = delete;
+    Http2Server& operator=(const Http2Server&) = delete;
 
-    /// Handler uses shared_ptr (same as astra::router::Handler)
     using Handler = astra::router::Handler;
 
-    /**
-     * @brief Register a handler for a specific method and path
-     * @param method HTTP method (GET, POST, etc.)
-     * @param path URL path
-     * @param handler The callback function
-     */
     void handle(const std::string& method, const std::string& path, Handler handler);
-
-    /**
-     * @brief Start the server (blocking)
-     */
-    void run();
-
-    /**
-     * @brief Stop the server
-     */
-    void stop();
-
-    /**
-     * @brief Block until the server is ready to accept connections
-     */
-    void wait_until_ready();
+    
+    astra::outcome::Result<void, Http2ServerError> start();
+    astra::outcome::Result<void, Http2ServerError> join();
+    astra::outcome::Result<void, Http2ServerError> stop();
 
     [[nodiscard]] astra::router::Router& router() { return m_router; }
 

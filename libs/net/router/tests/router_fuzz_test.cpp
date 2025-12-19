@@ -46,10 +46,10 @@ void MatchWithParams(const std::string& userId, const std::string& action) {
     auto result = router.match("GET", path);
     
     // If matched, params should be extracted
-    if (result.handler) {
+    if (result && result->handler) {
         // Access params - should never crash
-        auto it1 = result.params.find("userId");
-        auto it2 = result.params.find("action");
+        auto it1 = result->params.find("userId");
+        auto it2 = result->params.find("action");
         (void)it1;
         (void)it2;
     }
@@ -65,13 +65,13 @@ void MatchAllMethods(const std::string& path) {
     router.del("/test", [](auto, auto) {});
     
     // Try all methods with fuzzed path
-    router.match("GET", path);
-    router.match("POST", path);
-    router.match("PUT", path);
-    router.match("DELETE", path);
-    router.match("PATCH", path);
-    router.match("OPTIONS", path);
-    router.match("HEAD", path);
-    router.match(path, path);  // Method could be anything
+    (void)router.match("GET", path);
+    (void)router.match("POST", path);
+    (void)router.match("PUT", path);
+    (void)router.match("DELETE", path);
+    (void)router.match("PATCH", path);
+    (void)router.match("OPTIONS", path);
+    (void)router.match("HEAD", path);
+    (void)router.match(path, path);  // Method could be anything
 }
 FUZZ_TEST(RouterFuzzTest, MatchAllMethods);

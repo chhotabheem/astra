@@ -13,8 +13,8 @@ using namespace url_shortener;
 class UriMessagesTest : public ::testing::Test {};
 
 TEST_F(UriMessagesTest, UriPayloadVariantHoldsHttpRequestMsg) {
-    auto req = std::make_shared<astra::http2::Request>();
-    auto resp = std::make_shared<astra::http2::ServerResponse>();
+    auto req = std::make_shared<astra::http2::Http2Request>();
+    auto resp = std::make_shared<astra::http2::Http2Response>();
     
     UriPayload payload = HttpRequestMsg{req, resp};
     
@@ -22,7 +22,7 @@ TEST_F(UriMessagesTest, UriPayloadVariantHoldsHttpRequestMsg) {
 }
 
 TEST_F(UriMessagesTest, UriPayloadVariantHoldsDbQueryMsg) {
-    auto resp = std::make_shared<astra::http2::ServerResponse>();
+    auto resp = std::make_shared<astra::http2::Http2Response>();
     
     UriPayload payload = DbQueryMsg{"shorten", "http://test.com", resp};
     
@@ -34,7 +34,7 @@ TEST_F(UriMessagesTest, UriPayloadVariantHoldsDbQueryMsg) {
 }
 
 TEST_F(UriMessagesTest, UriPayloadVariantHoldsDbResponseMsg) {
-    auto resp = std::make_shared<astra::http2::ServerResponse>();
+    auto resp = std::make_shared<astra::http2::Http2Response>();
     
     UriPayload payload = DbResponseMsg{"abc123", true, "", resp};
     
@@ -46,8 +46,8 @@ TEST_F(UriMessagesTest, UriPayloadVariantHoldsDbResponseMsg) {
 }
 
 TEST_F(UriMessagesTest, OverloadedVisitorDispatchesCorrectly) {
-    auto resp = std::make_shared<astra::http2::ServerResponse>();
-    auto req = std::make_shared<astra::http2::Request>();
+    auto resp = std::make_shared<astra::http2::Http2Response>();
+    auto req = std::make_shared<astra::http2::Http2Request>();
     
     std::vector<UriPayload> payloads = {
         HttpRequestMsg{req, resp},
@@ -75,7 +75,7 @@ TEST_F(UriMessagesTest, OverloadedVisitorDispatchesCorrectly) {
 }
 
 TEST_F(UriMessagesTest, DbQueryMsgHoldsData) {
-    auto resp = std::make_shared<astra::http2::ServerResponse>();
+    auto resp = std::make_shared<astra::http2::Http2Response>();
     
     DbQueryMsg query{"delete", "xyz789", resp};
     
@@ -84,7 +84,7 @@ TEST_F(UriMessagesTest, DbQueryMsgHoldsData) {
 }
 
 TEST_F(UriMessagesTest, DbResponseMsgHoldsError) {
-    auto resp = std::make_shared<astra::http2::ServerResponse>();
+    auto resp = std::make_shared<astra::http2::Http2Response>();
     
     DbResponseMsg response{"", false, "Not found", resp};
     

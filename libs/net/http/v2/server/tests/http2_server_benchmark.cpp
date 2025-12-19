@@ -42,7 +42,7 @@ static void BM_RegisterHandlers(benchmark::State& state) {
         config.set_port(0);  // Random port
         config.set_thread_count(1);
         
-        Server server(config);
+        Http2Server server(config);
         server.handle("GET", "/users", [](auto, auto) {});
         server.handle("GET", "/users/:id", [](auto, auto) {});
         server.handle("POST", "/users", [](auto, auto) {});
@@ -64,7 +64,7 @@ static void BM_ServerConstruction(benchmark::State& state) {
         config.set_port(0);
         config.set_thread_count(4);
         
-        Server server(config);
+        Http2Server server(config);
         benchmark::DoNotOptimize(server);
     }
 }

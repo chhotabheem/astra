@@ -9,19 +9,19 @@
 
 namespace astra::http2 {
 
-class ResponseHandle;
+class Http2ResponseWriter;
 
-class ServerResponse final : public astra::router::IResponse {
+class Http2Response final : public astra::router::IResponse {
 public:
-    ServerResponse() = default;
-    explicit ServerResponse(std::weak_ptr<ResponseHandle> handle);
+    Http2Response() = default;
+    explicit Http2Response(std::weak_ptr<Http2ResponseWriter> writer);
     
-    ServerResponse(const ServerResponse&) = default;
-    ServerResponse& operator=(const ServerResponse&) = default;
-    ServerResponse(ServerResponse&&) noexcept = default;
-    ServerResponse& operator=(ServerResponse&&) noexcept = default;
+    Http2Response(const Http2Response&) = default;
+    Http2Response& operator=(const Http2Response&) = default;
+    Http2Response(Http2Response&&) noexcept = default;
+    Http2Response& operator=(Http2Response&&) noexcept = default;
     
-    ~ServerResponse() override = default;
+    ~Http2Response() override = default;
 
     void set_status(int code) noexcept override;
     void set_header(const std::string& key, const std::string& value) override;
@@ -35,7 +35,7 @@ private:
     std::optional<int> m_status;
     std::map<std::string, std::string> m_headers;
     std::string m_body;
-    std::weak_ptr<ResponseHandle> m_handle;
+    std::weak_ptr<Http2ResponseWriter> m_writer;
     bool m_closed = false;
 };
 

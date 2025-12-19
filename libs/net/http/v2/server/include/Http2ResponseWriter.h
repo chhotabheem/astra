@@ -6,18 +6,18 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <boost/asio/io_context.hpp>
 #include <IScopedResource.h>
 
 namespace astra::http2 {
 
-class ResponseHandle : public std::enable_shared_from_this<ResponseHandle> {
+class Http2ResponseWriter : public std::enable_shared_from_this<Http2ResponseWriter> {
 public:
-    using SendFunction = std::function<void(int status, 
+    using SendResponse = std::function<void(int status, 
                                              std::map<std::string, std::string> headers,
                                              std::string body)>;
+    using PostWork = std::function<void(std::function<void()>)>;
     
-    ResponseHandle(SendFunction send_fn, boost::asio::io_context& io_ctx);
+    Http2ResponseWriter(SendResponse send_response, PostWork post_work);
     
     void send(int status, std::map<std::string, std::string> headers, std::string body);
     
@@ -30,8 +30,8 @@ public:
     }
     
 private:
-    SendFunction m_send_fn;
-    boost::asio::io_context& m_io_ctx;
+    SendResponse m_send_response;
+    PostWork m_post_work;
     std::atomic<bool> m_stream_alive{true};
     std::vector<std::unique_ptr<astra::execution::IScopedResource>> m_scoped_resources;
 };

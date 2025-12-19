@@ -1,65 +1,64 @@
 #include "NgHttp2Server.h"
 #include "Http2Request.h"
 #include "Http2Response.h"
-#include "ResponseHandle.h"
-#include "RequestData.h"
+#include "Http2ResponseWriter.h"
 #include "Url.h"
 #include <Log.h>
-#include <iostream>
+
+namespace {
+
+struct IncomingStream {
+    std::string method;
+    std::string path;
+    std::map<std::string, std::string> headers;
+    std::string body;
+    std::unordered_map<std::string, std::string> query_params;
+    std::shared_ptr<astra::http2::Http2ResponseWriter> response_writer;
+    astra::http2::Http2Server::Handler handler;
+};
+
+} // namespace
 
 namespace astra::http2 {
 namespace backend {
 
 NgHttp2Server::NgHttp2Server(const ServerConfig& config)
-    : m_config(config),
-      ready_future_(ready_promise_.get_future().share()) {
+    : m_config(config) {
     int threads = m_config.thread_count() > 0 ? m_config.thread_count() : 1;
-    server_.num_threads(threads);
+    m_server.num_threads(threads);
     obs::info("NgHttp2Server initialized with " + std::to_string(threads) + " threads");
 }
 
 NgHttp2Server::~NgHttp2Server() {
-    if (is_running_.load(std::memory_order_acquire)) {
-        stop();
+    if (m_is_running.load(std::memory_order_acquire)) {
+        m_server.stop();
+        m_server.join();
     }
 }
 
-void NgHttp2Server::handle(const std::string& method, const std::string& path, Server::Handler handler) {
-    server_.handle(path, [handler, method](const nghttp2::asio_http2::server::request& req, const nghttp2::asio_http2::server::response& res) {
-        if (!method.empty() && method != "*" && req.method() != method) {
+
+void NgHttp2Server::handle(const std::string& method, const std::string& path, Http2Server::Handler handler) {
+    m_server.handle(path, [handler = std::move(handler), method](const nghttp2::asio_http2::server::request& req, const nghttp2::asio_http2::server::response& res) {
+        if (method != "*" && req.method() != method) {
+            res.write_head(405);
+            res.end();
             return; 
         }
 
-        struct Context {
-            std::shared_ptr<RequestData> request_data;
-            std::shared_ptr<ResponseHandle> response_handle;
-            Server::Handler handler;
-        };
-        
-        auto ctx = std::make_shared<Context>();
-        ctx->request_data = std::make_shared<RequestData>();
-        ctx->request_data->method = req.method();
-        ctx->request_data->path = req.uri().path;
+        auto stream = std::make_shared<IncomingStream>();
+        stream->method = req.method();
+        stream->path = req.uri().path;
         if (!req.uri().raw_query.empty()) {
-            ctx->request_data->query_params = utils::Url::parse_query_string(req.uri().raw_query);
+            stream->query_params = utils::Url::parse_query_string(req.uri().raw_query);
         }
         for (const auto& h : req.header()) {
-            ctx->request_data->headers[h.first] = h.second.value;
+            stream->headers[h.first] = h.second.value;
         }
-        ctx->handler = handler;
+        stream->handler = handler;
         
-        // Create ResponseHandle with send function that captures response by reference
-        // This is safe because:
-        // 1. Send function posts to io_context where response lives
-        // 2. Posted lambda is serialized with on_close by event loop
-        // 3. Atomic flag prevents sending to closed streams
         auto& io_ctx = res.io_service();
-        ctx->response_handle = std::make_shared<ResponseHandle>(
+        stream->response_writer = std::make_shared<Http2ResponseWriter>(
             [&res](int status, std::map<std::string, std::string> headers, std::string body) {
-                // This lambda executes on io_context thread
-                // Safe to access res here
-                
-                // Convert headers to nghttp2 format
                 nghttp2::asio_http2::header_map h;
                 for (const auto& [k, v] : headers) {
                     h.emplace(k, nghttp2::asio_http2::header_value{v, false});
@@ -68,35 +67,45 @@ void NgHttp2Server::handle(const std::string& method, const std::string& path, S
                 res.write_head(status, h);
                 res.end(std::move(body));
             },
-            io_ctx
+
+            [&io_ctx](std::function<void()> work) {
+                boost::asio::post(io_ctx, std::move(work));
+            }
         );
         
-        // Register on_close callback to mark stream as closed
         const_cast<nghttp2::asio_http2::server::response&>(res).on_close(
-            [response_handle = ctx->response_handle](uint32_t error_code) {
-                response_handle->mark_closed();
+            [response_writer = stream->response_writer](uint32_t error_code) {
+                response_writer->mark_closed();
                 if (error_code != 0) {
                     obs::debug("Stream closed with error code: " + std::to_string(error_code));
                 }
             }
         );
 
-        const_cast<nghttp2::asio_http2::server::request&>(req).on_data([ctx](const uint8_t *data, std::size_t len) {
+        const_cast<nghttp2::asio_http2::server::request&>(req).on_data([stream](const uint8_t *data, std::size_t len) {
             if (len > 0) {
-                ctx->request_data->body.append(reinterpret_cast<const char*>(data), len);
+                stream->body.append(reinterpret_cast<const char*>(data), len);
             } else {
-                // Request complete, create shared_ptr Request and Response
-                auto request = std::make_shared<Request>(ctx->request_data);
-                auto response = std::make_shared<ServerResponse>(ctx->response_handle);
+                auto request = std::make_shared<Http2Request>(
+                    std::move(stream->method),
+                    std::move(stream->path),
+                    std::move(stream->headers),
+                    std::move(stream->body),
+                    std::move(stream->query_params)
+                );
+                auto response = std::make_shared<Http2Response>(stream->response_writer);
                 
-                // Call user handler with shared_ptr
-                ctx->handler(request, response);
+                stream->handler(request, response);
             }
         });
     });
 }
 
-void NgHttp2Server::run() {
+astra::outcome::Result<void, Http2ServerError> NgHttp2Server::start() {
+    if (m_is_running.load(std::memory_order_acquire)) {
+        return astra::outcome::Result<void, Http2ServerError>::Err(Http2ServerError::AlreadyRunning);
+    }
+    
     std::string address = m_config.address();
     std::string port = std::to_string(m_config.port());
     
@@ -104,42 +113,35 @@ void NgHttp2Server::run() {
     
     boost::system::error_code ec;
     
-    // Start server in async mode - this creates acceptors and returns immediately
-    if (server_.listen_and_serve(ec, address, port, true /*asynchronous*/)) {
+    if (m_server.listen_and_serve(ec, address, port, true)) {
         obs::error("Server failed to start: " + ec.message());
-        return;
+        return astra::outcome::Result<void, Http2ServerError>::Err(Http2ServerError::BindFailed);
     }
     
-    // At this point, acceptors are created and io_services are running
-    // Safe to signal ready and allow stop() to be called
-    is_running_.store(true, std::memory_order_release);
-    ready_promise_.set_value();
+    m_is_running.store(true, std::memory_order_release);
+    obs::info("Server started successfully");
+    return astra::outcome::Result<void, Http2ServerError>::Ok();
+}
+
+astra::outcome::Result<void, Http2ServerError> NgHttp2Server::join() {
+    if (!m_is_running.load(std::memory_order_acquire)) {
+        return astra::outcome::Result<void, Http2ServerError>::Err(Http2ServerError::NotStarted);
+    }
     
-    // Block until server stops
-    server_.join();
-    
+    m_server.join();
+    m_is_running.store(false, std::memory_order_release);
     obs::info("Server stopped cleanly");
+    return astra::outcome::Result<void, Http2ServerError>::Ok();
 }
 
-void NgHttp2Server::stop() {
-    if (is_running_.load(std::memory_order_acquire)) {
-        // Post stop to io_context for thread-safe shutdown
-        // This ensures acceptor close happens on the same thread as async operations
-        auto& io_services = server_.io_services();
-        if (!io_services.empty()) {
-            boost::asio::post(*io_services[0], [this]() {
-                server_.stop();
-            });
-        } else {
-            server_.stop();
-        }
-        is_running_.store(false, std::memory_order_release);
-        obs::info("Server stopped");
+astra::outcome::Result<void, Http2ServerError> NgHttp2Server::stop() {
+    if (!m_is_running.load(std::memory_order_acquire)) {
+        return astra::outcome::Result<void, Http2ServerError>::Err(Http2ServerError::NotStarted);
     }
-}
-
-void NgHttp2Server::wait_until_ready() {
-    ready_future_.wait();
+    
+    m_server.stop();
+    obs::info("Server stop requested");
+    return astra::outcome::Result<void, Http2ServerError>::Ok();
 }
 
 } // namespace backend

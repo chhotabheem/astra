@@ -5,7 +5,7 @@
 
 namespace astra::http2 {
 
-class Server::Impl {
+class Http2Server::Impl {
 public:
     Impl(const ServerConfig& config)
         : backend(config) {}
@@ -13,32 +13,31 @@ public:
     backend::NgHttp2Server backend;
 };
 
-Server::Server(const ServerConfig& config)
+Http2Server::Http2Server(const ServerConfig& config)
     : m_impl(std::make_unique<Impl>(config)) {
     
-    // Default handler: Dispatch to Router with shared_ptr
     m_impl->backend.handle("*", "/", [this](std::shared_ptr<astra::router::IRequest> req, 
                                              std::shared_ptr<astra::router::IResponse> res) {
         m_router.dispatch(req, res);
     });
 }
 
-Server::~Server() = default;
+Http2Server::~Http2Server() = default;
 
-void Server::handle(const std::string& method, const std::string& path, Handler handler) {
+void Http2Server::handle(const std::string& method, const std::string& path, Handler handler) {
     m_impl->backend.handle(method, path, handler);
 }
 
-void Server::run() {
-    m_impl->backend.run();
+astra::outcome::Result<void, Http2ServerError> Http2Server::start() {
+    return m_impl->backend.start();
 }
 
-void Server::stop() {
-    m_impl->backend.stop();
+astra::outcome::Result<void, Http2ServerError> Http2Server::join() {
+    return m_impl->backend.join();
 }
 
-void Server::wait_until_ready() {
-    m_impl->backend.wait_until_ready();
+astra::outcome::Result<void, Http2ServerError> Http2Server::stop() {
+    return m_impl->backend.stop();
 }
 
 } // namespace astra::http2

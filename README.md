@@ -4,18 +4,18 @@
 
 ### Build Docker Image
 ```bash
-docker build --network=host -t astrabuilder:v7 -f devenv/Dockerfile devenv
+docker build --network=host -t astrabuilder:v11 -f devenv/Dockerfile devenv
 ```
 
 ### Run Container
 ```bash
-docker run -it --name astra -v $(pwd):/app/astra astrabuilder:v7 bash
+docker run -it --name astra -v $(pwd):/app/astra astrabuilder:v11 bash
 ```
 
 ### Run Container (with Sanitizer Support)
 For running ThreadSanitizer (TSan) or AddressSanitizer (ASan) tests, use:
 ```bash
-docker run -it --name astra --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v $(pwd):/app/astra astrabuilder:v7 bash
+docker run -it --name astra --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v $(pwd):/app/astra astrabuilder:v11 bash
 ```
 > **Note**: `--cap-add=SYS_PTRACE` enables process tracing for sanitizers. `--security-opt seccomp=unconfined` allows the `personality` syscall needed by TSan to disable ASLR.
 

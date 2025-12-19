@@ -26,6 +26,10 @@ RUN apt-get update && apt-get install -y \
     libboost-thread-dev \
     libboost-url-dev \
     #
+    # Load Testing Tools
+    nghttp2-client \
+    nginx \
+    #
     # Security & Networking Libraries
     ca-certificates \
     libhiredis-dev \

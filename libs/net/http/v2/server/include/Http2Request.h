@@ -1,35 +1,26 @@
 #pragma once
 
 #include "IRequest.h"
-#include <memory>
 #include <unordered_map>
+#include <map>
 #include <string>
 
 namespace astra::http2 {
 
-struct RequestData;  // Forward declaration
-
-/**
- * @brief Lightweight copyable handle to HTTP request data.
- * 
- * Holds weak_ptr<RequestData>. Each method locks the weak_ptr
- * and returns empty if the underlying data has expired.
- * This provides graceful behavior when the stream closes.
- */
-class Request final : public astra::router::IRequest {
+class Http2Request final : public astra::router::IRequest {
 public:
-    Request() = default;
-    explicit Request(std::weak_ptr<RequestData> data);
+    Http2Request() = default;
+    Http2Request(std::string method, std::string path,
+                 std::map<std::string, std::string> headers = {},
+                 std::string body = {},
+                 std::unordered_map<std::string, std::string> query_params = {});
     
-    // Copyable (default)
-    Request(const Request&) = default;
-    Request& operator=(const Request&) = default;
+    Http2Request(const Http2Request&) = default;
+    Http2Request& operator=(const Http2Request&) = default;
+    Http2Request(Http2Request&&) noexcept = default;
+    Http2Request& operator=(Http2Request&&) noexcept = default;
     
-    // Also movable
-    Request(Request&&) noexcept = default;
-    Request& operator=(Request&&) noexcept = default;
-    
-    ~Request() override = default;
+    ~Http2Request() override = default;
 
     [[nodiscard]] const std::string& method() const override;
     [[nodiscard]] const std::string& path() const override;
@@ -42,8 +33,12 @@ public:
     void set_path_params(std::unordered_map<std::string, std::string> params) override;
 
 private:
-    std::weak_ptr<RequestData> m_data;
-    mutable std::string m_empty;  // For returning empty reference
+    std::string m_method;
+    std::string m_path;
+    std::string m_body;
+    std::map<std::string, std::string> m_headers;
+    std::unordered_map<std::string, std::string> m_path_params;
+    std::unordered_map<std::string, std::string> m_query_params;
 };
 
 } // namespace astra::http2

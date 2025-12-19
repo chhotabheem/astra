@@ -41,8 +41,8 @@ protected:
 TEST_F(ObservableHandlerTest, DelegatesToInnerHandler) {
     ObservableMessageHandler observable(inner);
     
-    auto req = std::make_shared<astra::http2::Request>();
-    auto resp = std::make_shared<astra::http2::ServerResponse>();
+    auto req = std::make_shared<astra::http2::Http2Request>();
+    auto resp = std::make_shared<astra::http2::Http2Response>();
     HttpRequestMsg http_msg{req, resp};
     
     Message msg{42, obs::Context::create(), UriPayload{std::move(http_msg)}};
@@ -57,8 +57,8 @@ TEST_F(ObservableHandlerTest, HandlesMultipleMessages) {
     ObservableMessageHandler observable(inner);
     
     for (int i = 0; i < 5; ++i) {
-        auto req = std::make_shared<astra::http2::Request>();
-        auto resp = std::make_shared<astra::http2::ServerResponse>();
+        auto req = std::make_shared<astra::http2::Http2Request>();
+        auto resp = std::make_shared<astra::http2::Http2Response>();
         Message msg{
             static_cast<uint64_t>(i),
             obs::Context::create(),
@@ -74,8 +74,8 @@ TEST_F(ObservableHandlerTest, PropagatesExceptionsAfterRecording) {
     inner.m_should_throw = true;
     ObservableMessageHandler observable(inner);
     
-    auto req = std::make_shared<astra::http2::Request>();
-    auto resp = std::make_shared<astra::http2::ServerResponse>();
+    auto req = std::make_shared<astra::http2::Http2Request>();
+    auto resp = std::make_shared<astra::http2::Http2Response>();
     Message msg{1, obs::Context::create(), UriPayload{HttpRequestMsg{req, resp}}};
     
     EXPECT_THROW(observable.handle(msg), std::runtime_error);

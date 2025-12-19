@@ -1,67 +1,56 @@
 #include "Http2Request.h"
-#include "RequestData.h"
 
 namespace astra::http2 {
 
-Request::Request(std::weak_ptr<RequestData> data)
-    : m_data(std::move(data)) {
+Http2Request::Http2Request(std::string method, std::string path,
+                           std::map<std::string, std::string> headers,
+                           std::string body,
+                           std::unordered_map<std::string, std::string> query_params)
+    : m_method(std::move(method))
+    , m_path(std::move(path))
+    , m_body(std::move(body))
+    , m_headers(std::move(headers))
+    , m_query_params(std::move(query_params)) {
 }
 
-const std::string& Request::method() const {
-    if (auto d = m_data.lock()) {
-        return d->method;
-    }
-    return m_empty;
+const std::string& Http2Request::method() const {
+    return m_method;
 }
 
-const std::string& Request::path() const {
-    if (auto d = m_data.lock()) {
-        return d->path;
-    }
-    return m_empty;
+const std::string& Http2Request::path() const {
+    return m_path;
 }
 
-std::string Request::header(const std::string& key) const {
-    if (auto d = m_data.lock()) {
-        auto it = d->headers.find(key);
-        if (it != d->headers.end()) {
-            return it->second;
-        }
-    }
-    return {};
-}
-
-const std::string& Request::body() const {
-    if (auto d = m_data.lock()) {
-        return d->body;
-    }
-    return m_empty;
-}
-
-std::string Request::path_param(const std::string& key) const {
-    if (auto d = m_data.lock()) {
-        auto it = d->path_params.find(key);
-        if (it != d->path_params.end()) {
-            return it->second;
-        }
+std::string Http2Request::header(const std::string& key) const {
+    auto it = m_headers.find(key);
+    if (it != m_headers.end()) {
+        return it->second;
     }
     return {};
 }
 
-std::string Request::query_param(const std::string& key) const {
-    if (auto d = m_data.lock()) {
-        auto it = d->query_params.find(key);
-        if (it != d->query_params.end()) {
-            return it->second;
-        }
+const std::string& Http2Request::body() const {
+    return m_body;
+}
+
+std::string Http2Request::path_param(const std::string& key) const {
+    auto it = m_path_params.find(key);
+    if (it != m_path_params.end()) {
+        return it->second;
     }
     return {};
 }
 
-void Request::set_path_params(std::unordered_map<std::string, std::string> params) {
-    if (auto d = m_data.lock()) {
-        d->path_params = std::move(params);
+std::string Http2Request::query_param(const std::string& key) const {
+    auto it = m_query_params.find(key);
+    if (it != m_query_params.end()) {
+        return it->second;
     }
+    return {};
+}
+
+void Http2Request::set_path_params(std::unordered_map<std::string, std::string> params) {
+    m_path_params = std::move(params);
 }
 
 } // namespace astra::http2

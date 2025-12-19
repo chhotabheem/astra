@@ -1,0 +1,18 @@
+{
+  "bootstrap": {
+    "server": {
+      "address": "0.0.0.0",
+      "port": 8081,
+      "thread_count": 4
+    },
+    "execution": {
+      "shared_queue": {
+        "num_workers": 4
+      }
+    },
+    "service": {
+      "name": "uri_shortener",
+      "environment": "loadtest"
+    }
+  }
+}

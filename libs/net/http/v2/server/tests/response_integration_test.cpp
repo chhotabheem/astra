@@ -1,22 +1,23 @@
 #include <gtest/gtest.h>
 #include "Http2Response.h"
-#include "ResponseHandle.h"
+#include "Http2ResponseWriter.h"
 #include <memory>
 #include <boost/asio/io_context.hpp>
+#include <boost/asio/post.hpp>
 
 using namespace astra::http2;
 
 /**
  * TDD Tests for Response as lightweight copyable handle
  * 
- * Design: Response holds data directly + weak_ptr<ResponseHandle>
+ * Design: Response holds data directly + weak_ptr<Http2ResponseWriter>
  * - optional<int> m_status (no default - forces explicit set)
  * - bool m_closed (prevents double-send)
  * - Copyable
- * - close() sends via ResponseHandle
+ * - close() sends via Http2ResponseWriter
  */
 
-class ResponseHandleIntegrationTest : public ::testing::Test {
+class Http2ResponseWriterIntegrationTest : public ::testing::Test {
 protected:
     boost::asio::io_context io_ctx;
     
@@ -29,28 +30,30 @@ protected:
     
     SentData sent;
     
-    std::shared_ptr<ResponseHandle> make_response_handle() {
-        return std::make_shared<ResponseHandle>(
+    std::shared_ptr<Http2ResponseWriter> make_response_handle() {
+        return std::make_shared<Http2ResponseWriter>(
             [this](int status, std::map<std::string, std::string> headers, std::string body) {
                 sent.status = status;
                 sent.headers = std::move(headers);
                 sent.body = std::move(body);
                 sent.send_count++;
             },
-            io_ctx
+            [this](std::function<void()> work) {
+                boost::asio::post(io_ctx, std::move(work));
+            }
         );
     }
 };
 
-TEST_F(ResponseHandleIntegrationTest, ServerResponseIsCopyable) {
+TEST_F(Http2ResponseWriterIntegrationTest, Http2ResponseIsCopyable) {
     auto handle = make_response_handle();
-    ServerResponse res1(handle);
+    Http2Response res1(handle);
     
     // Copy construct
-    ServerResponse res2 = res1;
+    Http2Response res2 = res1;
     
     // Copy assign
-    ServerResponse res3(handle);
+    Http2Response res3(handle);
     res3 = res1;
     
     // All should be valid
@@ -60,9 +63,9 @@ TEST_F(ResponseHandleIntegrationTest, ServerResponseIsCopyable) {
     SUCCEED();
 }
 
-TEST_F(ResponseHandleIntegrationTest, ServerResponseCloseSendsViaHandle) {
+TEST_F(Http2ResponseWriterIntegrationTest, Http2ResponseCloseSendsViaHandle) {
     auto handle = make_response_handle();
-    ServerResponse res(handle);
+    Http2Response res(handle);
     
     res.set_status(201);
     res.set_header("Content-Type", "text/plain");
@@ -78,9 +81,9 @@ TEST_F(ResponseHandleIntegrationTest, ServerResponseCloseSendsViaHandle) {
     EXPECT_EQ(sent.send_count, 1);
 }
 
-TEST_F(ResponseHandleIntegrationTest, ServerResponseDoubleCloseOnlySendsOnce) {
+TEST_F(Http2ResponseWriterIntegrationTest, Http2ResponseDoubleCloseOnlySendsOnce) {
     auto handle = make_response_handle();
-    ServerResponse res(handle);
+    Http2Response res(handle);
     
     res.set_status(200);
     res.write("OK");
@@ -93,15 +96,15 @@ TEST_F(ResponseHandleIntegrationTest, ServerResponseDoubleCloseOnlySendsOnce) {
     EXPECT_EQ(sent.send_count, 1);  // Only sent once
 }
 
-TEST_F(ResponseHandleIntegrationTest, ServerResponseCloseGracefulWhenHandleExpired) {
-    std::weak_ptr<ResponseHandle> weak_handle;
+TEST_F(Http2ResponseWriterIntegrationTest, Http2ResponseCloseGracefulWhenHandleExpired) {
+    std::weak_ptr<Http2ResponseWriter> weak_handle;
     {
         auto handle = make_response_handle();
         weak_handle = handle;
     }
     // handle destroyed
     
-    ServerResponse res(weak_handle);
+    Http2Response res(weak_handle);
     res.set_status(200);
     res.write("test");
     res.close();  // Should not crash, gracefully dropped
@@ -111,9 +114,9 @@ TEST_F(ResponseHandleIntegrationTest, ServerResponseCloseGracefulWhenHandleExpir
     EXPECT_EQ(sent.send_count, 0);  // Not sent
 }
 
-TEST_F(ResponseHandleIntegrationTest, ServerResponseStatusDefaultsTo500IfNotSet) {
+TEST_F(Http2ResponseWriterIntegrationTest, Http2ResponseStatusDefaultsTo500IfNotSet) {
     auto handle = make_response_handle();
-    ServerResponse res(handle);
+    Http2Response res(handle);
     
     // Deliberately NOT calling set_status()
     res.write("oops");
@@ -125,9 +128,9 @@ TEST_F(ResponseHandleIntegrationTest, ServerResponseStatusDefaultsTo500IfNotSet)
     EXPECT_EQ(sent.status, 500);
 }
 
-TEST_F(ResponseHandleIntegrationTest, ServerResponseAccumulatesWrites) {
+TEST_F(Http2ResponseWriterIntegrationTest, Http2ResponseAccumulatesWrites) {
     auto handle = make_response_handle();
-    ServerResponse res(handle);
+    Http2Response res(handle);
     
     res.set_status(200);
     res.write("Hello");
@@ -140,14 +143,14 @@ TEST_F(ResponseHandleIntegrationTest, ServerResponseAccumulatesWrites) {
     EXPECT_EQ(sent.body, "Hello World");
 }
 
-TEST_F(ResponseHandleIntegrationTest, CopiedServerResponseSharesClosedState) {
+TEST_F(Http2ResponseWriterIntegrationTest, CopiedHttp2ResponseSharesClosedState) {
     auto handle = make_response_handle();
-    ServerResponse res1(handle);
+    Http2Response res1(handle);
     res1.set_status(200);
     res1.write("test");
     
     // Copy before close
-    ServerResponse res2 = res1;
+    Http2Response res2 = res1;
     
     res1.close();
     io_ctx.run();
@@ -165,9 +168,9 @@ TEST_F(ResponseHandleIntegrationTest, CopiedServerResponseSharesClosedState) {
     EXPECT_EQ(sent.send_count, 2);  // Both copies sent
 }
 
-TEST_F(ResponseHandleIntegrationTest, ServerResponseSetHeaderMultipleTimes) {
+TEST_F(Http2ResponseWriterIntegrationTest, Http2ResponseSetHeaderMultipleTimes) {
     auto handle = make_response_handle();
-    ServerResponse res(handle);
+    Http2Response res(handle);
     
     res.set_status(200);
     res.set_header("X-Custom", "value1");
