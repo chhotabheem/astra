@@ -5,7 +5,7 @@
 #include "ExpirationPolicy.h"
 #include <string>
 
-using namespace url_shortener::domain;
+using namespace uri_shortener::domain;
 
 // =============================================================================
 // ShortCode Benchmarks

@@ -5,7 +5,7 @@
 
 #include <string>
 
-namespace url_shortener::domain {
+namespace uri_shortener::domain {
 
 /// Domain errors - pure domain terminology, no technology leakage
 enum class DomainError {
@@ -35,4 +35,4 @@ inline std::string to_string(DomainError error) noexcept {
     }
 }
 
-} // namespace url_shortener::domain
+} // namespace uri_shortener::domain

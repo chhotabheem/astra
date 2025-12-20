@@ -9,7 +9,7 @@
 #include <Context.h>
 #include <memory>
 
-namespace url_shortener {
+namespace uri_shortener {
 
 /**
  * @brief Message Handler for URI Shortener
@@ -49,7 +49,7 @@ private:
     std::shared_ptr<astra::execution::IQueue> m_response_queue;
 };
 
-} // namespace url_shortener
+} // namespace uri_shortener
 
 
 

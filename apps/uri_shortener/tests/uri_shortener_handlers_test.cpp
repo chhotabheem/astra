@@ -4,7 +4,7 @@
 #include "Http2Response.h"
 #include <variant>
 
-using namespace url_shortener;
+using namespace uri_shortener;
 
 /**
  * TDD Tests for URI Shortener Messages and Handlers

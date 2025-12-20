@@ -4,7 +4,7 @@
 #include <chrono>
 #include <any>
 
-namespace url_shortener {
+namespace uri_shortener {
 
 ObservableMessageHandler::ObservableMessageHandler(astra::execution::IMessageHandler& inner)
     : m_inner(inner)
@@ -40,5 +40,5 @@ void ObservableMessageHandler::handle(astra::execution::Message& msg) {
     span->end();
 }
 
-} // namespace url_shortener
+} // namespace uri_shortener
 

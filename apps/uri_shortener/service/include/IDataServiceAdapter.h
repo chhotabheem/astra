@@ -2,7 +2,7 @@
 
 #include "DataServiceMessages.h"
 
-namespace url_shortener::service {
+namespace uri_shortener::service {
 
 /// Protocol-agnostic interface for data service operations
 /// Hides HTTP, gRPC, or any other protocol details
@@ -16,4 +16,4 @@ public:
     virtual void execute(DataServiceRequest request, DataServiceCallback callback) = 0;
 };
 
-} // namespace url_shortener::service
+} // namespace uri_shortener::service

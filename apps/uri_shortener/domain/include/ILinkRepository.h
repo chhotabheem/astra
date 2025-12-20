@@ -6,7 +6,7 @@
 #include "DomainErrors.h"
 #include <memory>
 
-namespace url_shortener::domain {
+namespace uri_shortener::domain {
 
 class ILinkRepository {
 public:
@@ -17,4 +17,4 @@ public:
     virtual bool exists(const ShortCode& code) = 0;
 };
 
-} // namespace url_shortener::domain
+} // namespace uri_shortener::domain

@@ -8,7 +8,7 @@
 #include "ExpirationPolicy.h"
 #include <chrono>
 
-namespace url_shortener::domain::test {
+namespace uri_shortener::domain::test {
 
 using namespace std::chrono_literals;
 
@@ -117,4 +117,4 @@ TEST(ShortLinkTest, DifferentCode_AreNotEqual) {
     EXPECT_NE(link1, link2);
 }
 
-} // namespace url_shortener::domain::test
+} // namespace uri_shortener::domain::test

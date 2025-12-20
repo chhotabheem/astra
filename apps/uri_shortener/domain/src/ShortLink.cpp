@@ -3,7 +3,7 @@
 
 #include "ShortLink.h"
 
-namespace url_shortener::domain {
+namespace uri_shortener::domain {
 
 ShortLink::ShortLink(ShortCode code, OriginalUrl original, ExpirationPolicy expiration, TimePoint created_at)
     : m_code(std::move(code))
@@ -24,4 +24,4 @@ bool ShortLink::is_expired() const noexcept {
     return m_expiration.has_expired_at(Clock::now());
 }
 
-} // namespace url_shortener::domain
+} // namespace uri_shortener::domain

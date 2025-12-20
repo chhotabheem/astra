@@ -12,7 +12,7 @@
 #include <chrono>
 #include <memory>
 
-namespace url_shortener::infrastructure {
+namespace uri_shortener::infrastructure {
 
 /**
  * @brief Observability decorator for ILinkRepository
@@ -120,5 +120,5 @@ private:
     obs::MetricsRegistry m_metrics;  // ONE member variable for ALL metrics
 };
 
-} // namespace url_shortener::infrastructure
+} // namespace uri_shortener::infrastructure
 

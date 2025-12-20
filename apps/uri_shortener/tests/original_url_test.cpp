@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include "OriginalUrl.h"
 
-namespace url_shortener::domain::test {
+namespace uri_shortener::domain::test {
 
 // =============================================================================
 // Construction Tests - Valid URLs
@@ -101,4 +101,4 @@ TEST(OriginalUrlTest, FromTrusted_DoesNotValidate) {
     EXPECT_EQ(url.value(), "https://example.com");
 }
 
-} // namespace url_shortener::domain::test
+} // namespace uri_shortener::domain::test

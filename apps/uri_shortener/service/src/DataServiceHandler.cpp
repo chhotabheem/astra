@@ -2,7 +2,7 @@
 #include <Message.h>
 #include <Log.h>
 
-namespace url_shortener::service {
+namespace uri_shortener::service {
 
 DataServiceHandler::DataServiceHandler(
     IDataServiceAdapter& adapter,
@@ -33,4 +33,4 @@ void DataServiceHandler::handle(astra::execution::Message& msg) {
     );
 }
 
-} // namespace url_shortener::service
+} // namespace uri_shortener::service

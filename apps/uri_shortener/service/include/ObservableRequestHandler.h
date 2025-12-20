@@ -7,7 +7,7 @@
 #include <Log.h>
 #include <memory>
 
-namespace url_shortener {
+namespace uri_shortener {
 
 /**
  * @brief Observable decorator for URI Shortener request handler.
@@ -26,5 +26,5 @@ private:
     obs::MetricsRegistry m_metrics;
 };
 
-} // namespace url_shortener
+} // namespace uri_shortener
 

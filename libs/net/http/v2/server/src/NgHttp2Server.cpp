@@ -7,7 +7,7 @@
 
 namespace {
 
-struct IncomingStream {
+struct RequestStream {
     std::string method;
     std::string path;
     std::map<std::string, std::string> headers;
@@ -20,7 +20,6 @@ struct IncomingStream {
 } // namespace
 
 namespace astra::http2 {
-namespace backend {
 
 NgHttp2Server::NgHttp2Server(const ServerConfig& config)
     : m_config(config) {
@@ -45,7 +44,7 @@ void NgHttp2Server::handle(const std::string& method, const std::string& path, H
             return; 
         }
 
-        auto stream = std::make_shared<IncomingStream>();
+        auto stream = std::make_shared<RequestStream>();
         stream->method = req.method();
         stream->path = req.uri().path;
         if (!req.uri().raw_query.empty()) {
@@ -144,5 +143,4 @@ astra::outcome::Result<void, Http2ServerError> NgHttp2Server::stop() {
     return astra::outcome::Result<void, Http2ServerError>::Ok();
 }
 
-} // namespace backend
 } // namespace astra::http2

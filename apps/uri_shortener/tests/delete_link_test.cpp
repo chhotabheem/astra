@@ -9,9 +9,9 @@
 #include <memory>
 #include <map>
 
-namespace url_shortener::application::test {
+namespace uri_shortener::application::test {
 
-using namespace url_shortener::domain;
+using namespace uri_shortener::domain;
 
 class MockCodeGenerator : public ICodeGenerator {
 public:
@@ -104,4 +104,4 @@ TEST_F(DeleteLinkTest, Execute_WithInvalidCode_ReturnsError) {
     EXPECT_EQ(result.error(), DomainError::InvalidShortCode);
 }
 
-} // namespace url_shortener::application::test
+} // namespace uri_shortener::application::test

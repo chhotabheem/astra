@@ -9,7 +9,7 @@
 #include <memory>
 #include <string>
 
-namespace url_shortener::application {
+namespace uri_shortener::application {
 
 /**
  * @brief ResolveLink use case
@@ -37,4 +37,4 @@ private:
     std::shared_ptr<domain::ILinkRepository> m_repository;
 };
 
-} // namespace url_shortener::application
+} // namespace uri_shortener::application

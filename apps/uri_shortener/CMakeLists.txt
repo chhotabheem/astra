@@ -17,6 +17,7 @@ add_library(uri_shortener_domain STATIC
     service/src/ObservableMessageHandler.cpp
     service/src/ObservableRequestHandler.cpp
     service/src/UriShortenerApp.cpp
+    service/src/AppBuilder.cpp
     service/src/HttpDataServiceAdapter.cpp
     service/src/DataServiceHandler.cpp
 )
@@ -36,11 +37,11 @@ target_include_directories(uri_shortener_domain
         ${CMAKE_SOURCE_DIR}/libs/core/observability/include
         ${CMAKE_SOURCE_DIR}/libs/core/execution/include
         ${CMAKE_SOURCE_DIR}/libs/core/resilience/include
+        ${CMAKE_SOURCE_DIR}/libs/core/service_discovery/include
 )
-
 target_link_libraries(uri_shortener_domain
     PRIVATE astra_sanitizers
-    PUBLIC uri_shortener_config http2server http2client astra_router observability astra_execution resilience
+    PUBLIC uri_shortener_config http2server http2client astra_router observability astra_execution resilience service_discovery
 )
 
 target_compile_features(uri_shortener_domain PUBLIC cxx_std_17)

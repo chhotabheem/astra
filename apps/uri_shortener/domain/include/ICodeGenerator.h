@@ -2,7 +2,7 @@
 
 #include "ShortCode.h"
 
-namespace url_shortener::domain {
+namespace uri_shortener::domain {
 
 class ICodeGenerator {
 public:
@@ -10,4 +10,4 @@ public:
     virtual ShortCode generate() = 0;
 };
 
-} // namespace url_shortener::domain
+} // namespace uri_shortener::domain

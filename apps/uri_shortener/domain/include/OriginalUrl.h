@@ -4,7 +4,7 @@
 #include "DomainErrors.h"
 #include <string>
 
-namespace url_shortener::domain {
+namespace uri_shortener::domain {
 
 class OriginalUrl {
 public:
@@ -27,4 +27,4 @@ private:
     std::string m_value;
 };
 
-} // namespace url_shortener::domain
+} // namespace uri_shortener::domain

@@ -4,7 +4,7 @@
 #include <map>
 #include <mutex>
 
-namespace url_shortener::infrastructure {
+namespace uri_shortener::infrastructure {
 
 class InMemoryLinkRepository : public domain::ILinkRepository {
 public:
@@ -58,4 +58,4 @@ private:
     std::map<std::string, domain::ShortLink> m_links;
 };
 
-} // namespace url_shortener::infrastructure
+} // namespace uri_shortener::infrastructure

@@ -1,19 +1,19 @@
 include(GoogleTest)
 
-# Http2ClientPool tests
-add_executable(test_http2_client_pool
-    http2_client_pool_test.cpp
+astra_add_test(
+    TARGET test_http2_client
+    SOURCES 
+        http2_client_test.cpp
+    LIBRARIES http2client observability
 )
 
-target_link_libraries(test_http2_client_pool
-    PRIVATE
-        http2client
-        GTest::gtest
-        GTest::gtest_main
-        astra_sanitizers
-)
-
-gtest_discover_tests(test_http2_client_pool)
+# Fuzz tests (only when FuzzTest is enabled)
+if(ENABLE_FUZZTEST)
+    add_executable(http2_client_fuzz_test http2_client_fuzz_test.cpp)
+    target_link_libraries(http2_client_fuzz_test PRIVATE http2client)
+    link_fuzztest(http2_client_fuzz_test)
+    gtest_discover_tests(http2_client_fuzz_test PROPERTIES LABELS fuzz)
+endif()
 
 # Benchmarks (only when Benchmark is enabled)
 if(ENABLE_BENCHMARK)

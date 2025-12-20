@@ -3,7 +3,7 @@
 
 #include "ExpirationPolicy.h"
 
-namespace url_shortener::domain {
+namespace uri_shortener::domain {
 
 ExpirationPolicy::ExpirationPolicy(Type type, std::optional<TimePoint> expires_at, TimePoint created_at)
     : m_type(type)
@@ -52,4 +52,4 @@ bool ExpirationPolicy::operator!=(const ExpirationPolicy& other) const noexcept 
     return !(*this == other);
 }
 
-} // namespace url_shortener::domain
+} // namespace uri_shortener::domain

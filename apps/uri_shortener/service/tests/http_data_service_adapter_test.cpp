@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include "HttpDataServiceAdapter.h"
 #include "Http2Client.h"
-#include "Http2ClientPool.h"
+#include "StaticServiceResolver.h"
 #include <memory>
 #include <atomic>
 #include <thread>
@@ -11,31 +11,25 @@
 #include <condition_variable>
 
 
-using namespace url_shortener::service;
+using namespace uri_shortener::service;
 using namespace astra::http2;
+using namespace astra::service_discovery;
 using ::testing::_;
 using ::testing::Invoke;
 
-namespace url_shortener::service::test {
-
-/**
- * Mock HTTP client for testing the adapter without real network calls.
- * Since Client doesn't have virtual methods, we test the adapter through
- * integration-style tests with the pool.
- */
+namespace uri_shortener::service::test {
 
 class HttpDataServiceAdapterTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        // Create config for pool
-        m_pool_config.set_host("127.0.0.1");
-        m_pool_config.set_port(29999);  // Unlikely to be in use
-        m_pool_config.set_connect_timeout_ms(100);
-        m_pool_config.set_request_timeout_ms(100);
-        m_pool_config.set_pool_size(2);
+        m_config.set_request_timeout_ms(100);
+        
+        // Setup resolver with test backend
+        m_resolver.register_service("dataservice", "127.0.0.1", 29999);
     }
-
-    astra::http2::ClientConfig m_pool_config;
+    
+    astra::http2::ClientConfig m_config;
+    StaticServiceResolver m_resolver;
 };
 
 // ===========================================================================
@@ -43,8 +37,8 @@ protected:
 // ===========================================================================
 
 TEST_F(HttpDataServiceAdapterTest, SaveTranslatesToPost) {
-    Http2ClientPool pool(m_pool_config);
-    HttpDataServiceAdapter adapter(pool);
+    Http2Client client(m_config);
+    HttpDataServiceAdapter adapter(client, m_resolver, "dataservice");
     
     DataServiceRequest req{
         DataServiceOperation::SAVE,
@@ -58,18 +52,15 @@ TEST_F(HttpDataServiceAdapterTest, SaveTranslatesToPost) {
     
     adapter.execute(req, [&callback_called](DataServiceResponse resp) {
         callback_called = true;
-        // Will fail with connection error since no server, but that's OK - 
-        // we're testing that the adapter executes and calls back
     });
     
-    // Give time for async execution
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
     EXPECT_TRUE(callback_called);
 }
 
 TEST_F(HttpDataServiceAdapterTest, FindTranslatesToGet) {
-    Http2ClientPool pool(m_pool_config);
-    HttpDataServiceAdapter adapter(pool);
+    Http2Client client(m_config);
+    HttpDataServiceAdapter adapter(client, m_resolver, "dataservice");
     
     DataServiceRequest req{
         DataServiceOperation::FIND,
@@ -90,8 +81,8 @@ TEST_F(HttpDataServiceAdapterTest, FindTranslatesToGet) {
 }
 
 TEST_F(HttpDataServiceAdapterTest, DeleteTranslatesToDelete) {
-    Http2ClientPool pool(m_pool_config);
-    HttpDataServiceAdapter adapter(pool);
+    Http2Client client(m_config);
+    HttpDataServiceAdapter adapter(client, m_resolver, "dataservice");
     
     DataServiceRequest req{
         DataServiceOperation::DELETE,
@@ -116,8 +107,8 @@ TEST_F(HttpDataServiceAdapterTest, DeleteTranslatesToDelete) {
 // ===========================================================================
 
 TEST_F(HttpDataServiceAdapterTest, ConnectionFailureReturnsInfraError) {
-    Http2ClientPool pool(m_pool_config);
-    HttpDataServiceAdapter adapter(pool);
+    Http2Client client(m_config);
+    HttpDataServiceAdapter adapter(client, m_resolver, "dataservice");
     
     DataServiceRequest req{
         DataServiceOperation::FIND,
@@ -139,7 +130,6 @@ TEST_F(HttpDataServiceAdapterTest, ConnectionFailureReturnsInfraError) {
         cv.notify_one();
     });
     
-    // Wait for callback with timeout
     {
         std::unique_lock<std::mutex> lock(mtx);
         cv.wait_for(lock, std::chrono::milliseconds(500), [&callback_called] { return callback_called; });
@@ -150,24 +140,35 @@ TEST_F(HttpDataServiceAdapterTest, ConnectionFailureReturnsInfraError) {
     EXPECT_TRUE(captured_response.infra_error.has_value());
 }
 
+TEST_F(HttpDataServiceAdapterTest, UnknownServiceThrows) {
+    Http2Client client(m_config);
+    HttpDataServiceAdapter adapter(client, m_resolver, "nonexistent-service");
+    
+    DataServiceRequest req{
+        DataServiceOperation::FIND,
+        "abc123",
+        "",
+        nullptr,
+        nullptr
+    };
+    
+    EXPECT_THROW({
+        adapter.execute(req, [](DataServiceResponse) {});
+    }, std::runtime_error);
+}
 
 // ===========================================================================
 // Response Handle Passthrough Tests  
 // ===========================================================================
 
 TEST_F(HttpDataServiceAdapterTest, ResponseHandlePreservedInCallback) {
-    Http2ClientPool pool(m_pool_config);
-    HttpDataServiceAdapter adapter(pool);
-    
-    // Create a dummy response handle (we just check the pointer is preserved)
-    auto dummy_handle = std::make_shared<int>(42);  // Using int as placeholder
+    Http2Client client(m_config);
+    HttpDataServiceAdapter adapter(client, m_resolver, "dataservice");
     
     DataServiceRequest req{
         DataServiceOperation::FIND,
         "abc123",
         "",
-        // Can't use real ResponseHandle without full server setup
-        // but we can verify the pattern works
         nullptr,
         nullptr
     };
@@ -176,7 +177,6 @@ TEST_F(HttpDataServiceAdapterTest, ResponseHandlePreservedInCallback) {
     
     adapter.execute(req, [&callback_called](DataServiceResponse resp) {
         callback_called = true;
-        // response_handle should be passed through (even if null in this test)
     });
     
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -188,9 +188,9 @@ TEST_F(HttpDataServiceAdapterTest, ResponseHandlePreservedInCallback) {
 // ===========================================================================
 
 TEST_F(HttpDataServiceAdapterTest, CustomBasePathUsed) {
-    Http2ClientPool pool(m_pool_config);
-    HttpDataServiceAdapter::Config config{"/custom/api/links"};
-    HttpDataServiceAdapter adapter(pool, config);
+    Http2Client client(m_config);
+    HttpDataServiceAdapter::Config adapter_config{"/custom/api/links"};
+    HttpDataServiceAdapter adapter(client, m_resolver, "dataservice", adapter_config);
     
     DataServiceRequest req{
         DataServiceOperation::FIND,
@@ -215,8 +215,8 @@ TEST_F(HttpDataServiceAdapterTest, CustomBasePathUsed) {
 // ===========================================================================
 
 TEST_F(HttpDataServiceAdapterTest, ConcurrentRequestsHandledCorrectly) {
-    Http2ClientPool pool(m_pool_config);
-    HttpDataServiceAdapter adapter(pool);
+    Http2Client client(m_config);
+    HttpDataServiceAdapter adapter(client, m_resolver, "dataservice");
     
     std::atomic<int> callback_count{0};
     const int num_requests = 10;
@@ -235,9 +235,31 @@ TEST_F(HttpDataServiceAdapterTest, ConcurrentRequestsHandledCorrectly) {
         });
     }
     
-    // Wait for all callbacks
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     EXPECT_EQ(callback_count, num_requests);
 }
 
-} // namespace url_shortener::service::test
+// ===========================================================================
+// Service Resolver Integration Tests
+// ===========================================================================
+
+TEST_F(HttpDataServiceAdapterTest, MultipleServicesCanBeRegistered) {
+    m_resolver.register_service("service-a", "127.0.0.1", 29001);
+    m_resolver.register_service("service-b", "127.0.0.1", 29002);
+    
+    Http2Client client(m_config);
+    HttpDataServiceAdapter adapter_a(client, m_resolver, "service-a");
+    HttpDataServiceAdapter adapter_b(client, m_resolver, "service-b");
+    
+    std::atomic<int> callback_count{0};
+    
+    DataServiceRequest req{DataServiceOperation::FIND, "test", "", nullptr, nullptr};
+    
+    adapter_a.execute(req, [&](DataServiceResponse) { callback_count++; });
+    adapter_b.execute(req, [&](DataServiceResponse) { callback_count++; });
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    EXPECT_EQ(callback_count, 2);
+}
+
+} // namespace uri_shortener::service::test

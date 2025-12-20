@@ -5,9 +5,9 @@
 #include "RandomCodeGenerator.h"
 #include <memory>
 
-using namespace url_shortener::application;
-using namespace url_shortener::domain;
-using namespace url_shortener::infrastructure;
+using namespace uri_shortener::application;
+using namespace uri_shortener::domain;
+using namespace uri_shortener::infrastructure;
 
 // =============================================================================
 // ShortenLink Use Case Benchmarks

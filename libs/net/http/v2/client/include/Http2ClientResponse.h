@@ -2,31 +2,23 @@
 
 #include <string>
 #include <map>
-#include <memory>
 
 namespace astra::http2 {
 
-class ClientResponse {
+class Http2ClientResponse {
 public:
-    ClientResponse();
-    ~ClientResponse();
+    Http2ClientResponse() = default;
+    Http2ClientResponse(int status_code, std::string body, std::map<std::string, std::string> headers);
 
-    // Copyable (cheap, shares impl)
-    ClientResponse(const ClientResponse& other) = default;
-    ClientResponse& operator=(const ClientResponse& other) = default;
-
-    [[nodiscard]] int status_code() const;
-    [[nodiscard]] const std::string& body() const;
+    [[nodiscard]] int status_code() const { return m_status_code; }
+    [[nodiscard]] const std::string& body() const { return m_body; }
     [[nodiscard]] std::string header(const std::string& name) const;
-    [[nodiscard]] const std::map<std::string, std::string>& headers() const;
-
-    // Internal implementation details
-    class Impl;
-    // Helper to create a response with an implementation
-    explicit ClientResponse(std::shared_ptr<Impl> impl);
+    [[nodiscard]] const std::map<std::string, std::string>& headers() const { return m_headers; }
 
 private:
-    std::shared_ptr<Impl> m_impl;
+    int m_status_code = 0;
+    std::string m_body;
+    std::map<std::string, std::string> m_headers;
 };
 
 } // namespace astra::http2

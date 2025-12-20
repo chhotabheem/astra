@@ -12,7 +12,7 @@ set(HTTP2SERVER_SOURCES
     src/Http2Request.cpp
     src/Http2Response.cpp
     src/Http2ResponseWriter.cpp
-    src/backend/nghttp2/NgHttp2Server.cpp
+    src/NgHttp2Server.cpp
     ${PROTO_SRCS}
 )
 

@@ -3,7 +3,7 @@
 #include <chrono>
 #include <optional>
 
-namespace url_shortener::domain {
+namespace uri_shortener::domain {
 
 class ExpirationPolicy {
 public:
@@ -33,4 +33,4 @@ private:
     TimePoint m_created_at;
 };
 
-} // namespace url_shortener::domain
+} // namespace uri_shortener::domain

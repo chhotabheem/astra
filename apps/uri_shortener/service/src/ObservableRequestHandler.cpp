@@ -2,7 +2,7 @@
 #include <Provider.h>
 #include <chrono>
 
-namespace url_shortener {
+namespace uri_shortener {
 
 ObservableRequestHandler::ObservableRequestHandler(UriShortenerRequestHandler& inner)
     : m_inner(inner)
@@ -40,5 +40,5 @@ void ObservableRequestHandler::handle(
     span->end();
 }
 
-} // namespace url_shortener
+} // namespace uri_shortener
 

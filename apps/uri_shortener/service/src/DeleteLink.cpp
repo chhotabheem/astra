@@ -4,7 +4,7 @@
 #include "DeleteLink.h"
 #include "ShortCode.h"
 
-namespace url_shortener::application {
+namespace uri_shortener::application {
 
 DeleteLink::DeleteLink(std::shared_ptr<domain::ILinkRepository> repository)
     : m_repository(std::move(repository)) {}
@@ -21,4 +21,4 @@ DeleteLink::Result DeleteLink::execute(const Input& input) {
     return m_repository->remove(code);
 }
 
-} // namespace url_shortener::application
+} // namespace uri_shortener::application

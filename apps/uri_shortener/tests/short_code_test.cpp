@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include "ShortCode.h"
 
-namespace url_shortener::domain::test {
+namespace uri_shortener::domain::test {
 
 // =============================================================================
 // Construction Tests
@@ -95,4 +95,4 @@ TEST(ShortCodeTest, FromTrusted_DoesNotValidate) {
     EXPECT_EQ(code.value(), "abc123");
 }
 
-} // namespace url_shortener::domain::test
+} // namespace uri_shortener::domain::test

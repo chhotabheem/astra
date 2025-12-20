@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <cctype>
 
-namespace url_shortener::domain {
+namespace uri_shortener::domain {
 
 ShortCode::CreateResult ShortCode::create(const std::string& raw) {
     // Validate length
@@ -29,4 +29,4 @@ ShortCode ShortCode::from_trusted(std::string raw) {
     return ShortCode(std::move(raw));
 }
 
-} // namespace url_shortener::domain
+} // namespace uri_shortener::domain

@@ -4,7 +4,7 @@
 #include "OriginalUrl.h"
 #include <algorithm>
 
-namespace url_shortener::domain {
+namespace uri_shortener::domain {
 
 namespace {
 
@@ -96,4 +96,4 @@ OriginalUrl OriginalUrl::from_trusted(std::string raw) {
     return OriginalUrl(std::move(raw));
 }
 
-} // namespace url_shortener::domain
+} // namespace uri_shortener::domain

@@ -4,7 +4,7 @@
 #include "DomainErrors.h"
 #include <string>
 
-namespace url_shortener::domain {
+namespace uri_shortener::domain {
 
 constexpr size_t kMinCodeLength = 6;
 constexpr size_t kMaxCodeLength = 8;
@@ -30,4 +30,4 @@ private:
     std::string m_value;
 };
 
-} // namespace url_shortener::domain
+} // namespace uri_shortener::domain

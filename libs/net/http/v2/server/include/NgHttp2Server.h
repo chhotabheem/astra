@@ -8,7 +8,6 @@
 #include <Result.h>
 
 namespace astra::http2 {
-namespace backend {
 
 class NgHttp2Server {
 public:
@@ -27,5 +26,4 @@ private:
     nghttp2::asio_http2::server::http2 m_server;
 };
 
-} // namespace backend
 } // namespace astra::http2

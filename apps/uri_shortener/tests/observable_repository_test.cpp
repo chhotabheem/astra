@@ -7,7 +7,7 @@
 #include "ShortLink.h"
 #include <Provider.h>
 
-namespace url_shortener::test {
+namespace uri_shortener::test {
 
 class ObservableLinkRepositoryTest : public ::testing::Test {
 protected:
@@ -87,4 +87,4 @@ TEST_F(ObservableLinkRepositoryTest, Exists_DelegatesCorrectly) {
     EXPECT_FALSE(m_repo->exists(missing));
 }
 
-} // namespace url_shortener::test
+} // namespace uri_shortener::test

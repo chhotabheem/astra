@@ -7,9 +7,9 @@
 #include "ICodeGenerator.h"
 #include <memory>
 
-namespace url_shortener::application::test {
+namespace uri_shortener::application::test {
 
-using namespace url_shortener::domain;
+using namespace uri_shortener::domain;
 
 // =============================================================================
 // Mock Implementations
@@ -136,4 +136,4 @@ TEST_F(ShortenLinkTest, Execute_WithExpiration_SetsPolicy) {
     EXPECT_TRUE(found.value().expiration().expires());
 }
 
-} // namespace url_shortener::application::test
+} // namespace uri_shortener::application::test

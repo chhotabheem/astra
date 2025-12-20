@@ -7,7 +7,7 @@
 
 **Architecture:**
 ```
-h2load → uri_shortener:8081 → Http2ClientPool → nginx:8080
+h2load → uri_shortener:8081 → Http2Client (via StaticServiceResolver) → nginx:8080
 ```
 
 ---

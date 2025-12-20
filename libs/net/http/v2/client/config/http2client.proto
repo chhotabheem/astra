@@ -2,15 +2,9 @@ syntax = "proto3";
 
 package astra.http2;
 
-// HTTP/2 client configuration
 message ClientConfig {
-    string host = 1;
-    uint32 port = 2;
-    uint32 connect_timeout_ms = 3;
-    uint32 request_timeout_ms = 4;
-    uint32 pool_size = 5;              // Number of connections in pool
-    
-    // HTTP/2 specific
-    uint32 max_concurrent_streams = 6;
-    uint32 initial_window_size = 7;
+    uint32 connect_timeout_ms = 1;
+    uint32 request_timeout_ms = 2;
+    uint32 max_concurrent_streams = 3;
+    uint32 initial_window_size = 4;
 }

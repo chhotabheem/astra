@@ -3,7 +3,7 @@
 #include <functional>
 #include <utility>
 
-namespace url_shortener {
+namespace uri_shortener {
 
 UriShortenerRequestHandler::UriShortenerRequestHandler(astra::execution::StickyQueue& pool)
     : m_pool(pool) {
@@ -35,5 +35,5 @@ uint64_t UriShortenerRequestHandler::generate_session_id(astra::router::IRequest
     return std::hash<std::string>{}(key);
 }
 
-} // namespace url_shortener
+} // namespace uri_shortener
 

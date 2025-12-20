@@ -1,27 +1,20 @@
 #pragma once
 
-#include "Http2Client.h"
 #include "Http2ClientResponse.h"
+#include "Http2ClientError.h"
+#include "http2client.pb.h"
 #include <nghttp2/asio_http2_client.h>
 #include <boost/asio.hpp>
+#include <Result.h>
 #include <thread>
 #include <atomic>
 #include <mutex>
 #include <queue>
+#include <functional>
 #include <Log.h>
 
 namespace astra::http2 {
 
-class ClientResponse::Impl {
-public:
-    Impl(int status) : status_code(status) {}
-    
-    int status_code;
-    std::string body;
-    std::map<std::string, std::string> headers;
-};
-
-/// Connection state for lazy connection pattern
 enum class ConnectionState {
     DISCONNECTED,
     CONNECTING,
@@ -29,7 +22,10 @@ enum class ConnectionState {
     FAILED
 };
 
-/// Pending request to be submitted after connection
+using ResponseHandler = std::function<void(astra::outcome::Result<Http2ClientResponse, Http2ClientError>)>;
+using OnCloseCallback = std::function<void()>;
+using OnErrorCallback = std::function<void(Http2ClientError)>;
+
 struct PendingRequest {
     std::string method;
     std::string path;
@@ -38,10 +34,16 @@ struct PendingRequest {
     ResponseHandler handler;
 };
 
-class ClientImpl {
+class NgHttp2Client {
 public:
-    ClientImpl(const ClientConfig& config);
-    ~ClientImpl();
+    NgHttp2Client(const std::string& host, uint16_t port,
+                  const ClientConfig& config,
+                  OnCloseCallback on_close = nullptr,
+                  OnErrorCallback on_error = nullptr);
+    ~NgHttp2Client();
+
+    NgHttp2Client(const NgHttp2Client&) = delete;
+    NgHttp2Client& operator=(const NgHttp2Client&) = delete;
 
     void submit(const std::string& method, const std::string& path, 
                 const std::string& body, 
@@ -49,22 +51,25 @@ public:
                 ResponseHandler handler);
 
     bool is_connected() const;
-    
-    /// Get current connection state
     ConnectionState state() const;
 
 private:
     void ensure_connected();
     void connect();
-    void start_io_service();
-    void stop_io_service();
+    void start_io_thread();
+    void stop_io_thread();
     void do_submit(const std::string& method, const std::string& path,
                    const std::string& body,
                    const std::map<std::string, std::string>& headers,
                    ResponseHandler handler);
     void flush_pending_requests();
 
+    std::string m_host;
+    uint16_t m_port;
     ClientConfig m_config;
+    OnCloseCallback m_on_close;
+    OnErrorCallback m_on_error;
+
     boost::asio::io_context m_io_context;
     std::unique_ptr<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>> m_work;
     std::thread m_io_thread;
@@ -75,5 +80,4 @@ private:
     std::queue<PendingRequest> m_pending_requests;
 };
 
-} // namespace astra::http2
-
+}

@@ -5,7 +5,7 @@
 #include <IQueue.h>
 #include <memory>
 
-namespace url_shortener::service {
+namespace uri_shortener::service {
 
 /// Handler for DataServiceRequest messages on SharedQueue
 /// Extracts requests, calls adapter, and submits responses back to StickyQueue
@@ -29,4 +29,4 @@ private:
     std::shared_ptr<astra::execution::IQueue> m_response_queue;
 };
 
-} // namespace url_shortener::service
+} // namespace uri_shortener::service

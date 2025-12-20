@@ -4,7 +4,7 @@
 #include "ResolveLink.h"
 #include "ShortCode.h"
 
-namespace url_shortener::application {
+namespace uri_shortener::application {
 
 ResolveLink::ResolveLink(std::shared_ptr<domain::ILinkRepository> repository)
     : m_repository(std::move(repository)) {}
@@ -35,4 +35,4 @@ ResolveLink::Result ResolveLink::execute(const Input& input) {
     });
 }
 
-} // namespace url_shortener::application
+} // namespace uri_shortener::application

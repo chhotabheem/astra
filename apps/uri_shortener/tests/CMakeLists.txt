@@ -10,6 +10,7 @@ add_executable(uri_shortener_domain_test
     resolve_link_test.cpp
     delete_link_test.cpp
     app_test.cpp
+    app_builder_test.cpp
     observable_repository_test.cpp
     uri_shortener_handlers_test.cpp
     observable_handler_test.cpp
@@ -52,6 +53,7 @@ target_link_libraries(http_data_service_adapter_test
     PRIVATE
         uri_shortener_domain
         http2client
+        service_discovery
         GTest::gtest
         GTest::gtest_main
         GTest::gmock
@@ -60,6 +62,7 @@ target_include_directories(http_data_service_adapter_test
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/../service/include
         ${CMAKE_SOURCE_DIR}/libs/net/http/v2/client/include
+        ${CMAKE_SOURCE_DIR}/libs/core/service_discovery/include
 )
 gtest_discover_tests(http_data_service_adapter_test)
 

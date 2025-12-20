@@ -11,7 +11,7 @@ namespace astra::observability {
 class Span;
 }
 
-namespace url_shortener::service {
+namespace uri_shortener::service {
 
 /// Error codes for infrastructure failures
 enum class InfraError {
@@ -59,5 +59,5 @@ struct DataServiceResponse {
 /// Callback type for async responses
 using DataServiceCallback = std::function<void(DataServiceResponse)>;
 
-} // namespace url_shortener::service
+} // namespace uri_shortener::service
 

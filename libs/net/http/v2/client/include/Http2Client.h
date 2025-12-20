@@ -4,74 +4,33 @@
 #include <functional>
 #include <memory>
 #include <map>
+#include <Result.h>
 #include "Http2ClientResponse.h"
+#include "Http2ClientError.h"
 #include "http2client.pb.h"
 
 namespace astra::http2 {
 
-/**
- * @brief Error information passed to callbacks
- */
-struct Error {
-    int code = 0;
-    std::string message;
-    
-    constexpr operator bool() const { return code != 0; }
-};
+class ClientDispatcher;
 
-// Callback type: Invoked only when the FULL response is received
-using ResponseHandler = std::function<void(const ClientResponse&, const Error&)>;
+using ResponseHandler = std::function<void(astra::outcome::Result<Http2ClientResponse, Http2ClientError>)>;
 
-class ClientImpl;
-
-class Client {
+class Http2Client {
 public:
-    /**
-     * @brief Construct a new Client object
-     * @param config Proto-generated client configuration
-     */
-    explicit Client(const ClientConfig& config);
-    ~Client();
+    explicit Http2Client(const ClientConfig& config);
+    ~Http2Client();
 
-    // Prevent copying to ensure resource safety
-    Client(const Client&) = delete;
-    Client& operator=(const Client&) = delete;
+    Http2Client(const Http2Client&) = delete;
+    Http2Client& operator=(const Http2Client&) = delete;
 
-    /**
-     * @brief Asynchronously send a GET request
-     * @param path URL path (e.g., "/api/v1/users")
-     * @param handler Callback invoked with full response
-     */
-    void get(const std::string& path, ResponseHandler handler);
-
-    /**
-     * @brief Asynchronously send a POST request
-     * @param path URL path
-     * @param body Request body
-     * @param handler Callback invoked with full response
-     */
-    void post(const std::string& path, const std::string& body, ResponseHandler handler);
-
-    /**
-     * @brief Generic request method
-     * @param method HTTP method
-     * @param path URL path
-     * @param body Request body
-     * @param headers Custom headers
-     * @param handler Callback invoked with full response
-     */
-    void submit(const std::string& method, const std::string& path, 
-                const std::string& body, 
+    void submit(const std::string& host, uint16_t port,
+                const std::string& method, const std::string& path,
+                const std::string& body,
                 const std::map<std::string, std::string>& headers,
                 ResponseHandler handler);
 
-    /**
-     * @brief Check if the client is currently connected
-     */
-    [[nodiscard]] bool is_connected() const;
-
 private:
-    std::unique_ptr<ClientImpl> m_impl;
+    std::unique_ptr<ClientDispatcher> m_dispatcher;
 };
 
-} // namespace astra::http2
+}

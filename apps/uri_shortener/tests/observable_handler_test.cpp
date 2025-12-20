@@ -10,7 +10,7 @@
 #include <Http2Response.h>
 #include <atomic>
 
-using namespace url_shortener;
+using namespace uri_shortener;
 using namespace astra::execution;
 
 /**

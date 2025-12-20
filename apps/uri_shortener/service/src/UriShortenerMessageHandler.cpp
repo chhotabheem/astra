@@ -8,7 +8,7 @@
 #include <utility>
 #include <functional>
 
-namespace url_shortener {
+namespace uri_shortener {
 
 // Type alias for the payload pair
 using RequestResponsePair = std::pair<
@@ -208,4 +208,4 @@ service::DataServiceOperation UriShortenerMessageHandler::to_data_service_op(
     return service::DataServiceOperation::FIND;
 }
 
-} // namespace url_shortener
+} // namespace uri_shortener

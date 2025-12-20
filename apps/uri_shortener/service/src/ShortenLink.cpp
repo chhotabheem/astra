@@ -6,7 +6,7 @@
 #include "ExpirationPolicy.h"
 #include "ShortLink.h"
 
-namespace url_shortener::application {
+namespace uri_shortener::application {
 
 ShortenLink::ShortenLink(
     std::shared_ptr<domain::ILinkRepository> repository,
@@ -51,4 +51,4 @@ ShortenLink::Result ShortenLink::execute(const Input& input) {
     });
 }
 
-} // namespace url_shortener::application
+} // namespace uri_shortener::application

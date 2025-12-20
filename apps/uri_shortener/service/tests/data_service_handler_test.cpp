@@ -9,13 +9,13 @@
 #include <thread>
 #include <chrono>
 
-using namespace url_shortener::service;
+using namespace uri_shortener::service;
 using namespace astra::execution;
 using ::testing::_;
 using ::testing::Invoke;
 using ::testing::SaveArg;
 
-namespace url_shortener::service::test {
+namespace uri_shortener::service::test {
 
 // ===========================================================================
 // Mock Adapter
@@ -223,4 +223,4 @@ TEST_F(DataServiceHandlerTest, ErrorResponseSubmittedToQueue) {
     EXPECT_FALSE(payload.success);
 }
 
-} // namespace url_shortener::service::test
+} // namespace uri_shortener::service::test

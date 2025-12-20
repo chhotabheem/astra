@@ -1,10 +1,11 @@
 #pragma once
 
 #include "IDataServiceAdapter.h"
-#include "Http2ClientPool.h"
+#include "Http2Client.h"
+#include "IServiceResolver.h"
 #include <string>
 
-namespace url_shortener::service {
+namespace uri_shortener::service {
 
 /// HTTP/2 implementation of the data service adapter
 /// Translates protocol-agnostic requests to HTTP/2 calls  
@@ -15,12 +16,16 @@ public:
         std::string base_path = "/api/v1/links";  // Base API path
     };
     
-    /// Construct with a client pool reference
-    /// @param client_pool Pool of HTTP/2 clients
-    explicit HttpDataServiceAdapter(astra::http2::Http2ClientPool& client_pool);
+    /// Construct with Http2 client, service resolver, service name, and config
+    HttpDataServiceAdapter(astra::http2::Http2Client& http2_client,
+                           astra::service_discovery::IServiceResolver& resolver,
+                           std::string service_name,
+                           Config config);
     
-    /// Construct with a client pool and custom configuration
-    HttpDataServiceAdapter(astra::http2::Http2ClientPool& client_pool, Config config);
+    /// Construct with default config
+    HttpDataServiceAdapter(astra::http2::Http2Client& http2_client,
+                           astra::service_discovery::IServiceResolver& resolver,
+                           std::string service_name);
     
     ~HttpDataServiceAdapter() override = default;
     
@@ -37,8 +42,10 @@ private:
     /// Map HTTP status code to domain error code (0 = success)
     static int map_http_status_to_error(int status_code);
     
-    astra::http2::Http2ClientPool& m_client_pool;
+    astra::http2::Http2Client& m_http2_client;
+    astra::service_discovery::IServiceResolver& m_resolver;
+    std::string m_service_name;
     Config m_config;
 };
 
-} // namespace url_shortener::service
+} // namespace uri_shortener::service

@@ -1,7 +1,7 @@
 #include "Http2Server.h"
 #include "Http2Request.h"
 #include "Http2Response.h"
-#include "backend/nghttp2/NgHttp2Server.h"
+#include "NgHttp2Server.h"
 
 namespace astra::http2 {
 
@@ -10,7 +10,7 @@ public:
     Impl(const ServerConfig& config)
         : backend(config) {}
     
-    backend::NgHttp2Server backend;
+    NgHttp2Server backend;
 };
 
 Http2Server::Http2Server(const ServerConfig& config)

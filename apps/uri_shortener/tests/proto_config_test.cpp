@@ -66,17 +66,10 @@ TEST(Http2ServerConfigTest, CanSetThreadCount) {
 
 TEST(Http2ClientConfigTest, Defaults) {
     astra::http2::ClientConfig client;
-    EXPECT_EQ(client.host(), "");
-    EXPECT_EQ(client.port(), 0);
     EXPECT_EQ(client.connect_timeout_ms(), 0);
     EXPECT_EQ(client.request_timeout_ms(), 0);
-    EXPECT_EQ(client.pool_size(), 0);
-}
-
-TEST(Http2ClientConfigTest, CanSetHost) {
-    astra::http2::ClientConfig client;
-    client.set_host("localhost");
-    EXPECT_EQ(client.host(), "localhost");
+    EXPECT_EQ(client.max_concurrent_streams(), 0);
+    EXPECT_EQ(client.initial_window_size(), 0);
 }
 
 TEST(Http2ClientConfigTest, CanSetTimeouts) {
@@ -85,6 +78,14 @@ TEST(Http2ClientConfigTest, CanSetTimeouts) {
     client.set_request_timeout_ms(3000);
     EXPECT_EQ(client.connect_timeout_ms(), 1000);
     EXPECT_EQ(client.request_timeout_ms(), 3000);
+}
+
+TEST(Http2ClientConfigTest, CanSetStreamSettings) {
+    astra::http2::ClientConfig client;
+    client.set_max_concurrent_streams(100);
+    client.set_initial_window_size(65535);
+    EXPECT_EQ(client.max_concurrent_streams(), 100);
+    EXPECT_EQ(client.initial_window_size(), 65535);
 }
 
 // =============================================================================
@@ -234,12 +235,11 @@ TEST(DataServiceClientConfigTest, HasResilienceField) {
 
 TEST(DataServiceClientConfigTest, CanConfigureClient) {
     uri_shortener::DataServiceClientConfig ds;
-    ds.mutable_client()->set_host("localhost");
-    ds.mutable_client()->set_port(8081);
-    ds.mutable_client()->set_pool_size(10);
+    ds.mutable_client()->set_connect_timeout_ms(1000);
+    ds.mutable_client()->set_request_timeout_ms(5000);
     
-    EXPECT_EQ(ds.client().host(), "localhost");
-    EXPECT_EQ(ds.client().port(), 8081);
+    EXPECT_EQ(ds.client().connect_timeout_ms(), 1000);
+    EXPECT_EQ(ds.client().request_timeout_ms(), 5000);
 }
 
 // =============================================================================
@@ -408,9 +408,8 @@ TEST(JsonParsingTest, ParsesDataserviceConfig) {
         "bootstrap": {
             "dataservice": {
                 "client": {
-                    "host": "localhost",
-                    "port": 8081,
-                    "pool_size": 10
+                    "connect_timeout_ms": 1000,
+                    "request_timeout_ms": 5000
                 },
                 "resilience": {
                     "retry": {"max_attempts": 3},
@@ -424,7 +423,7 @@ TEST(JsonParsingTest, ParsesDataserviceConfig) {
     auto status = google::protobuf::util::JsonStringToMessage(json, &config);
     
     EXPECT_TRUE(status.ok()) << status.message();
-    EXPECT_EQ(config.bootstrap().dataservice().client().host(), "localhost");
+    EXPECT_EQ(config.bootstrap().dataservice().client().connect_timeout_ms(), 1000);
     EXPECT_EQ(config.bootstrap().dataservice().resilience().retry().max_attempts(), 3);
 }
 

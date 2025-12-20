@@ -12,7 +12,7 @@
 #include <optional>
 #include <chrono>
 
-namespace url_shortener::application {
+namespace uri_shortener::application {
 
 /**
  * @brief ShortenLink use case
@@ -58,4 +58,4 @@ private:
     std::shared_ptr<domain::ICodeGenerator> m_generator;
 };
 
-} // namespace url_shortener::application
+} // namespace uri_shortener::application

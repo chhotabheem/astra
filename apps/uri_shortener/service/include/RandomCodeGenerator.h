@@ -7,7 +7,7 @@
 #include <random>
 #include <string>
 
-namespace url_shortener::infrastructure {
+namespace uri_shortener::infrastructure {
 
 /**
  * @brief Generates random alphanumeric short codes
@@ -38,4 +38,4 @@ private:
 // Define static member in cpp file would be better, but for header-only:
 inline const std::string RandomCodeGenerator::m_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-} // namespace url_shortener::infrastructure
+} // namespace uri_shortener::infrastructure

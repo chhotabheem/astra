@@ -7,7 +7,7 @@
 #include <Context.h>
 #include <memory>
 
-namespace url_shortener {
+namespace uri_shortener {
 
 /**
  * @brief Request Handler for URI Shortener
@@ -31,5 +31,5 @@ private:
     uint64_t generate_session_id(astra::router::IRequest& req);
 };
 
-} // namespace url_shortener
+} // namespace uri_shortener
 

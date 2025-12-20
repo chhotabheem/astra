@@ -5,7 +5,9 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS config/http2client.proto)
 # Sources
 set(HTTP2CLIENT_SOURCES
     src/Http2Client.cpp
-    src/Http2ClientPool.cpp
+    src/Http2ClientResponse.cpp
+    src/NgHttp2Client.cpp
+    src/ClientDispatcher.cpp
     ${PROTO_SRCS}
 )
 
@@ -32,6 +34,7 @@ find_package(OpenSSL REQUIRED)
 target_link_libraries(http2client 
     PUBLIC
         protobuf::libprotobuf
+        outcome
     PRIVATE
         astra_sanitizers
         nghttp2_asio

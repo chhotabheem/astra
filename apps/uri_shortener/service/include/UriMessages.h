@@ -7,7 +7,7 @@
 #include <IResponse.h>
 #include "DataServiceMessages.h"
 
-namespace url_shortener {
+namespace uri_shortener {
 
 /**
  * @brief HTTP Request Message
@@ -57,5 +57,5 @@ using UriPayload = std::variant<
 template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
-} // namespace url_shortener
+} // namespace uri_shortener
 
