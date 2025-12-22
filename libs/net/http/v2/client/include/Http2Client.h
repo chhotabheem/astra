@@ -11,8 +11,6 @@
 
 namespace astra::http2 {
 
-class ClientDispatcher;
-
 using ResponseHandler = std::function<void(astra::outcome::Result<Http2ClientResponse, Http2ClientError>)>;
 
 class Http2Client {
@@ -30,7 +28,8 @@ public:
                 ResponseHandler handler);
 
 private:
-    std::unique_ptr<ClientDispatcher> m_dispatcher;
+    class Impl;
+    std::unique_ptr<Impl> m_impl;
 };
 
 }

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "AppBuilder.h"
+#include "UriShortenerBuilder.h"
 #include "InMemoryLinkRepository.h"
 #include "RandomCodeGenerator.h"
 
@@ -19,7 +19,7 @@ uri_shortener::Config makeValidConfig() {
 TEST(UriShortenerAppTest, Build_WithValidConfig_Succeeds) {
     auto config = makeValidConfig();
     
-    auto result = AppBuilder(config)
+    auto result = UriShortenerBuilder(config)
         .domain()
         .backend()
         .messaging()
@@ -33,7 +33,7 @@ TEST(UriShortenerAppTest, Build_WithEmptyAddress_Fails) {
     auto config = makeValidConfig();
     config.mutable_bootstrap()->mutable_server()->set_address("");
     
-    auto result = AppBuilder(config)
+    auto result = UriShortenerBuilder(config)
         .domain()
         .backend()
         .messaging()
@@ -47,7 +47,7 @@ TEST(UriShortenerAppTest, Build_WithZeroPort_Fails) {
     auto config = makeValidConfig();
     config.mutable_bootstrap()->mutable_server()->set_port(0);
     
-    auto result = AppBuilder(config)
+    auto result = UriShortenerBuilder(config)
         .domain()
         .backend()
         .messaging()
@@ -63,7 +63,7 @@ TEST(UriShortenerAppTest, Build_WithMinimalConfig_Succeeds) {
     config.mutable_bootstrap()->mutable_server()->set_address("127.0.0.1");
     config.mutable_bootstrap()->mutable_server()->set_port(8080);
     
-    auto result = AppBuilder(config)
+    auto result = UriShortenerBuilder(config)
         .domain()
         .backend()
         .messaging()
@@ -79,7 +79,7 @@ TEST(UriShortenerAppTest, Build_WithObservabilityConfig_Succeeds) {
     config.mutable_bootstrap()->mutable_observability()->set_tracing_enabled(false);
     config.mutable_bootstrap()->mutable_observability()->set_otlp_endpoint("http://otel:4317");
     
-    auto result = AppBuilder(config)
+    auto result = UriShortenerBuilder(config)
         .domain()
         .backend()
         .messaging()

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "AppBuilder.h"
+#include "UriShortenerBuilder.h"
 
 namespace uri_shortener::test {
 
@@ -12,10 +12,10 @@ uri_shortener::Config makeBuilderTestConfig() {
     return config;
 }
 
-TEST(AppBuilderTest, Build_WithAllMethods_Succeeds) {
+TEST(UriShortenerBuilderTest, Build_WithAllMethods_Succeeds) {
     auto config = makeBuilderTestConfig();
     
-    auto result = AppBuilder(config)
+    auto result = UriShortenerBuilder(config)
         .domain()
         .backend()
         .messaging()
@@ -25,11 +25,11 @@ TEST(AppBuilderTest, Build_WithAllMethods_Succeeds) {
     EXPECT_TRUE(result.is_ok());
 }
 
-TEST(AppBuilderTest, Build_WithEmptyAddress_Fails) {
+TEST(UriShortenerBuilderTest, Build_WithEmptyAddress_Fails) {
     auto config = makeBuilderTestConfig();
     config.mutable_bootstrap()->mutable_server()->set_address("");
     
-    auto result = AppBuilder(config)
+    auto result = UriShortenerBuilder(config)
         .domain()
         .backend()
         .messaging()
@@ -39,39 +39,39 @@ TEST(AppBuilderTest, Build_WithEmptyAddress_Fails) {
     EXPECT_TRUE(result.is_err());
 }
 
-TEST(AppBuilderTest, DomainMethodChainsCorrectly) {
+TEST(UriShortenerBuilderTest, DomainMethodChainsCorrectly) {
     auto config = makeBuilderTestConfig();
     
-    AppBuilder builder(config);
+    UriShortenerBuilder builder(config);
     auto& returned = builder.domain();
     
     EXPECT_EQ(&returned, &builder);
 }
 
-TEST(AppBuilderTest, BackendMethodChainsCorrectly) {
+TEST(UriShortenerBuilderTest, BackendMethodChainsCorrectly) {
     auto config = makeBuilderTestConfig();
     
-    AppBuilder builder(config);
+    UriShortenerBuilder builder(config);
     builder.domain();
     auto& returned = builder.backend();
     
     EXPECT_EQ(&returned, &builder);
 }
 
-TEST(AppBuilderTest, MessagingMethodChainsCorrectly) {
+TEST(UriShortenerBuilderTest, MessagingMethodChainsCorrectly) {
     auto config = makeBuilderTestConfig();
     
-    AppBuilder builder(config);
+    UriShortenerBuilder builder(config);
     builder.domain().backend();
     auto& returned = builder.messaging();
     
     EXPECT_EQ(&returned, &builder);
 }
 
-TEST(AppBuilderTest, ResilienceMethodChainsCorrectly) {
+TEST(UriShortenerBuilderTest, ResilienceMethodChainsCorrectly) {
     auto config = makeBuilderTestConfig();
     
-    AppBuilder builder(config);
+    UriShortenerBuilder builder(config);
     builder.domain().backend().messaging();
     auto& returned = builder.resilience();
     

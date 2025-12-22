@@ -9,20 +9,10 @@
 
 namespace uri_shortener {
 
-/**
- * @brief Request Handler for URI Shortener
- * 
- * Entry point for HTTP requests. Submits to pool for async processing.
- */
 class UriShortenerRequestHandler {
 public:
     explicit UriShortenerRequestHandler(astra::execution::StickyQueue& pool);
     
-    /**
-     * @brief Handle incoming HTTP request
-     * 
-     * Submits to pool for async processing.
-     */
     void handle(std::shared_ptr<astra::router::IRequest> req, std::shared_ptr<astra::router::IResponse> res);
 
 private:
@@ -31,5 +21,5 @@ private:
     uint64_t generate_session_id(astra::router::IRequest& req);
 };
 
-} // namespace uri_shortener
+}
 

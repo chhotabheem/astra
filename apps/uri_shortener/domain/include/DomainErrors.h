@@ -1,28 +1,20 @@
-/// @file DomainErrors.h
-/// @brief Domain-specific error types for URL Shortener
-
 #pragma once
 
 #include <string>
 
 namespace uri_shortener::domain {
 
-/// Domain errors - pure domain terminology, no technology leakage
 enum class DomainError {
-    // Value Object Errors
-    InvalidShortCode,      // Code doesn't meet format requirements
-    InvalidUrl,            // URL is malformed or unsupported scheme
+    InvalidShortCode,
+    InvalidUrl,
     
-    // Entity Errors
-    LinkNotFound,          // No link exists for given code
-    LinkExpired,           // Link exists but has expired
-    LinkAlreadyExists,     // Code collision
+    LinkNotFound,
+    LinkExpired,
+    LinkAlreadyExists,
     
-    // Service Errors
-    CodeGenerationFailed   // Unable to generate unique code
+    CodeGenerationFailed
 };
 
-/// Convert error to human-readable string (for logging/debugging)
 inline std::string to_string(DomainError error) noexcept {
     switch (error) {
         case DomainError::InvalidShortCode:     return "Invalid short code format";
@@ -35,4 +27,4 @@ inline std::string to_string(DomainError error) noexcept {
     }
 }
 
-} // namespace uri_shortener::domain
+}

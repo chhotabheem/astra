@@ -36,28 +36,28 @@ TEST(ProtoConfigLoaderTest, LoadsValidJsonString) {
     
     auto result = ProtoConfigLoader::loadFromString(json);
     
-    ASSERT_TRUE(result.success) << result.error;
-    EXPECT_EQ(result.config.schema_version(), 1);
-    EXPECT_EQ(result.config.bootstrap().server().port(), 8080);
+    ASSERT_TRUE(result.is_ok()) << result.error();
+    EXPECT_EQ(result.value().schema_version(), 1);
+    EXPECT_EQ(result.value().bootstrap().server().port(), 8080);
 }
 
 TEST(ProtoConfigLoaderTest, FailsOnInvalidJson) {
     auto result = ProtoConfigLoader::loadFromString("not valid json");
     
-    EXPECT_FALSE(result.success);
-    EXPECT_FALSE(result.error.empty());
+    EXPECT_TRUE(result.is_err());
+    EXPECT_FALSE(result.error().empty());
 }
 
 TEST(ProtoConfigLoaderTest, FailsOnEmptyString) {
     auto result = ProtoConfigLoader::loadFromString("");
     
-    EXPECT_FALSE(result.success);
+    EXPECT_TRUE(result.is_err());
 }
 
 TEST(ProtoConfigLoaderTest, AcceptsEmptyObject) {
     auto result = ProtoConfigLoader::loadFromString("{}");
     
-    ASSERT_TRUE(result.success) << result.error;
+    ASSERT_TRUE(result.is_ok()) << result.error();
 }
 
 TEST(ProtoConfigLoaderTest, IgnoresUnknownFields) {
@@ -71,8 +71,8 @@ TEST(ProtoConfigLoaderTest, IgnoresUnknownFields) {
     
     auto result = ProtoConfigLoader::loadFromString(json);
     
-    ASSERT_TRUE(result.success) << result.error;
-    EXPECT_EQ(result.config.bootstrap().server().port(), 8080);
+    ASSERT_TRUE(result.is_ok()) << result.error();
+    EXPECT_EQ(result.value().bootstrap().server().port(), 8080);
 }
 
 // =============================================================================
@@ -87,8 +87,8 @@ TEST(ProtoConfigLoaderTest, ValidatesPortRange) {
     
     auto result = ProtoConfigLoader::loadFromString(json);
     
-    EXPECT_FALSE(result.success);
-    EXPECT_NE(result.error.find("port"), std::string::npos);
+    EXPECT_TRUE(result.is_err());
+    EXPECT_NE(result.error().find("port"), std::string::npos);
 }
 
 TEST(ProtoConfigLoaderTest, ValidatesPortZero) {
@@ -99,7 +99,7 @@ TEST(ProtoConfigLoaderTest, ValidatesPortZero) {
     
     auto result = ProtoConfigLoader::loadFromString(json);
     
-    EXPECT_FALSE(result.success);
+    EXPECT_TRUE(result.is_err());
 }
 
 TEST(ProtoConfigLoaderTest, ValidatesSharedQueueWorkers) {
@@ -110,8 +110,8 @@ TEST(ProtoConfigLoaderTest, ValidatesSharedQueueWorkers) {
     
     auto result = ProtoConfigLoader::loadFromString(json);
     
-    EXPECT_FALSE(result.success);
-    EXPECT_NE(result.error.find("num_workers"), std::string::npos);
+    EXPECT_TRUE(result.is_err());
+    EXPECT_NE(result.error().find("num_workers"), std::string::npos);
 }
 
 TEST(ProtoConfigLoaderTest, ValidatesTraceSampleRate) {
@@ -124,8 +124,8 @@ TEST(ProtoConfigLoaderTest, ValidatesTraceSampleRate) {
     
     auto result = ProtoConfigLoader::loadFromString(json);
     
-    EXPECT_FALSE(result.success);
-    EXPECT_NE(result.error.find("trace_sample_rate"), std::string::npos);
+    EXPECT_TRUE(result.is_err());
+    EXPECT_NE(result.error().find("trace_sample_rate"), std::string::npos);
 }
 
 TEST(ProtoConfigLoaderTest, AllowsValidTraceSampleRate) {
@@ -138,7 +138,7 @@ TEST(ProtoConfigLoaderTest, AllowsValidTraceSampleRate) {
     
     auto result = ProtoConfigLoader::loadFromString(json);
     
-    ASSERT_TRUE(result.success) << result.error;
+    ASSERT_TRUE(result.is_ok()) << result.error();
 }
 
 // =============================================================================
@@ -175,15 +175,15 @@ TEST_F(FileLoadingTest, LoadsValidFile) {
     
     auto result = ProtoConfigLoader::loadFromFile(test_file_);
     
-    ASSERT_TRUE(result.success) << result.error;
-    EXPECT_EQ(result.config.bootstrap().server().port(), 8080);
+    ASSERT_TRUE(result.is_ok()) << result.error();
+    EXPECT_EQ(result.value().bootstrap().server().port(), 8080);
 }
 
 TEST_F(FileLoadingTest, FailsOnNonExistentFile) {
     auto result = ProtoConfigLoader::loadFromFile("/nonexistent/path/config.json");
     
-    EXPECT_FALSE(result.success);
-    EXPECT_NE(result.error.find("Failed to open"), std::string::npos);
+    EXPECT_TRUE(result.is_err());
+    EXPECT_NE(result.error().find("Failed to open"), std::string::npos);
 }
 
 TEST_F(FileLoadingTest, FailsOnEmptyFile) {
@@ -191,7 +191,7 @@ TEST_F(FileLoadingTest, FailsOnEmptyFile) {
     
     auto result = ProtoConfigLoader::loadFromFile(test_file_);
     
-    EXPECT_FALSE(result.success);
+    EXPECT_TRUE(result.is_err());
 }
 
 TEST_F(FileLoadingTest, FailsOnMalformedFile) {
@@ -199,7 +199,7 @@ TEST_F(FileLoadingTest, FailsOnMalformedFile) {
     
     auto result = ProtoConfigLoader::loadFromFile(test_file_);
     
-    EXPECT_FALSE(result.success);
+    EXPECT_TRUE(result.is_err());
 }
 
 // =============================================================================
@@ -223,11 +223,11 @@ TEST(FullConfigTest, LoadsCompleteConfig) {
     
     auto result = ProtoConfigLoader::loadFromString(json);
     
-    ASSERT_TRUE(result.success) << result.error;
-    EXPECT_EQ(result.config.schema_version(), 1);
-    EXPECT_EQ(result.config.bootstrap().server().port(), 8080);
-    EXPECT_EQ(result.config.bootstrap().service().name(), "uri-shortener");
-    EXPECT_EQ(result.config.runtime().load_shedder().max_concurrent_requests(), 10000);
+    ASSERT_TRUE(result.is_ok()) << result.error();
+    EXPECT_EQ(result.value().schema_version(), 1);
+    EXPECT_EQ(result.value().bootstrap().server().port(), 8080);
+    EXPECT_EQ(result.value().bootstrap().service().name(), "uri-shortener");
+    EXPECT_EQ(result.value().runtime().load_shedder().max_concurrent_requests(), 10000);
 }
 
 } // namespace uri_shortener::test

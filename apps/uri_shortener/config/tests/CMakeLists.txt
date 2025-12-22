@@ -1,0 +1,14 @@
+# Config tests
+
+add_executable(proto_config_test proto_config_test.cpp)
+target_link_libraries(proto_config_test PRIVATE uri_shortener_config GTest::gtest GTest::gtest_main)
+gtest_discover_tests(proto_config_test)
+
+add_executable(proto_config_extended_test proto_config_extended_test.cpp)
+target_link_libraries(proto_config_extended_test PRIVATE uri_shortener_config GTest::gtest GTest::gtest_main)
+gtest_discover_tests(proto_config_extended_test)
+
+add_executable(proto_config_loader_test proto_config_loader_test.cpp)
+target_link_libraries(proto_config_loader_test PRIVATE uri_shortener_config GTest::gtest GTest::gtest_main)
+target_include_directories(proto_config_loader_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../include)
+gtest_discover_tests(proto_config_loader_test)

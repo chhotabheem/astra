@@ -45,17 +45,26 @@ void NgHttp2Client::start_io_thread() {
 }
 
 void NgHttp2Client::stop_io_thread() {
-    if (m_session && m_state.load(std::memory_order_acquire) == ConnectionState::CONNECTED) {
-        m_session->shutdown();
-    }
-    m_session.reset();
+    // Post shutdown to io_context so all m_session access happens on the io_thread.
+    // This prevents TSAN race between main thread reading m_session and io_thread writing it.
+    boost::asio::post(m_io_context, [this]() {
+        if (m_session && m_state.load(std::memory_order_acquire) == ConnectionState::CONNECTED) {
+            m_session->shutdown();
+        }
+    });
     
+    // Stop the io_context and release work guard so io_context.run() can exit
     m_work.reset();
     m_io_context.stop();
     
+    // Wait for the io_thread to finish BEFORE destroying the session.
+    // This prevents TSAN race between session destructor and callbacks still running.
     if (m_io_thread.joinable()) {
         m_io_thread.join();
     }
+    
+    // Now safe to destroy the session - io_thread has exited, no callbacks running
+    m_session.reset();
 }
 
 void NgHttp2Client::ensure_connected() {
@@ -75,45 +84,98 @@ void NgHttp2Client::ensure_connected() {
 }
 
 void NgHttp2Client::connect() {
-    try {
-        boost::system::error_code ec;
-        std::string port_str = std::to_string(m_port);
-        
-        m_session = std::make_unique<nghttp2::asio_http2::client::session>(
-            m_io_context, m_host, port_str);
+    // Post to io_context to ensure session creation and callback registration
+    // happen on the same thread that will invoke the callbacks. This prevents
+    // TSAN data races between callback registration and invocation.
+    boost::asio::post(m_io_context, [this]() {
+        try {
+            boost::system::error_code ec;
+            std::string port_str = std::to_string(m_port);
+            
+            m_session = std::make_unique<nghttp2::asio_http2::client::session>(
+                m_io_context, m_host, port_str);
 
-        m_session->on_connect([this](boost::asio::ip::tcp::resolver::results_type::iterator endpoint_it) {
-            m_state.store(ConnectionState::CONNECTED, std::memory_order_release);
-            obs::info("Connected to " + m_host + ":" + std::to_string(m_port));
-            flush_pending_requests();
-        });
+            // Create connect timeout timer
+            uint32_t timeout_ms = m_config.connect_timeout_ms() > 0 ? m_config.connect_timeout_ms() : 200;
+            auto connect_timer = std::make_shared<boost::asio::deadline_timer>(m_io_context);
+            connect_timer->expires_from_now(boost::posix_time::milliseconds(timeout_ms));
+            
+            auto connect_completed = std::make_shared<std::atomic<bool>>(false);
+            
+            connect_timer->async_wait([this, connect_completed](const boost::system::error_code& ec) {
+                if (ec) return; // Timer was cancelled
+                
+                // Atomic CAS: only proceed if we're the first to claim completion
+                bool expected = false;
+                if (!connect_completed->compare_exchange_strong(expected, true)) {
+                    return; // Already handled by on_connect or on_error
+                }
+                
+                // Timeout fired before connection completed
+                obs::error("Connection timeout to " + m_host + ":" + std::to_string(m_port));
+                m_state.store(ConnectionState::FAILED, std::memory_order_release);
+                
+                // Fail all pending requests
+                std::lock_guard<std::mutex> lock(m_connect_mutex);
+                while (!m_pending_requests.empty()) {
+                    auto& req = m_pending_requests.front();
+                    req.handler(astra::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(Http2ClientError::ConnectionFailed));
+                    m_pending_requests.pop();
+                }
+                
+                if (m_on_error) {
+                    m_on_error(Http2ClientError::ConnectionFailed);
+                }
+            });
 
-        m_session->on_error([this](const boost::system::error_code& ec) {
-            ConnectionState prev_state = m_state.load(std::memory_order_acquire);
+            m_session->on_connect([this, connect_timer, connect_completed](boost::asio::ip::tcp::resolver::results_type::iterator endpoint_it) {
+                // Atomic CAS: only proceed if we're the first to claim completion
+                bool expected = false;
+                if (!connect_completed->compare_exchange_strong(expected, true)) {
+                    return; // Already handled by timeout or on_error
+                }
+                
+                connect_timer->cancel();
+                m_state.store(ConnectionState::CONNECTED, std::memory_order_release);
+                obs::info("Connected to " + m_host + ":" + std::to_string(m_port));
+                flush_pending_requests();
+            });
+
+            m_session->on_error([this, connect_timer, connect_completed](const boost::system::error_code& ec) {
+                // Atomic CAS: only proceed if we're the first to claim completion
+                bool expected = false;
+                if (!connect_completed->compare_exchange_strong(expected, true)) {
+                    return; // Already handled by on_connect or timeout
+                }
+                
+                connect_timer->cancel();
+                
+                ConnectionState prev_state = m_state.load(std::memory_order_acquire);
+                m_state.store(ConnectionState::FAILED, std::memory_order_release);
+                obs::error("Connection error: " + ec.message());
+                
+                std::lock_guard<std::mutex> lock(m_connect_mutex);
+                while (!m_pending_requests.empty()) {
+                    auto& req = m_pending_requests.front();
+                    req.handler(astra::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(Http2ClientError::ConnectionFailed));
+                    m_pending_requests.pop();
+                }
+                
+                if (prev_state == ConnectionState::CONNECTING && m_on_error) {
+                    m_on_error(Http2ClientError::ConnectionFailed);
+                } else if (prev_state == ConnectionState::CONNECTED && m_on_close) {
+                    m_on_close();
+                }
+            });
+
+        } catch (const std::exception& e) {
             m_state.store(ConnectionState::FAILED, std::memory_order_release);
-            obs::error("Connection error: " + ec.message());
-            
-            std::lock_guard<std::mutex> lock(m_connect_mutex);
-            while (!m_pending_requests.empty()) {
-                auto& req = m_pending_requests.front();
-                req.handler(astra::outcome::Result<Http2ClientResponse, Http2ClientError>::Err(Http2ClientError::ConnectionFailed));
-                m_pending_requests.pop();
-            }
-            
-            if (prev_state == ConnectionState::CONNECTING && m_on_error) {
+            obs::error("Failed to create session: " + std::string(e.what()));
+            if (m_on_error) {
                 m_on_error(Http2ClientError::ConnectionFailed);
-            } else if (prev_state == ConnectionState::CONNECTED && m_on_close) {
-                m_on_close();
             }
-        });
-
-    } catch (const std::exception& e) {
-        m_state.store(ConnectionState::FAILED, std::memory_order_release);
-        obs::error("Failed to create session: " + std::string(e.what()));
-        if (m_on_error) {
-            m_on_error(Http2ClientError::ConnectionFailed);
         }
-    }
+    });
 }
 
 bool NgHttp2Client::is_connected() const {

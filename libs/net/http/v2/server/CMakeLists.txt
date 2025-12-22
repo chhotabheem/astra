@@ -25,11 +25,8 @@ target_compile_features(http2server PUBLIC cxx_std_17)
 # Include directories
 target_include_directories(http2server
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-        $<INSTALL_INTERFACE:include>
-    PRIVATE
-        src
+        include
+        ${CMAKE_CURRENT_BINARY_DIR}  # For generated proto headers
 )
 
 # Link libraries

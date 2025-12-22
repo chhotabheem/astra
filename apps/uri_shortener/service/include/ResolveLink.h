@@ -1,6 +1,3 @@
-/// @file ResolveLink.h
-/// @brief ResolveLink use case - retrieves original URL from short code
-
 #pragma once
 
 #include "Result.h"
@@ -11,12 +8,6 @@
 
 namespace uri_shortener::application {
 
-/**
- * @brief ResolveLink use case
- * 
- * Resolves a short code to its original URL.
- * Returns error if link not found or expired.
- */
 class ResolveLink {
 public:
     struct Input {
@@ -37,4 +28,4 @@ private:
     std::shared_ptr<domain::ILinkRepository> m_repository;
 };
 
-} // namespace uri_shortener::application
+}

@@ -11,23 +11,13 @@
 
 namespace uri_shortener {
 
-/**
- * @brief Message Handler for URI Shortener
- * 
- * Handles request/response pairs from StickyQueue.
- * Calls IDataServiceAdapter for async backend calls.
- * Response callback submits back to response queue.
- */
 class UriShortenerMessageHandler : public astra::execution::IMessageHandler {
 public:
-    /// @param adapter Data service adapter for backend calls
-    /// @param response_queue Queue to submit responses back to (StickyQueue)
     UriShortenerMessageHandler(
         std::shared_ptr<service::IDataServiceAdapter> adapter,
         std::shared_ptr<astra::execution::IQueue> response_queue
     );
     
-    /// Set response queue (for breaking circular dependency during wiring)
     void setResponseQueue(std::shared_ptr<astra::execution::IQueue> queue);
     
     void handle(astra::execution::Message& msg) override;
@@ -49,7 +39,7 @@ private:
     std::shared_ptr<astra::execution::IQueue> m_response_queue;
 };
 
-} // namespace uri_shortener
+}
 
 
 
