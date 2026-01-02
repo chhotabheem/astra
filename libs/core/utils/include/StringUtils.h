@@ -9,6 +9,7 @@ namespace astra::utils {
 /// @param str The string to split
 /// @param delimiter The character to split on
 /// @return Vector of non-empty segments
-[[nodiscard]] std::vector<std::string> split(const std::string& str, char delimiter);
+[[nodiscard]] std::vector<std::string> split(const std::string &str,
+                                             char delimiter);
 
 } // namespace astra::utils

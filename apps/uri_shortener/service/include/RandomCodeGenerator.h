@@ -4,6 +4,7 @@
 #pragma once
 
 #include "ICodeGenerator.h"
+
 #include <random>
 #include <string>
 
@@ -14,28 +15,29 @@ namespace uri_shortener::infrastructure {
  */
 class RandomCodeGenerator : public domain::ICodeGenerator {
 public:
-    explicit RandomCodeGenerator(size_t length = 6)
-        : m_length(length)
-        , m_gen(std::random_device{}())
-        , m_dist(0, m_chars.size() - 1) {}
+  explicit RandomCodeGenerator(size_t length = 6)
+      : m_length(length), m_gen(std::random_device{}()),
+        m_dist(0, m_chars.size() - 1) {
+  }
 
-    domain::ShortCode generate() override {
-        std::string code;
-        code.reserve(m_length);
-        for (size_t i = 0; i < m_length; ++i) {
-            code += m_chars[m_dist(m_gen)];
-        }
-        return domain::ShortCode::from_trusted(code);
+  domain::ShortCode generate() override {
+    std::string code;
+    code.reserve(m_length);
+    for (size_t i = 0; i < m_length; ++i) {
+      code += m_chars[m_dist(m_gen)];
     }
+    return domain::ShortCode::from_trusted(code);
+  }
 
 private:
-    size_t m_length;
-    std::mt19937 m_gen;
-    std::uniform_int_distribution<size_t> m_dist;
-    static const std::string m_chars;
+  size_t m_length;
+  std::mt19937 m_gen;
+  std::uniform_int_distribution<size_t> m_dist;
+  static const std::string m_chars;
 };
 
 // Define static member in cpp file would be better, but for header-only:
-inline const std::string RandomCodeGenerator::m_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+inline const std::string RandomCodeGenerator::m_chars =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 } // namespace uri_shortener::infrastructure
