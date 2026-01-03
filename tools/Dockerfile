@@ -42,6 +42,9 @@ RUN apt-get update && apt-get install -y \
     lldb \
     valgrind \
     clang-format \
+    # Code Coverage Tools
+    lcov \
+    llvm \
     #
     # Container Build Tools
     buildah \
