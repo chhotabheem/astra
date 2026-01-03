@@ -1,10 +1,8 @@
 #pragma once
+
 #include "IMongoClient.h"
 
 #include <memory>
-#include <mongocxx/client.hpp>
-#include <mongocxx/instance.hpp>
-#include <mongocxx/uri.hpp>
 
 namespace astra::mongo {
 
@@ -12,34 +10,39 @@ class MongoClient : public IMongoClient {
 public:
   MongoClient();
   ~MongoClient() override;
-  void connect(const std::string &uri) override;
+
+  Result<void, MongoError> connect(const std::string &uri) override;
   void disconnect() override;
-  bool isConnected() const override;
+  [[nodiscard]] bool isConnected() const override;
 
-  [[nodiscard]] std::optional<bsoncxx::document::value>
+  [[nodiscard]] Result<std::optional<std::string>, MongoError>
   findOne(const std::string &database, const std::string &collection,
-          const bsoncxx::document::view &query) override;
+          const std::string &queryJson) const override;
 
-  void insertOne(const std::string &database, const std::string &collection,
-                 const bsoncxx::document::view &document) override;
-
-  void
-  insertMany(const std::string &database, const std::string &collection,
-             const std::vector<bsoncxx::document::value> &documents) override;
-
-  void updateMany(const std::string &database, const std::string &collection,
-                  const bsoncxx::document::view &filter,
-                  const bsoncxx::document::view &update) override;
-
-  void deleteMany(const std::string &database, const std::string &collection,
-                  const bsoncxx::document::view &filter) override;
-
-  [[nodiscard]] std::vector<bsoncxx::document::value>
+  [[nodiscard]] Result<std::vector<std::string>, MongoError>
   find(const std::string &database, const std::string &collection,
-       const bsoncxx::document::view &query) override;
+       const std::string &queryJson) const override;
+
+  Result<void, MongoError> insertOne(const std::string &database,
+                                     const std::string &collection,
+                                     const std::string &documentJson) override;
+
+  Result<void, MongoError>
+  insertMany(const std::string &database, const std::string &collection,
+             const std::vector<std::string> &documentsJson) override;
+
+  Result<void, MongoError> updateMany(const std::string &database,
+                                      const std::string &collection,
+                                      const std::string &filterJson,
+                                      const std::string &updateJson) override;
+
+  Result<void, MongoError> deleteMany(const std::string &database,
+                                      const std::string &collection,
+                                      const std::string &filterJson) override;
 
 private:
-  std::unique_ptr<mongocxx::client> m_client;
+  class Impl;
+  std::unique_ptr<Impl> m_impl;
 };
 
 } // namespace astra::mongo

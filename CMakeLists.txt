@@ -31,6 +31,7 @@ include(GoogleTest)
 find_package(GTest REQUIRED)  # Pre-installed in Docker image
 include(AddAstraTest)
 include(Sanitizers)
+include(Coverage)
 
 # FuzzTest Support (downloads via FetchContent when ENABLE_FUZZTEST=ON)
 include(FuzzTest)

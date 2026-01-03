@@ -74,6 +74,17 @@
       }
     },
     {
+      "name": "gcc-coverage",
+      "inherits": "gcc-base",
+      "displayName": "GCC Code Coverage",
+      "description": "Debug build using GCC with code coverage instrumentation",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "SANITIZE_MODE": "none",
+        "ENABLE_COVERAGE": "ON"
+      }
+    },
+    {
       "name": "clang-release",
       "inherits": "clang-base",
       "displayName": "Clang Release",
@@ -121,6 +132,17 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "SANITIZE_MODE": "undefined"
+      }
+    },
+    {
+      "name": "clang-coverage",
+      "inherits": "clang-base",
+      "displayName": "Clang Code Coverage",
+      "description": "Debug build using Clang with code coverage instrumentation",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "SANITIZE_MODE": "none",
+        "ENABLE_COVERAGE": "ON"
       }
     },
     {
@@ -174,6 +196,10 @@
       "configurePreset": "gcc-tsan"
     },
     {
+      "name": "gcc-coverage",
+      "configurePreset": "gcc-coverage"
+    },
+    {
       "name": "clang-release",
       "configurePreset": "clang-release"
     },
@@ -192,6 +218,10 @@
     {
       "name": "clang-ubsan",
       "configurePreset": "clang-ubsan"
+    },
+    {
+      "name": "clang-coverage",
+      "configurePreset": "clang-coverage"
     },
     {
       "name": "clang-unit-fuzz",
@@ -236,6 +266,13 @@
       }
     },
     {
+      "name": "gcc-coverage",
+      "configurePreset": "gcc-coverage",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
       "name": "clang-release",
       "configurePreset": "clang-release",
       "output": {
@@ -266,6 +303,13 @@
     {
       "name": "clang-ubsan",
       "configurePreset": "clang-ubsan",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "clang-coverage",
+      "configurePreset": "clang-coverage",
       "output": {
         "outputOnFailure": true
       }

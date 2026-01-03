@@ -43,6 +43,9 @@ RUN apt-get update && apt-get install -y \
     valgrind \
     clang-format \
     #
+    # Container Build Tools
+    buildah \
+    #
     # Utilities
     curl \
     dnsutils \

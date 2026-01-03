@@ -5,7 +5,6 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <sw/redis++/redis++.h>
 
 namespace astra::redis {
 
@@ -14,21 +13,19 @@ public:
   explicit RedisClient(const std::string &uri);
   ~RedisClient() override;
 
-  // Delete copy constructor and assignment operator
   RedisClient(const RedisClient &) = delete;
   RedisClient &operator=(const RedisClient &) = delete;
 
-  // Basic operations
   void set(const std::string &key, const std::string &value) override;
-  [[nodiscard]] std::optional<std::string> get(const std::string &key) override;
-  bool del(const std::string &key) override;
-  long long incr(const std::string &key) override;
-
-  // Check connection
-  bool ping() override;
+  [[nodiscard]] std::optional<std::string>
+  get(const std::string &key) const override;
+  [[nodiscard]] bool del(const std::string &key) override;
+  [[nodiscard]] int64_t incr(const std::string &key) override;
+  [[nodiscard]] bool ping() const override;
 
 private:
-  std::unique_ptr<sw::redis::Redis> redis_;
+  class Impl;
+  std::unique_ptr<Impl> m_impl;
 };
 
 } // namespace astra::redis

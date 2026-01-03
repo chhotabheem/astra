@@ -1,13 +1,8 @@
 #include "MockMongoClient.h"
 
-#include <bsoncxx/builder/basic/document.hpp>
-#include <bsoncxx/builder/basic/kvp.hpp>
-#include <bsoncxx/json.hpp>
 #include <gtest/gtest.h>
 
 using namespace astra::mongo;
-using bsoncxx::builder::basic::kvp;
-using bsoncxx::builder::basic::make_document;
 using ::testing::_;
 using ::testing::Return;
 
@@ -23,31 +18,48 @@ TEST_F(MongoMockTest, IsConnectedReturnsTrue) {
 }
 
 TEST_F(MongoMockTest, FindOneReturnsDocument) {
-  auto doc = make_document(kvp("name", "test"));
+  std::string docJson = R"({"name": "test"})";
+  auto successResult =
+      Result<std::optional<std::string>, MongoError>::Ok(docJson);
 
   EXPECT_CALL(mock_mongo, findOne("test_db", "test_col", _))
-      .WillOnce(Return(std::optional<bsoncxx::document::value>(doc)));
+      .WillOnce(Return(successResult));
 
-  auto result = mock_mongo.findOne("test_db", "test_col", make_document());
-  ASSERT_TRUE(result.has_value());
-  EXPECT_EQ(bsoncxx::to_json(*result), bsoncxx::to_json(doc));
+  auto result = mock_mongo.findOne("test_db", "test_col", "{}");
+  ASSERT_TRUE(result.is_ok());
+  ASSERT_TRUE(result.value().has_value());
+  EXPECT_EQ(result.value().value(), docJson);
 }
 
 TEST_F(MongoMockTest, InsertOneCallsUnderlying) {
-  EXPECT_CALL(mock_mongo, insertOne("test_db", "test_col", _)).Times(1);
+  EXPECT_CALL(mock_mongo, insertOne("test_db", "test_col", _))
+      .WillOnce(Return(Result<void, MongoError>::Ok()));
 
-  mock_mongo.insertOne("test_db", "test_col",
-                       make_document(kvp("key", "value")));
+  auto result =
+      mock_mongo.insertOne("test_db", "test_col", R"({"key": "value"})");
+  EXPECT_TRUE(result.is_ok());
 }
 
 TEST_F(MongoMockTest, FindReturnsVector) {
-  std::vector<bsoncxx::document::value> docs;
-  docs.push_back(make_document(kvp("id", 1)));
-  docs.push_back(make_document(kvp("id", 2)));
+  std::vector<std::string> docs = {R"({"id": 1})", R"({"id": 2})"};
+  auto successResult = Result<std::vector<std::string>, MongoError>::Ok(docs);
 
   EXPECT_CALL(mock_mongo, find("test_db", "test_col", _))
-      .WillOnce(Return(docs));
+      .WillOnce(Return(successResult));
 
-  auto result = mock_mongo.find("test_db", "test_col", make_document());
-  EXPECT_EQ(result.size(), 2);
+  auto result = mock_mongo.find("test_db", "test_col", "{}");
+  ASSERT_TRUE(result.is_ok());
+  EXPECT_EQ(result.value().size(), 2);
+}
+
+TEST_F(MongoMockTest, FindOneReturnsErrorWhenNotConnected) {
+  auto errorResult = Result<std::optional<std::string>, MongoError>::Err(
+      MongoError{MongoError::Code::NotConnected, "Not connected to MongoDB"});
+
+  EXPECT_CALL(mock_mongo, findOne("test_db", "test_col", _))
+      .WillOnce(Return(errorResult));
+
+  auto result = mock_mongo.findOne("test_db", "test_col", "{}");
+  ASSERT_TRUE(result.is_err());
+  EXPECT_EQ(result.error().code, MongoError::Code::NotConnected);
 }

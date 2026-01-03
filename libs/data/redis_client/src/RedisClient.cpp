@@ -1,67 +1,41 @@
 #include "RedisClient.h"
 
-#include <iostream>
+#include "SwRedisClient.h"
 
 namespace astra::redis {
 
-RedisClient::RedisClient(const std::string &uri) {
-  try {
-    redis_ = std::make_unique<sw::redis::Redis>(uri);
-  } catch (const std::exception &e) {
-    std::cerr << "Failed to initialize Redis client: " << e.what() << std::endl;
-    throw;
+class RedisClient::Impl {
+public:
+  explicit Impl(const std::string &uri) : backend(uri) {
   }
+
+  SwRedisClient backend;
+};
+
+RedisClient::RedisClient(const std::string &uri)
+    : m_impl(std::make_unique<Impl>(uri)) {
 }
 
 RedisClient::~RedisClient() = default;
 
 void RedisClient::set(const std::string &key, const std::string &value) {
-  try {
-    redis_->set(key, value);
-  } catch (const std::exception &e) {
-    std::cerr << "Redis set error: " << e.what() << std::endl;
-    throw;
-  }
+  m_impl->backend.set(key, value);
 }
 
-std::optional<std::string> RedisClient::get(const std::string &key) {
-  try {
-    auto val = redis_->get(key);
-    if (val) {
-      return *val;
-    }
-    return std::nullopt;
-  } catch (const std::exception &e) {
-    std::cerr << "Redis get error: " << e.what() << std::endl;
-    throw;
-  }
+std::optional<std::string> RedisClient::get(const std::string &key) const {
+  return m_impl->backend.get(key);
 }
 
 bool RedisClient::del(const std::string &key) {
-  try {
-    return redis_->del(key) > 0;
-  } catch (const std::exception &e) {
-    std::cerr << "Redis del error: " << e.what() << std::endl;
-    throw;
-  }
+  return m_impl->backend.del(key);
 }
 
-long long RedisClient::incr(const std::string &key) {
-  try {
-    return redis_->incr(key);
-  } catch (const std::exception &e) {
-    std::cerr << "Redis incr error: " << e.what() << std::endl;
-    throw;
-  }
+int64_t RedisClient::incr(const std::string &key) {
+  return m_impl->backend.incr(key);
 }
 
-bool RedisClient::ping() {
-  try {
-    return redis_->ping() == "PONG";
-  } catch (const std::exception &e) {
-    std::cerr << "Redis ping error: " << e.what() << std::endl;
-    return false;
-  }
+bool RedisClient::ping() const {
+  return m_impl->backend.ping();
 }
 
 } // namespace astra::redis

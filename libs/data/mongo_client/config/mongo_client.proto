@@ -2,21 +2,9 @@ syntax = "proto3";
 
 package mongo_client;
 
-// MongoDB client configuration
 message Config {
-    string uri = 1;                    // mongodb://host:port
-    string database = 2;
-    uint32 min_pool_size = 3;
-    uint32 max_pool_size = 4;
-    uint32 connect_timeout_ms = 5;
-    uint32 server_selection_timeout_ms = 6;
-    
-    // Authentication
-    string username = 7;
-    string password = 8;
-    string auth_source = 9;
-    
-    // TLS
-    bool tls_enabled = 10;
-    string tls_ca_file = 11;
+    string uri = 1;
+    uint32 connect_timeout_ms = 2;
+    uint32 server_selection_timeout_ms = 3;
+    uint32 socket_timeout_ms = 4;
 }

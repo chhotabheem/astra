@@ -8,39 +8,39 @@ namespace astra::mongo {
 
 class MockMongoClient : public IMongoClient {
 public:
-  MOCK_METHOD(void, connect, (const std::string &uri), (override));
+  MOCK_METHOD((Result<void, MongoError>), connect, (const std::string &uri),
+              (override));
   MOCK_METHOD(void, disconnect, (), (override));
   MOCK_METHOD(bool, isConnected, (), (const, override));
 
-  MOCK_METHOD(std::optional<bsoncxx::document::value>, findOne,
+  MOCK_METHOD((Result<std::optional<std::string>, MongoError>), findOne,
               (const std::string &database, const std::string &collection,
-               const bsoncxx::document::view &query),
+               const std::string &queryJson),
+              (const, override));
+
+  MOCK_METHOD((Result<std::vector<std::string>, MongoError>), find,
+              (const std::string &database, const std::string &collection,
+               const std::string &queryJson),
+              (const, override));
+
+  MOCK_METHOD((Result<void, MongoError>), insertOne,
+              (const std::string &database, const std::string &collection,
+               const std::string &documentJson),
               (override));
 
-  MOCK_METHOD(void, insertOne,
+  MOCK_METHOD((Result<void, MongoError>), insertMany,
               (const std::string &database, const std::string &collection,
-               const bsoncxx::document::view &document),
+               const std::vector<std::string> &documentsJson),
               (override));
 
-  MOCK_METHOD(void, insertMany,
+  MOCK_METHOD((Result<void, MongoError>), updateMany,
               (const std::string &database, const std::string &collection,
-               const std::vector<bsoncxx::document::value> &documents),
+               const std::string &filterJson, const std::string &updateJson),
               (override));
 
-  MOCK_METHOD(void, updateMany,
+  MOCK_METHOD((Result<void, MongoError>), deleteMany,
               (const std::string &database, const std::string &collection,
-               const bsoncxx::document::view &filter,
-               const bsoncxx::document::view &update),
-              (override));
-
-  MOCK_METHOD(void, deleteMany,
-              (const std::string &database, const std::string &collection,
-               const bsoncxx::document::view &filter),
-              (override));
-
-  MOCK_METHOD(std::vector<bsoncxx::document::value>, find,
-              (const std::string &database, const std::string &collection,
-               const bsoncxx::document::view &query),
+               const std::string &filterJson),
               (override));
 };
 

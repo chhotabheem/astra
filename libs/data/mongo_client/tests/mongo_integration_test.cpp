@@ -1,7 +1,6 @@
 #include "MongoClient.h"
 
-#include <bsoncxx/builder/basic/document.hpp>
-#include <bsoncxx/builder/basic/kvp.hpp>
+#include <JsonWriter.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -19,38 +18,37 @@ TEST(MongoClientTest, InitialStateNotConnected) {
 
 TEST(MongoClientTest, ConnectChangesState) {
   MongoClient client;
-  // Assuming localhost:27017 is valid or at least parseable
-  try {
-    client.connect("mongodb://127.0.0.1:27017");
+  auto result = client.connect("mongodb://127.0.0.1:27017");
+  if (result.is_ok()) {
     EXPECT_TRUE(client.isConnected());
-  } catch (...) {
-    // If connect throws, we can't really test this without a mock
-    // But for now we assume it works or throws
+  } else {
+    // Connection failed - skip
+    GTEST_SKIP() << "Could not connect to MongoDB: " << result.error().message;
   }
 }
 
-TEST(MongoClientTest, DoubleConnectThrows) {
+TEST(MongoClientTest, DoubleConnectReturnsError) {
   MongoClient client;
-  try {
-    client.connect("mongodb://127.0.0.1:27017");
-    EXPECT_THROW(client.connect("mongodb://127.0.0.1:27017"),
-                 std::runtime_error);
-  } catch (...) {
-    // If first connect fails, we skip
+  auto result1 = client.connect("mongodb://127.0.0.1:27017");
+  if (result1.is_err()) {
     GTEST_SKIP() << "Could not connect to MongoDB";
   }
+
+  auto result2 = client.connect("mongodb://127.0.0.1:27017");
+  EXPECT_TRUE(result2.is_err());
+  EXPECT_EQ(result2.error().code, MongoError::Code::AlreadyConnected);
 }
 
 TEST(MongoClientTest, DisconnectChangesState) {
   MongoClient client;
-  try {
-    client.connect("mongodb://127.0.0.1:27017");
-    EXPECT_TRUE(client.isConnected());
-    client.disconnect();
-    EXPECT_FALSE(client.isConnected());
-  } catch (...) {
+  auto result = client.connect("mongodb://127.0.0.1:27017");
+  if (result.is_err()) {
     GTEST_SKIP() << "Could not connect to MongoDB";
   }
+
+  EXPECT_TRUE(client.isConnected());
+  client.disconnect();
+  EXPECT_FALSE(client.isConnected());
 }
 
 TEST(MongoClientTest, DisconnectWhenNotConnected) {
@@ -59,11 +57,11 @@ TEST(MongoClientTest, DisconnectWhenNotConnected) {
   EXPECT_FALSE(client.isConnected());
 }
 
-TEST(MongoClientTest, QueryWithoutConnectionThrows) {
+TEST(MongoClientTest, QueryWithoutConnectionReturnsError) {
   MongoClient client;
-  auto query = bsoncxx::builder::basic::make_document();
-  EXPECT_THROW((void)client.findOne("test_db", "test_collection", query.view()),
-               std::runtime_error);
+  auto result = client.findOne("test_db", "test_collection", "{}");
+  EXPECT_TRUE(result.is_err());
+  EXPECT_EQ(result.error().code, MongoError::Code::NotConnected);
 }
 
 TEST(MongoClientTest, MultipleClientInstances) {
@@ -80,17 +78,16 @@ TEST(MongoClientTest, MultipleClientInstances) {
 class MongoClientCRUDTest : public Test {
 protected:
   void SetUp() override {
-    try {
-      m_client.connect("mongodb://127.0.0.1:27017");
-      // Try a simple operation to check connectivity
-      auto query = bsoncxx::builder::basic::make_document();
-      try {
-        (void)m_client.find("admin", "system.version", query.view());
-      } catch (const std::exception &e) {
-        GTEST_SKIP() << "MongoDB not reachable: " << e.what();
-      }
-    } catch (const std::exception &e) {
-      GTEST_SKIP() << "MongoDB connection failed: " << e.what();
+    auto connectResult = m_client.connect("mongodb://127.0.0.1:27017");
+    if (connectResult.is_err()) {
+      GTEST_SKIP() << "MongoDB connection failed: "
+                   << connectResult.error().message;
+    }
+
+    // Try a simple operation to check connectivity
+    auto pingResult = m_client.find("admin", "system.version", "{}");
+    if (pingResult.is_err()) {
+      GTEST_SKIP() << "MongoDB not reachable: " << pingResult.error().message;
     }
   }
 
@@ -98,34 +95,39 @@ protected:
 };
 
 TEST_F(MongoClientCRUDTest, CRUDOperations) {
-  try {
-    // Insert
-    auto doc = bsoncxx::builder::basic::make_document(
-        bsoncxx::builder::basic::kvp("test_key", "test_value"));
-    m_client.insertOne("test_db", "test_collection", doc.view());
+  // Insert using JsonWriter
+  astra::json::JsonWriter writer;
+  writer.add("test_key", "test_value");
+  std::string docJson = writer.get_string();
 
-    // Find
-    auto query = bsoncxx::builder::basic::make_document(
-        bsoncxx::builder::basic::kvp("test_key", "test_value"));
-    auto results = m_client.find("test_db", "test_collection", query.view());
-    // We might find more if previous tests ran, but we expect at least 1
-    EXPECT_FALSE(results.empty());
+  auto insertResult = m_client.insertOne("test_db", "test_collection", docJson);
+  ASSERT_TRUE(insertResult.is_ok())
+      << "Insert failed: " << insertResult.error().message;
 
-    // Update
-    auto update =
-        bsoncxx::builder::basic::make_document(bsoncxx::builder::basic::kvp(
-            "$set",
-            bsoncxx::builder::basic::make_document(
-                bsoncxx::builder::basic::kvp("test_key", "updated_value"))));
-    m_client.updateMany("test_db", "test_collection", query.view(),
-                        update.view());
+  // Find
+  astra::json::JsonWriter queryWriter;
+  queryWriter.add("test_key", "test_value");
+  std::string queryJson = queryWriter.get_string();
 
-    // Delete
-    auto delete_filter = bsoncxx::builder::basic::make_document(
-        bsoncxx::builder::basic::kvp("test_key", "updated_value"));
-    m_client.deleteMany("test_db", "test_collection", delete_filter.view());
+  auto findResult = m_client.find("test_db", "test_collection", queryJson);
+  ASSERT_TRUE(findResult.is_ok())
+      << "Find failed: " << findResult.error().message;
+  EXPECT_FALSE(findResult.value().empty());
 
-  } catch (const std::exception &e) {
-    FAIL() << "CRUD operation failed: " << e.what();
-  }
+  // Update
+  std::string updateJson = R"({"$set": {"test_key": "updated_value"}})";
+  auto updateResult =
+      m_client.updateMany("test_db", "test_collection", queryJson, updateJson);
+  ASSERT_TRUE(updateResult.is_ok())
+      << "Update failed: " << updateResult.error().message;
+
+  // Delete
+  astra::json::JsonWriter deleteWriter;
+  deleteWriter.add("test_key", "updated_value");
+  std::string deleteFilterJson = deleteWriter.get_string();
+
+  auto deleteResult =
+      m_client.deleteMany("test_db", "test_collection", deleteFilterJson);
+  ASSERT_TRUE(deleteResult.is_ok())
+      << "Delete failed: " << deleteResult.error().message;
 }
