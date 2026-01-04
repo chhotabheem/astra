@@ -124,8 +124,8 @@ UriShortenerBuilder &UriShortenerBuilder::msgHandler() {
 UriShortenerBuilder &UriShortenerBuilder::executor() {
   size_t num_lanes = 4;
   if (m_config.bootstrap().has_execution() &&
-      m_config.bootstrap().execution().has_shared_queue()) {
-    num_lanes = m_config.bootstrap().execution().shared_queue().num_workers();
+      m_config.bootstrap().execution().has_pool_executor()) {
+    num_lanes = m_config.bootstrap().execution().pool_executor().num_workers();
   }
 
   m_components.obs_msg_handler =

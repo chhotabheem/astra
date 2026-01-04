@@ -11,12 +11,11 @@
             "initial_window_size": 65535
         },
         "execution": {
-            "shared_queue": {
-                "num_workers": 4,
-                "max_queue_size": 10000
+            "pool_executor": {
+                "num_workers": 4
             },
-            "sticky_queue": {
-                "num_workers": 2
+            "affinity_executor": {
+                "num_lanes": 2
             }
         },
         "observability": {

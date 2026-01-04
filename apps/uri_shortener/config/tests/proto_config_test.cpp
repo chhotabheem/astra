@@ -92,28 +92,24 @@ TEST(Http2ClientConfigTest, CanSetStreamSettings) {
 // LIBRARY CONFIG TESTS - execution::Config
 // =============================================================================
 
-TEST(ExecutionConfigTest, SharedQueueDefaults) {
-  execution::SharedQueueConfig sq;
-  EXPECT_EQ(sq.num_workers(), 0);
-  EXPECT_EQ(sq.max_queue_size(), 0);
+TEST(ExecutionConfigTest, PoolExecutorDefaults) {
+  execution::PoolExecutorConfig pe;
+  EXPECT_EQ(pe.num_workers(), 0);
 }
 
-TEST(ExecutionConfigTest, CanSetSharedQueueWorkers) {
-  execution::SharedQueueConfig sq;
-  sq.set_num_workers(4);
-  sq.set_max_queue_size(10000);
-  EXPECT_EQ(sq.num_workers(), 4);
-  EXPECT_EQ(sq.max_queue_size(), 10000);
+TEST(ExecutionConfigTest, CanSetPoolExecutorWorkers) {
+  execution::PoolExecutorConfig pe;
+  pe.set_num_workers(4);
+  EXPECT_EQ(pe.num_workers(), 4);
 }
 
 TEST(ExecutionConfigTest, FullExecutionConfig) {
   execution::Config exec;
-  exec.mutable_shared_queue()->set_num_workers(4);
-  exec.mutable_shared_queue()->set_max_queue_size(10000);
-  exec.mutable_sticky_queue()->set_num_workers(2);
+  exec.mutable_pool_executor()->set_num_workers(4);
+  exec.mutable_affinity_executor()->set_num_lanes(2);
 
-  EXPECT_EQ(exec.shared_queue().num_workers(), 4);
-  EXPECT_EQ(exec.sticky_queue().num_workers(), 2);
+  EXPECT_EQ(exec.pool_executor().num_workers(), 4);
+  EXPECT_EQ(exec.affinity_executor().num_lanes(), 2);
 }
 
 // =============================================================================
@@ -267,11 +263,11 @@ TEST(BootstrapConfigTest, CanSetServer) {
 
 TEST(BootstrapConfigTest, CanSetExecution) {
   uri_shortener::BootstrapConfig bootstrap;
-  bootstrap.mutable_execution()->mutable_shared_queue()->set_num_workers(4);
-  bootstrap.mutable_execution()->mutable_sticky_queue()->set_num_workers(2);
+  bootstrap.mutable_execution()->mutable_pool_executor()->set_num_workers(4);
+  bootstrap.mutable_execution()->mutable_affinity_executor()->set_num_lanes(2);
 
-  EXPECT_EQ(bootstrap.execution().shared_queue().num_workers(), 4);
-  EXPECT_EQ(bootstrap.execution().sticky_queue().num_workers(), 2);
+  EXPECT_EQ(bootstrap.execution().pool_executor().num_workers(), 4);
+  EXPECT_EQ(bootstrap.execution().affinity_executor().num_lanes(), 2);
 }
 
 TEST(BootstrapConfigTest, CanSetObservability) {
@@ -370,8 +366,8 @@ TEST(JsonParsingTest, ParsesExecutionConfig) {
   const char *json = R"({
         "bootstrap": {
             "execution": {
-                "shared_queue": {"num_workers": 4, "max_queue_size": 10000},
-                "sticky_queue": {"num_workers": 2}
+                "pool_executor": {"num_workers": 4},
+                "affinity_executor": {"num_lanes": 2}
             }
         }
     })";
@@ -380,7 +376,7 @@ TEST(JsonParsingTest, ParsesExecutionConfig) {
   auto status = google::protobuf::util::JsonStringToMessage(json, &config);
 
   EXPECT_TRUE(status.ok());
-  EXPECT_EQ(config.bootstrap().execution().shared_queue().num_workers(), 4);
+  EXPECT_EQ(config.bootstrap().execution().pool_executor().num_workers(), 4);
 }
 
 TEST(JsonParsingTest, ParsesObservabilityConfig) {

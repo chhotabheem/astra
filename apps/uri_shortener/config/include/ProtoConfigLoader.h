@@ -65,9 +65,9 @@ private:
       }
 
       if (bootstrap.has_execution() &&
-          bootstrap.execution().has_shared_queue()) {
-        if (bootstrap.execution().shared_queue().num_workers() <= 0) {
-          return "Invalid execution.shared_queue.num_workers: must be > 0";
+          bootstrap.execution().has_pool_executor()) {
+        if (bootstrap.execution().pool_executor().num_workers() <= 0) {
+          return "Invalid execution.pool_executor.num_workers: must be > 0";
         }
       }
 

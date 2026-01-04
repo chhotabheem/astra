@@ -11,7 +11,7 @@ uri_shortener::Config makeBuilderTestConfig() {
   config.mutable_bootstrap()->mutable_server()->set_port(8080);
   config.mutable_bootstrap()
       ->mutable_execution()
-      ->mutable_shared_queue()
+      ->mutable_pool_executor()
       ->set_num_workers(2);
   return config;
 }

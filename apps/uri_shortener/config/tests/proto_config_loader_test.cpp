@@ -30,7 +30,7 @@ TEST(ProtoConfigLoaderTest, LoadsValidJsonString) {
         "schema_version": 1,
         "bootstrap": {
             "server": {"address": "0.0.0.0", "port": 8080, "thread_count": 2},
-            "execution": {"shared_queue": {"num_workers": 4}}
+            "execution": {"pool_executor": {"num_workers": 4}}
         }
     })";
 
@@ -102,10 +102,10 @@ TEST(ProtoConfigLoaderTest, ValidatesPortZero) {
   EXPECT_TRUE(result.is_err());
 }
 
-TEST(ProtoConfigLoaderTest, ValidatesSharedQueueWorkers) {
+TEST(ProtoConfigLoaderTest, ValidatesPoolExecutorWorkers) {
   const char *json = R"({
         "schema_version": 1,
-        "bootstrap": {"execution": {"shared_queue": {"num_workers": 0}}}
+        "bootstrap": {"execution": {"pool_executor": {"num_workers": 0}}}
     })";
 
   auto result = ProtoConfigLoader::loadFromString(json);
@@ -170,7 +170,7 @@ TEST_F(FileLoadingTest, LoadsValidFile) {
         "schema_version": 1,
         "bootstrap": {
             "server": {"address": "0.0.0.0", "port": 8080, "thread_count": 2},
-            "execution": {"shared_queue": {"num_workers": 4}}
+            "execution": {"pool_executor": {"num_workers": 4}}
         }
     })");
 
@@ -213,7 +213,7 @@ TEST(FullConfigTest, LoadsCompleteConfig) {
         "schema_version": 1,
         "bootstrap": {
             "server": {"address": "0.0.0.0", "port": 8080, "thread_count": 2},
-            "execution": {"shared_queue": {"num_workers": 4}},
+            "execution": {"pool_executor": {"num_workers": 4}},
             "observability": {"service_name": "uri-shortener", "trace_sample_rate": 0.1},
             "dataservice": {"client": {"host": "localhost", "port": 8081}},
             "service": {"name": "uri-shortener", "environment": "development"}

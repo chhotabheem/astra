@@ -6,7 +6,7 @@
       "thread_count": 4
     },
     "execution": {
-      "shared_queue": {
+      "pool_executor": {
         "num_workers": 4
       }
     },
