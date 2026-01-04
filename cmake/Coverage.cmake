@@ -29,6 +29,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     # Clang Source-Based Coverage
     add_compile_options(-fprofile-instr-generate -fcoverage-mapping)
+    add_link_options(-fprofile-instr-generate)
     message(STATUS "Coverage: Using Clang/llvm-cov")
 
 else()
@@ -53,7 +54,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND LCOV_PATH AND GENHTML_PATH)
 
     add_custom_target(coverage_report
         COMMAND ${LCOV_PATH} --capture --directory ${CMAKE_BINARY_DIR} --output-file coverage.info ${LCOV_IGNORE_ERRORS}
-        COMMAND ${LCOV_PATH} --remove coverage.info '/usr/*' '*/tests/*' '*/_deps/*' --output-file coverage.info ${LCOV_IGNORE_ERRORS}
+        COMMAND ${LCOV_PATH} --remove coverage.info '/usr/*' '*/tests/*' '*/_deps/*' '*/build/*' --output-file coverage.info ${LCOV_IGNORE_ERRORS}
         COMMAND ${GENHTML_PATH} coverage.info --output-directory coverage_html ${LCOV_IGNORE_ERRORS}
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMENT "Generating GCC coverage report in ${CMAKE_BINARY_DIR}/coverage_html"
@@ -105,11 +106,11 @@ ${LLVM_COV_PATH} show $FIRST_BIN $OBJECT_FLAGS \
   -instr-profile=${CMAKE_BINARY_DIR}/coverage.profdata \
   --format=html \
   --output-dir=${CMAKE_BINARY_DIR}/coverage_html \
-  --ignore-filename-regex='(/usr/|_deps/|/test/)'
+  --ignore-filename-regex='(/usr/|_deps/|/tests/|/build/)'
 
 ${LLVM_COV_PATH} report $FIRST_BIN $OBJECT_FLAGS \
   -instr-profile=${CMAKE_BINARY_DIR}/coverage.profdata \
-  --ignore-filename-regex='(/usr/|_deps/|/test/)'
+  --ignore-filename-regex='(/usr/|_deps/|/tests/|/build/)'
 "
     )
 

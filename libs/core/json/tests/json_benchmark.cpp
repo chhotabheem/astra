@@ -6,10 +6,6 @@
 
 using namespace astra::json;
 
-// =============================================================================
-// Parse Benchmarks
-// =============================================================================
-
 static const std::string small_json = R"({"name":"test","value":42})";
 
 static const std::string medium_json = R"({
@@ -63,10 +59,6 @@ static void BM_ParseLarge(benchmark::State &state) {
 }
 BENCHMARK(BM_ParseLarge);
 
-// =============================================================================
-// Access Benchmarks
-// =============================================================================
-
 static void BM_GetString(benchmark::State &state) {
   auto doc = JsonDocument::parse(medium_json);
   auto user = doc.get_child("user");
@@ -98,10 +90,6 @@ static void BM_Contains(benchmark::State &state) {
   }
 }
 BENCHMARK(BM_Contains);
-
-// =============================================================================
-// Write Benchmarks
-// =============================================================================
 
 static void BM_WriteSmall(benchmark::State &state) {
   for (auto _ : state) {

@@ -16,7 +16,6 @@ public:
 
 Http2Server::Http2Server(const ServerConfig &config)
     : m_impl(std::make_unique<Impl>(config)) {
-
   m_impl->backend.handle("*", "/",
                          [this](std::shared_ptr<astra::router::IRequest> req,
                                 std::shared_ptr<astra::router::IResponse> res) {

@@ -2322,7 +2322,6 @@ enum class StatusEvent : uint8_t {
 static HFSM2_CONSTEXPR(14) const
     char *methodName(const Method method) noexcept {
   switch (method) {
-
   case Method::SELECT:
     return "select";
 
@@ -14217,7 +14216,6 @@ namespace detail {
 
 template <FeatureTag NFeatureTag, typename TContext, typename TActivation,
           typename TReactOrder
-
 #if HFSM2_UTILITY_THEORY_AVAILABLE()
           ,
           typename TRank, typename TUtility, typename TRNG
@@ -14351,7 +14349,6 @@ template <typename> struct M_;
 
 template <FeatureTag NFeatureTag, typename TContext, typename TActivation,
           typename TReactOrder
-
 #if HFSM2_UTILITY_THEORY_AVAILABLE()
           ,
           typename TRank, typename TUtility, typename TRNG
@@ -16098,7 +16095,6 @@ template <typename, typename> class RV_;
 // Automatic enter() / exit()
 
 template <FeatureTag NFeatureTag, typename TContext, typename TReactOrder
-
 #if HFSM2_UTILITY_THEORY_AVAILABLE()
           ,
           typename TRank, typename TUtility, typename TRNG
@@ -16189,7 +16185,6 @@ private:
 // Manual enter() / exit()
 
 template <FeatureTag NFeatureTag, typename TContext, typename TReactOrder
-
 #if HFSM2_UTILITY_THEORY_AVAILABLE()
           ,
           typename TRank, typename TUtility, typename TRNG
@@ -16583,7 +16578,6 @@ template <typename, typename> class RP_;
 
 template <FeatureTag NFeatureTag, typename TContext, typename TActivation,
           typename TReactOrder
-
 #if HFSM2_UTILITY_THEORY_AVAILABLE()
           ,
           typename TRank, typename TUtility, typename TRNG
@@ -16926,7 +16920,6 @@ protected:
 
 template <FeatureTag NFeatureTag, typename TContext, typename TActivation,
           typename TReactOrder
-
 #if HFSM2_UTILITY_THEORY_AVAILABLE()
           ,
           typename TRank, typename TUtility, typename TRNG
@@ -17187,7 +17180,6 @@ template <typename, typename> class RC_;
 
 template <FeatureTag NFeatureTag, typename TContext, typename TActivation,
           typename TReactOrder
-
 #if HFSM2_UTILITY_THEORY_AVAILABLE()
           ,
           typename TRank, typename TUtility, typename TRNG
@@ -17248,7 +17240,6 @@ private:
 
 template <FeatureTag NFeatureTag, typename TContext, typename TActivation,
           typename TReactOrder
-
 #if HFSM2_UTILITY_THEORY_AVAILABLE()
           ,
           typename TRank, typename TUtility, typename TRNG
@@ -17297,7 +17288,6 @@ private:
 
 template <FeatureTag NFeatureTag, typename TContext, typename TActivation,
           typename TReactOrder
-
 #if HFSM2_UTILITY_THEORY_AVAILABLE()
           ,
           typename TRank, typename TUtility, typename TRNG
@@ -17364,7 +17354,6 @@ private:
 // TContext == EmptyContext
 
 template <FeatureTag NFeatureTag, typename TActivation, typename TReactOrder
-
 #if HFSM2_UTILITY_THEORY_AVAILABLE()
           ,
           typename TRank, typename TUtility, typename TRNG

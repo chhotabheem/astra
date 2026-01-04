@@ -4,18 +4,18 @@
 
 ### Build Docker Image
 ```bash
-docker build --network=host -t astrabuilder:v11 -f devenv/Dockerfile devenv
+docker build --network=host -t Astrabuilder:v11 -f tools/Dockerfile tools
 ```
 
 ### Run Container
 ```bash
-docker run -it --name astra -v $(pwd):/app/astra astrabuilder:v11 bash
+docker run -it --name Astra -v $(pwd):/app/Astra Astrabuilder:v11 bash
 ```
 
 ### Run Container (with Sanitizer Support)
 For running ThreadSanitizer (TSan) or AddressSanitizer (ASan) tests, use:
 ```bash
-docker run -it --name astra --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v $(pwd):/app/astra astrabuilder:v11 bash
+docker run -it --name Astra --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v $(pwd):/app/Astra Astrabuilder:v11 bash
 ```
 > **Note**: `--cap-add=SYS_PTRACE` enables process tracing for sanitizers. `--security-opt seccomp=unconfined` allows the `personality` syscall needed by TSan to disable ASLR.
 
@@ -134,3 +134,58 @@ cmake --build --preset gcc-debug --target test_memcheck   # Memory Leaks
 cmake --build --preset gcc-debug --target test_helgrind   # Thread Safety
 cmake --build --preset gcc-debug --target test_massif     # Heap Profiling
 ```
+
+## Container Builds
+
+Build and push container images to ghcr.io using CMake presets.
+
+### Create GitHub Token
+
+1. Go to **[github.com](https://github.com)** → Click profile picture → **Settings**
+2. Scroll down left sidebar → **Developer settings**
+3. **Personal access tokens** → **Tokens (classic)** → **Generate new token (classic)**
+4. Configure:
+   - **Note**: `ghcr-push` (or any name)
+   - **Expiration**: 90 days (or your preference)
+   - **Scopes**: ✅ `write:packages`, ✅ `read:packages`
+5. Click **Generate token** and **copy immediately** (starts with `ghp_`)
+
+> **Warning**: The token is only shown once. Save it securely!
+
+### Build Container Image
+```bash
+# Configure first (if not already done)
+cmake --preset clang-release
+
+# Build the release binary
+cmake --build --preset clang-release
+
+# Build the container image
+cmake --build --preset image-release
+```
+
+### Push to Registry
+```bash
+# Login to ghcr.io (set GITHUB_TOKEN first)
+export GITHUB_TOKEN=ghp_xxxxx
+echo "$GITHUB_TOKEN" | buildah login ghcr.io -u <username> --password-stdin
+
+# Push the image
+cmake --build --preset push-release
+```
+
+### Available Presets
+
+| Preset | Description |
+| :--- | :--- |
+| `image-release` | Build release container (`uri-shortener:v1`) |
+| `image-debug` | Build debug container (`uri-shortener:v1-debug`) |
+| `push-release` | Push release image to ghcr.io |
+| `push-debug` | Push debug image to ghcr.io |
+
+### Verify Push
+
+1. Go to [github.com](https://github.com) → Your Profile → **Packages** tab
+2. Or direct: `https://github.com/YOUR_USERNAME?tab=packages`
+
+> **Note**: Packages are private by default. To make public: Package settings → Danger Zone → Change visibility

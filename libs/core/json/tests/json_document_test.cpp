@@ -6,10 +6,6 @@
 
 using namespace astra::json;
 
-// =============================================================================
-// Parsing Tests
-// =============================================================================
-
 TEST(JsonDocumentTest, ParseValidJson) {
   std::string json_str = R"({
         "name": "Astra",
@@ -103,10 +99,6 @@ TEST(JsonDocumentTest, ParseDeeplyNested) {
   EXPECT_EQ(l4.get_int("value"), 42);
 }
 
-// =============================================================================
-// Type Tests
-// =============================================================================
-
 TEST(JsonDocumentTest, TypeIsObject) {
   auto doc = JsonDocument::parse(R"({"key": "value"})");
   EXPECT_TRUE(doc.is_object());
@@ -141,10 +133,6 @@ TEST(JsonDocumentTest, ChildTypeIsBool) {
   EXPECT_TRUE(child.is_bool());
 }
 
-// =============================================================================
-// Value Access Edge Cases
-// =============================================================================
-
 TEST(JsonDocumentTest, GetMissingKey) {
   auto doc = JsonDocument::parse(R"({"key": "value"})");
   EXPECT_THROW(doc.get_string("nonexistent"), std::exception);
@@ -178,10 +166,6 @@ TEST(JsonDocumentTest, NegativeInteger) {
   EXPECT_EQ(doc.get_int("value"), -42);
 }
 
-// =============================================================================
-// String Edge Cases
-// =============================================================================
-
 TEST(JsonDocumentTest, EscapedCharactersInString) {
   std::string json_str = R"({"text": "Hello\nWorld\t!"})";
   auto doc = JsonDocument::parse(json_str);
@@ -203,10 +187,6 @@ TEST(JsonDocumentTest, EmptyStringValue) {
   EXPECT_EQ(doc.get_string("empty"), "");
 }
 
-// =============================================================================
-// Boolean Tests
-// =============================================================================
-
 TEST(JsonDocumentTest, BooleanTrue) {
   auto doc = JsonDocument::parse(R"({"flag": true})");
   EXPECT_EQ(doc.get_bool("flag"), true);
@@ -216,10 +196,6 @@ TEST(JsonDocumentTest, BooleanFalse) {
   auto doc = JsonDocument::parse(R"({"flag": false})");
   EXPECT_EQ(doc.get_bool("flag"), false);
 }
-
-// =============================================================================
-// Move Semantics Tests
-// =============================================================================
 
 TEST(JsonDocumentTest, MoveConstruction) {
   auto doc1 = JsonDocument::parse(R"({"key": "value"})");
@@ -238,10 +214,6 @@ TEST(JsonDocumentTest, MoveAssignment) {
   EXPECT_TRUE(doc2.contains("key"));
   EXPECT_EQ(doc2.get_string("key"), "value1");
 }
-
-// =============================================================================
-// Stress Tests
-// =============================================================================
 
 TEST(JsonDocumentTest, LargeJsonDocument) {
   std::string json_str = "{";

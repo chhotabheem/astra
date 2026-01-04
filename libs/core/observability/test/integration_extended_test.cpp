@@ -331,8 +331,8 @@ TEST_F(IntegrationExtendedTest, NestedServiceCalls) {
 
 // Observability overhead measurement (benchmark/sanity check)
 // This measures overhead and reports it. The threshold is intentionally
-// conservative to allow for sanitizer/debug builds AND parallel test execution.
-// True performance testing should use dedicated benchmarks.
+// conservative to allow for sanitizer/debug builds - true performance testing
+// should use dedicated benchmarks.
 TEST_F(IntegrationExtendedTest, ObservabilityOverheadMeasurement) {
   constexpr int iterations = 1000;
 
@@ -354,20 +354,18 @@ TEST_F(IntegrationExtendedTest, ObservabilityOverheadMeasurement) {
 
   // Report the measurement (always useful for tracking)
   std::cout << "[BENCHMARK] Observability overhead: " << overhead_us
-            << " μs/op "
-            << "(" << total_ns / 1000000.0 << " ms for " << iterations
-            << " ops)" << std::endl;
+            << " μs/op " << "(" << total_ns / 1000000.0 << " ms for "
+            << iterations << " ops)" << std::endl;
 
   obs::info("Overhead per operation", {{"us", std::to_string(overhead_us)}});
 
-  // Conservative threshold: 2000 μs/op (2ms) catches extreme regressions only
+  // Conservative threshold: 500 μs/op catches extreme regressions only
   // Normal release builds: ~15-30 μs
   // Debug builds: ~50-80 μs
   // Sanitizer builds: ~100-200 μs
-  // Parallel test execution: ~200-1000 μs (due to CPU contention)
-  // Anything > 2000 μs indicates a serious problem
-  EXPECT_LT(overhead_per_op, 2000000) << "Observability overhead exceeds 2000 "
-                                         "μs/op - possible severe regression";
+  // Anything > 500 μs indicates a serious problem
+  EXPECT_LT(overhead_per_op, 500000) << "Observability overhead exceeds 500 "
+                                        "μs/op - possible severe regression";
 }
 
 // Real-world API endpoint simulation

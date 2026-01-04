@@ -125,6 +125,16 @@
       }
     },
     {
+      "name": "clang-msan",
+      "inherits": "clang-base",
+      "displayName": "Clang MemorySanitizer",
+      "description": "Debug build using Clang with MemorySanitizer (Requires libc++)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "SANITIZE_MODE": "memory"
+      }
+    },
+    {
       "name": "clang-ubsan",
       "inherits": "clang-base",
       "displayName": "Clang UndefinedBehaviorSanitizer",
@@ -216,6 +226,10 @@
       "configurePreset": "clang-tsan"
     },
     {
+      "name": "clang-msan",
+      "configurePreset": "clang-msan"
+    },
+    {
       "name": "clang-ubsan",
       "configurePreset": "clang-ubsan"
     },
@@ -234,6 +248,34 @@
     {
       "name": "clang-bench",
       "configurePreset": "clang-bench"
+    },
+    {
+      "name": "image-release",
+      "configurePreset": "clang-release",
+      "targets": [
+        "image-release"
+      ]
+    },
+    {
+      "name": "image-debug",
+      "configurePreset": "clang-debug",
+      "targets": [
+        "image-debug"
+      ]
+    },
+    {
+      "name": "push-release",
+      "configurePreset": "clang-release",
+      "targets": [
+        "push-release"
+      ]
+    },
+    {
+      "name": "push-debug",
+      "configurePreset": "clang-debug",
+      "targets": [
+        "push-debug"
+      ]
     }
   ],
   "testPresets": [
@@ -301,6 +343,13 @@
       }
     },
     {
+      "name": "clang-msan",
+      "configurePreset": "clang-msan",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
       "name": "clang-ubsan",
       "configurePreset": "clang-ubsan",
       "output": {
@@ -312,6 +361,9 @@
       "configurePreset": "clang-coverage",
       "output": {
         "outputOnFailure": true
+      },
+      "environment": {
+        "LLVM_PROFILE_FILE": "${sourceDir}/build/clang-coverage/coverage_%p.profraw"
       }
     },
     {

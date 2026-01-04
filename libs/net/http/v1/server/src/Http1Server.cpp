@@ -15,9 +15,8 @@ using tcp = net::ip::tcp;
 Server::Server(const std::string &address, unsigned short port, int threads)
     : m_address(address), m_port(port), m_threads(threads), m_ioc(threads),
       m_acceptor(m_ioc) {
-
-  auto const addr = net::ip::make_address(address);
-  auto const endpoint = tcp::endpoint{addr, port};
+  const auto addr = net::ip::make_address(address);
+  const auto endpoint = tcp::endpoint{addr, port};
 
   m_acceptor.open(endpoint.protocol());
   m_acceptor.set_option(net::socket_base::reuse_address(true));

@@ -211,7 +211,6 @@ void NgHttp2Client::submit(const std::string &method, const std::string &path,
                            const std::string &body,
                            const std::map<std::string, std::string> &headers,
                            ResponseHandler handler) {
-
   ConnectionState current = m_state.load(std::memory_order_acquire);
 
   if (current == ConnectionState::FAILED) {

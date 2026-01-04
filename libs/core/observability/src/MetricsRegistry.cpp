@@ -9,7 +9,6 @@ namespace astra::observability {
 MetricsRegistry &MetricsRegistry::counter(const std::string &key,
                                           const std::string &full_name,
                                           Unit unit) {
-
   auto c = register_counter(full_name, unit);
   m_counters.emplace(key, c);
   return *this;
@@ -18,7 +17,6 @@ MetricsRegistry &MetricsRegistry::counter(const std::string &key,
 MetricsRegistry &MetricsRegistry::histogram(const std::string &key,
                                             const std::string &full_name,
                                             Unit unit) {
-
   auto h = register_histogram(full_name, unit);
   m_histograms.emplace(key, h);
   return *this;
@@ -27,7 +25,6 @@ MetricsRegistry &MetricsRegistry::histogram(const std::string &key,
 MetricsRegistry &
 MetricsRegistry::duration_histogram(const std::string &key,
                                     const std::string &full_name) {
-
   auto dh = register_duration_histogram(full_name);
   m_duration_histograms.emplace(key, dh);
   return *this;
@@ -36,7 +33,6 @@ MetricsRegistry::duration_histogram(const std::string &key,
 MetricsRegistry &MetricsRegistry::gauge(const std::string &key,
                                         const std::string &full_name,
                                         Unit unit) {
-
   auto g = register_gauge(full_name, unit);
   m_gauges.emplace(key, g);
   return *this;

@@ -6,11 +6,6 @@
 
 using namespace astra::json;
 
-// =============================================================================
-// Fuzz Targets
-// =============================================================================
-
-// Core fuzz target: parse() should never crash on any input
 void ParseNeverCrashes(const std::string &input) {
   try {
     auto doc = JsonDocument::parse(input);
@@ -20,7 +15,6 @@ void ParseNeverCrashes(const std::string &input) {
 }
 FUZZ_TEST(JsonFuzzTest, ParseNeverCrashes);
 
-// Fuzz with structured input: valid JSON-like structure
 void ParseKeyValuePair(const std::string &key, int value) {
   if (key.empty() || key.find('"') != std::string::npos) {
     return; // Skip problematic keys
@@ -38,7 +32,6 @@ void ParseKeyValuePair(const std::string &key, int value) {
 }
 FUZZ_TEST(JsonFuzzTest, ParseKeyValuePair);
 
-// Fuzz deeply nested JSON
 void ParseNestedJson(int depth) {
   if (depth < 0 || depth > 100) {
     return; // Limit depth
@@ -61,7 +54,6 @@ void ParseNestedJson(int depth) {
 }
 FUZZ_TEST(JsonFuzzTest, ParseNestedJson);
 
-// Fuzz string values with special characters
 void ParseStringValue(const std::string &value) {
   // Escape the string value for JSON
   std::string escaped;

@@ -38,7 +38,7 @@ Response Client::perform_request(const std::string &host,
     tcp::resolver resolver(ioc);
     beast::tcp_stream stream(ioc);
 
-    auto const results = resolver.resolve(host, port);
+    const auto results = resolver.resolve(host, port);
     stream.connect(results);
 
     http::request<http::string_body> req{method, target, 11};
@@ -73,7 +73,7 @@ Response Client::perform_request(const std::string &host,
     }
     return response;
 
-  } catch (std::exception const &e) {
+  } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
     return {500, e.what(), {}};
   }
