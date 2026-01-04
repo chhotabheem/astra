@@ -23,14 +23,14 @@ class MockInnerHandler : public IMessageHandler {
 public:
   void handle(Message &msg) override {
     m_handled_count++;
-    m_last_session_id = msg.session_id;
+    m_last_affinity_key = msg.affinity_key;
     if (m_should_throw) {
       throw std::runtime_error("Test error");
     }
   }
 
   std::atomic<int> m_handled_count{0};
-  uint64_t m_last_session_id{0};
+  uint64_t m_last_affinity_key{0};
   bool m_should_throw{false};
 };
 
@@ -51,7 +51,7 @@ TEST_F(ObservableHandlerTest, DelegatesToInnerHandler) {
   observable.handle(msg);
 
   EXPECT_EQ(inner.m_handled_count, 1);
-  EXPECT_EQ(inner.m_last_session_id, 42);
+  EXPECT_EQ(inner.m_last_affinity_key, 42);
 }
 
 TEST_F(ObservableHandlerTest, HandlesMultipleMessages) {

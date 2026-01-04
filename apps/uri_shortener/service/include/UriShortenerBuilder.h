@@ -44,7 +44,7 @@ private:
   UriShortenerBuilder &dataAdapter();
 
   UriShortenerBuilder &msgHandler();
-  UriShortenerBuilder &pool();
+  UriShortenerBuilder &executor();
   UriShortenerBuilder &reqHandler();
   UriShortenerBuilder &wrapObservable();
 

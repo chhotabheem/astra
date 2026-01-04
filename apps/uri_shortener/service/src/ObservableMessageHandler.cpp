@@ -19,7 +19,7 @@ ObservableMessageHandler::ObservableMessageHandler(
 void ObservableMessageHandler::handle(astra::execution::Message &msg) {
   auto span =
       m_tracer->start_span("uri_shortener.message.handle", msg.trace_ctx);
-  span->attr("session_id", static_cast<int64_t>(msg.session_id));
+  span->attr("affinity_key", static_cast<int64_t>(msg.affinity_key));
 
   auto start = std::chrono::steady_clock::now();
 

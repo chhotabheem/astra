@@ -10,7 +10,7 @@ namespace astra::service_discovery {
 class IServiceResolver;
 }
 namespace astra::execution {
-class StickyQueue;
+class AffinityExecutor;
 }
 namespace astra::resilience {
 class AtomicLoadShedder;
@@ -48,7 +48,7 @@ struct UriShortenerComponents {
 
   std::unique_ptr<UriShortenerMessageHandler> msg_handler;
   std::unique_ptr<ObservableMessageHandler> obs_msg_handler;
-  std::unique_ptr<astra::execution::StickyQueue> pool;
+  std::unique_ptr<astra::execution::AffinityExecutor> executor;
   std::unique_ptr<UriShortenerRequestHandler> req_handler;
   std::unique_ptr<ObservableRequestHandler> obs_req_handler;
 

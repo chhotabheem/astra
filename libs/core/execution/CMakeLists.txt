@@ -5,9 +5,10 @@ find_package(Protobuf REQUIRED)
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS config/execution.proto)
 
 add_library(astra_execution
-    src/SharedQueue.cpp
-    src/StickyQueue.cpp
-    src/ObservableMessagePool.cpp
+    src/MessageQueue.cpp
+    src/AffinityExecutor.cpp
+    src/PoolExecutor.cpp
+    src/ObservableExecutor.cpp
     ${PROTO_SRCS}
 )
 

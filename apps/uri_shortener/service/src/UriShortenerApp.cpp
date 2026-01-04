@@ -8,13 +8,13 @@
 #include "UriShortenerMessageHandler.h"
 #include "UriShortenerRequestHandler.h"
 
+#include <AffinityExecutor.h>
 #include <Http2Response.h>
 #include <IRequest.h>
 #include <IResponse.h>
 #include <Log.h>
 #include <Metrics.h>
 #include <Provider.h>
-#include <StickyQueue.h>
 #include <resilience/impl/AtomicLoadShedder.h>
 
 namespace uri_shortener {
@@ -24,8 +24,8 @@ UriShortenerApp::UriShortenerApp(UriShortenerComponents components)
 }
 
 UriShortenerApp::~UriShortenerApp() {
-  if (m_components.pool) {
-    m_components.pool->stop();
+  if (m_components.executor) {
+    m_components.executor->stop();
   }
 }
 
@@ -83,7 +83,7 @@ int UriShortenerApp::run() {
 
   obs::info("URI Shortener listening");
   obs::info("Using message-based architecture",
-            {{"workers", std::to_string(m_components.pool->worker_count())}});
+            {{"lanes", std::to_string(m_components.executor->lane_count())}});
   obs::info("Load shedder enabled",
             {{"max_concurrent",
               std::to_string(m_components.load_shedder->max_concurrent())}});

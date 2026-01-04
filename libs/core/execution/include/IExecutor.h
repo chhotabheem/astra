@@ -4,11 +4,11 @@
 
 namespace astra::execution {
 
-class IMessageHandler {
+class IExecutor {
 public:
-  virtual ~IMessageHandler() = default;
+  virtual ~IExecutor() = default;
 
-  virtual void handle(Message &msg) = 0;
+  virtual void submit(Message msg) = 0;
 };
 
 } // namespace astra::execution
