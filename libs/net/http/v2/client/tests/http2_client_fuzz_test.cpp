@@ -25,7 +25,7 @@ void SubmitNeverCrashes(const std::string &host, uint16_t port,
     return;
   }
 
-  ClientConfig config;
+  ::http2::ClientConfig config;
   config.set_request_timeout_ms(50);
 
   try {
@@ -54,7 +54,7 @@ void SubmitWithHeadersNeverCrashes(const std::string &headerKey,
     return;
   }
 
-  ClientConfig config;
+  ::http2::ClientConfig config;
   config.set_request_timeout_ms(50);
 
   try {
@@ -118,7 +118,7 @@ FUZZ_TEST(Http2ClientFuzzTest, HeaderLookupNeverCrashes);
 
 // Fuzz HTTP methods
 void AllMethodsNeverCrash(const std::string &method) {
-  ClientConfig config;
+  ::http2::ClientConfig config;
   config.set_request_timeout_ms(50);
 
   try {
@@ -140,7 +140,7 @@ FUZZ_TEST(Http2ClientFuzzTest, AllMethodsNeverCrash);
 
 // Fuzz paths with special characters
 void PathWithSpecialCharsNeverCrashes(const std::string &path) {
-  ClientConfig config;
+  ::http2::ClientConfig config;
   config.set_request_timeout_ms(50);
 
   try {

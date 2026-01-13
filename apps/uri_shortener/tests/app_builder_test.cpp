@@ -7,8 +7,7 @@ namespace uri_shortener::test {
 uri_shortener::Config makeBuilderTestConfig() {
   uri_shortener::Config config;
   config.set_schema_version(1);
-  config.mutable_bootstrap()->mutable_server()->set_address("127.0.0.1");
-  config.mutable_bootstrap()->mutable_server()->set_port(8080);
+  config.mutable_bootstrap()->mutable_server()->set_uri("127.0.0.1:8080");
   config.mutable_bootstrap()
       ->mutable_execution()
       ->mutable_pool_executor()
@@ -29,9 +28,9 @@ TEST(UriShortenerBuilderTest, Build_WithAllMethods_Succeeds) {
   EXPECT_TRUE(result.is_ok());
 }
 
-TEST(UriShortenerBuilderTest, Build_WithEmptyAddress_Fails) {
+TEST(UriShortenerBuilderTest, Build_WithEmptyUri_Fails) {
   auto config = makeBuilderTestConfig();
-  config.mutable_bootstrap()->mutable_server()->set_address("");
+  config.mutable_bootstrap()->mutable_server()->set_uri("");
 
   auto result = UriShortenerBuilder(config)
                     .domain()

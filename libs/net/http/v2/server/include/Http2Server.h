@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Http2ServerError.h"
-#include "Router.h"
+#include "IHttp2Server.h"
+#include "IRouter.h"
 #include "http2server.pb.h"
 
 #include <Result.h>
@@ -14,31 +15,26 @@ namespace astra::http2 {
 class Http2Request;
 class Http2Response;
 
-class Http2Server {
+class Http2Server : public IHttp2Server {
 public:
-  explicit Http2Server(const ServerConfig &config);
-  ~Http2Server();
+  Http2Server(const ::http2::ServerConfig &config,
+              astra::router::IRouter &router);
+  ~Http2Server() override;
 
   Http2Server(const Http2Server &) = delete;
   Http2Server &operator=(const Http2Server &) = delete;
 
-  using Handler = astra::router::Handler;
-
   void handle(const std::string &method, const std::string &path,
-              Handler handler);
+              Handler handler) override;
 
-  astra::outcome::Result<void, Http2ServerError> start();
-  astra::outcome::Result<void, Http2ServerError> join();
-  astra::outcome::Result<void, Http2ServerError> stop();
-
-  [[nodiscard]] astra::router::Router &router() {
-    return m_router;
-  }
+  astra::outcome::Result<void, Http2ServerError> start() override;
+  astra::outcome::Result<void, Http2ServerError> join() override;
+  astra::outcome::Result<void, Http2ServerError> stop() override;
 
 private:
   class Impl;
   std::unique_ptr<Impl> m_impl;
-  astra::router::Router m_router;
+  astra::router::IRouter &m_router;
 };
 
 } // namespace astra::http2

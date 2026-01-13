@@ -1,3 +1,4 @@
+#include "HttpMethod.h"
 #include "Router.h"
 
 #include <gmock/gmock.h>
@@ -68,7 +69,7 @@ public:
 
 TEST_F(RouterTest, ExactMatch) {
   bool called = false;
-  m_router.get("/users",
+  m_router.add(HttpMethod::GET, "/users",
                [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {
                  called = true;
                });
@@ -79,7 +80,7 @@ TEST_F(RouterTest, ExactMatch) {
 }
 
 TEST_F(RouterTest, ParamMatch) {
-  m_router.get("/users/:id",
+  m_router.add(HttpMethod::GET, "/users/:id",
                [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {});
 
   auto result = m_router.match("GET", "/users/123");
@@ -89,7 +90,7 @@ TEST_F(RouterTest, ParamMatch) {
 }
 
 TEST_F(RouterTest, NestedParams) {
-  m_router.get("/users/:userId/posts/:postId",
+  m_router.add(HttpMethod::GET, "/users/:userId/posts/:postId",
                [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {});
 
   auto result = m_router.match("GET", "/users/123/posts/456");
@@ -103,11 +104,11 @@ TEST_F(RouterTest, CollisionPriority) {
   bool static_called = false;
   bool dynamic_called = false;
 
-  m_router.get("/users/profile",
+  m_router.add(HttpMethod::GET, "/users/profile",
                [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {
                  static_called = true;
                });
-  m_router.get("/users/:id",
+  m_router.add(HttpMethod::GET, "/users/:id",
                [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {
                  dynamic_called = true;
                });
@@ -122,7 +123,7 @@ TEST_F(RouterTest, CollisionPriority) {
 }
 
 TEST_F(RouterTest, NoMatch) {
-  m_router.get("/users",
+  m_router.add(HttpMethod::GET, "/users",
                [&](std::shared_ptr<IRequest>, std::shared_ptr<IResponse>) {});
 
   auto result = m_router.match("GET", "/unknown");
@@ -137,14 +138,14 @@ TEST_F(RouterTest, NoMatch) {
 // =============================================================================
 
 TEST_F(RouterTest, RootPath) {
-  m_router.get("/", [](auto, auto) {});
+  m_router.add(HttpMethod::GET, "/", [](auto, auto) {});
 
   auto result = m_router.match("GET", "/");
   EXPECT_TRUE(result);
 }
 
 TEST_F(RouterTest, TrailingSlash) {
-  m_router.get("/users", [](auto, auto) {});
+  m_router.add(HttpMethod::GET, "/users", [](auto, auto) {});
 
   // Path with trailing slash should NOT match (strict matching)
   auto result = m_router.match("GET", "/users/");
@@ -153,7 +154,7 @@ TEST_F(RouterTest, TrailingSlash) {
 }
 
 TEST_F(RouterTest, DoubleSlashInPath) {
-  m_router.get("/users", [](auto, auto) {});
+  m_router.add(HttpMethod::GET, "/users", [](auto, auto) {});
 
   auto result = m_router.match("GET", "//users");
   // Should not crash, behavior is implementation-defined
@@ -164,28 +165,28 @@ TEST_F(RouterTest, VeryLongPath) {
   for (int i = 0; i < 100; ++i) {
     long_path += "/segment" + std::to_string(i);
   }
-  m_router.get(long_path, [](auto, auto) {});
+  m_router.add(HttpMethod::GET, long_path, [](auto, auto) {});
 
   auto result = m_router.match("GET", long_path);
   EXPECT_TRUE(result);
 }
 
 TEST_F(RouterTest, PathWithNumbers) {
-  m_router.get("/v1/api/users", [](auto, auto) {});
+  m_router.add(HttpMethod::GET, "/v1/api/users", [](auto, auto) {});
 
   auto result = m_router.match("GET", "/v1/api/users");
   EXPECT_TRUE(result);
 }
 
 TEST_F(RouterTest, PathWithHyphens) {
-  m_router.get("/user-profiles", [](auto, auto) {});
+  m_router.add(HttpMethod::GET, "/user-profiles", [](auto, auto) {});
 
   auto result = m_router.match("GET", "/user-profiles");
   EXPECT_TRUE(result);
 }
 
 TEST_F(RouterTest, PathWithUnderscores) {
-  m_router.get("/user_profiles", [](auto, auto) {});
+  m_router.add(HttpMethod::GET, "/user_profiles", [](auto, auto) {});
 
   auto result = m_router.match("GET", "/user_profiles");
   EXPECT_TRUE(result);
@@ -196,7 +197,7 @@ TEST_F(RouterTest, PathWithUnderscores) {
 // =============================================================================
 
 TEST_F(RouterTest, NumericParamValue) {
-  m_router.get("/users/:id", [](auto, auto) {});
+  m_router.add(HttpMethod::GET, "/users/:id", [](auto, auto) {});
 
   auto result = m_router.match("GET", "/users/999999999");
   EXPECT_TRUE(result);
@@ -204,7 +205,7 @@ TEST_F(RouterTest, NumericParamValue) {
 }
 
 TEST_F(RouterTest, ParamWithHyphens) {
-  m_router.get("/articles/:slug", [](auto, auto) {});
+  m_router.add(HttpMethod::GET, "/articles/:slug", [](auto, auto) {});
 
   auto result = m_router.match("GET", "/articles/my-first-article");
   EXPECT_TRUE(result);
@@ -212,7 +213,7 @@ TEST_F(RouterTest, ParamWithHyphens) {
 }
 
 TEST_F(RouterTest, ParamWithUnderscores) {
-  m_router.get("/files/:name", [](auto, auto) {});
+  m_router.add(HttpMethod::GET, "/files/:name", [](auto, auto) {});
 
   auto result = m_router.match("GET", "/files/my_document_v2");
   EXPECT_TRUE(result);
@@ -220,7 +221,8 @@ TEST_F(RouterTest, ParamWithUnderscores) {
 }
 
 TEST_F(RouterTest, MultipleParamsInSequence) {
-  m_router.get("/org/:orgId/team/:teamId/member/:memberId", [](auto, auto) {});
+  m_router.add(HttpMethod::GET, "/org/:orgId/team/:teamId/member/:memberId",
+               [](auto, auto) {});
 
   auto result = m_router.match("GET", "/org/100/team/200/member/300");
   EXPECT_TRUE(result);
@@ -235,7 +237,7 @@ TEST_F(RouterTest, MultipleParamsInSequence) {
 // =============================================================================
 
 TEST_F(RouterTest, PostMethod) {
-  m_router.post("/users", [](auto, auto) {});
+  m_router.add(HttpMethod::POST, "/users", [](auto, auto) {});
 
   auto result = m_router.match("POST", "/users");
   EXPECT_TRUE(result);
@@ -246,24 +248,24 @@ TEST_F(RouterTest, PostMethod) {
 }
 
 TEST_F(RouterTest, PutMethod) {
-  m_router.put("/users/:id", [](auto, auto) {});
+  m_router.add(HttpMethod::PUT, "/users/:id", [](auto, auto) {});
 
   auto result = m_router.match("PUT", "/users/123");
   EXPECT_TRUE(result);
 }
 
 TEST_F(RouterTest, DeleteMethod) {
-  m_router.del("/users/:id", [](auto, auto) {});
+  m_router.add(HttpMethod::DELETE, "/users/:id", [](auto, auto) {});
 
   auto result = m_router.match("DELETE", "/users/123");
   EXPECT_TRUE(result);
 }
 
 TEST_F(RouterTest, SamePathDifferentMethods) {
-  m_router.get("/users", [](auto, auto) {});
-  m_router.post("/users", [](auto, auto) {});
-  m_router.put("/users/:id", [](auto, auto) {});
-  m_router.del("/users/:id", [](auto, auto) {});
+  m_router.add(HttpMethod::GET, "/users", [](auto, auto) {});
+  m_router.add(HttpMethod::POST, "/users", [](auto, auto) {});
+  m_router.add(HttpMethod::PUT, "/users/:id", [](auto, auto) {});
+  m_router.add(HttpMethod::DELETE, "/users/:id", [](auto, auto) {});
 
   EXPECT_TRUE(m_router.match("GET", "/users"));
   EXPECT_TRUE(m_router.match("POST", "/users"));
@@ -272,7 +274,7 @@ TEST_F(RouterTest, SamePathDifferentMethods) {
 }
 
 TEST_F(RouterTest, UnknownMethod) {
-  m_router.get("/users", [](auto, auto) {});
+  m_router.add(HttpMethod::GET, "/users", [](auto, auto) {});
 
   auto result = m_router.match("PATCH", "/users");
   EXPECT_FALSE(result);
@@ -284,7 +286,8 @@ TEST_F(RouterTest, UnknownMethod) {
 
 TEST_F(RouterTest, ManyRoutes) {
   for (int i = 0; i < 1000; ++i) {
-    m_router.get("/route" + std::to_string(i), [](auto, auto) {});
+    m_router.add(HttpMethod::GET, "/route" + std::to_string(i),
+                 [](auto, auto) {});
   }
 
   auto result = m_router.match("GET", "/route500");
@@ -299,16 +302,16 @@ TEST_F(RouterTest, DeepNesting) {
   for (int i = 0; i < 20; ++i) {
     path += "/level" + std::to_string(i);
   }
-  m_router.get(path, [](auto, auto) {});
+  m_router.add(HttpMethod::GET, path, [](auto, auto) {});
 
   auto result = m_router.match("GET", path);
   EXPECT_TRUE(result);
 }
 
 TEST_F(RouterTest, ConcurrentMatching) {
-  m_router.get("/users/:id", [](auto, auto) {});
-  m_router.get("/posts/:id", [](auto, auto) {});
-  m_router.get("/comments/:id", [](auto, auto) {});
+  m_router.add(HttpMethod::GET, "/users/:id", [](auto, auto) {});
+  m_router.add(HttpMethod::GET, "/posts/:id", [](auto, auto) {});
+  m_router.add(HttpMethod::GET, "/comments/:id", [](auto, auto) {});
 
   std::vector<std::thread> threads;
   std::atomic<int> success_count{0};
@@ -339,7 +342,7 @@ TEST_F(RouterTest, ConcurrentMatching) {
 
 TEST_F(RouterTest, DispatchCallsHandler) {
   bool handler_called = false;
-  m_router.get("/test", [&handler_called](auto, auto) {
+  m_router.add(HttpMethod::GET, "/test", [&handler_called](auto, auto) {
     handler_called = true;
   });
 

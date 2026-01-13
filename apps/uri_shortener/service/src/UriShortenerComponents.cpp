@@ -8,6 +8,7 @@
 #include "IServiceResolver.h"
 #include "ObservableMessageHandler.h"
 #include "ObservableRequestHandler.h"
+#include "Router.h"
 #include "UriShortenerMessageHandler.h"
 #include "UriShortenerRequestHandler.h"
 

@@ -23,7 +23,8 @@ struct RequestStream {
 
 namespace astra::http2 {
 
-NgHttp2Server::NgHttp2Server(const ServerConfig &config) : m_config(config) {
+NgHttp2Server::NgHttp2Server(const ::http2::ServerConfig &config)
+    : m_config(config) {
   int threads = m_config.thread_count() > 0 ? m_config.thread_count() : 1;
   m_server.num_threads(threads);
   obs::info("NgHttp2Server initialized with " + std::to_string(threads) +
@@ -110,8 +111,26 @@ astra::outcome::Result<void, Http2ServerError> NgHttp2Server::start() {
         Http2ServerError::AlreadyRunning);
   }
 
-  std::string address = m_config.address();
-  std::string port = std::to_string(m_config.port());
+  // Parse uri to extract address and port
+  // Format: http://address:port or https://address:port
+  std::string uri = m_config.uri();
+  std::string address = "0.0.0.0";
+  std::string port = "8080";
+
+  // Remove protocol prefix
+  size_t protocol_end = uri.find("://");
+  if (protocol_end != std::string::npos) {
+    uri = uri.substr(protocol_end + 3);
+  }
+
+  // Split address and port
+  size_t port_sep = uri.find(':');
+  if (port_sep != std::string::npos) {
+    address = uri.substr(0, port_sep);
+    port = uri.substr(port_sep + 1);
+  } else {
+    address = uri;
+  }
 
   obs::info("Server starting on " + address + ":" + port);
 

@@ -187,10 +187,6 @@ TEST_F(Http2ResponseWriterTest, ConcurrentSends) {
   SUCCEED();
 }
 
-// =============================================================================
-// IScopedResource Cleanup Tests
-// =============================================================================
-
 namespace {
 class TestScopedResource : public astra::execution::IScopedResource {
 public:
@@ -282,10 +278,6 @@ TEST_F(Http2ResponseWriterTest, ScopedResourceReleasedInReverseOrder) {
   EXPECT_EQ(destruction_order[1], 2);
   EXPECT_EQ(destruction_order[2], 3);
 }
-
-// =============================================================================
-// Edge Cases and SEDA Pattern Tests
-// =============================================================================
 
 TEST_F(Http2ResponseWriterTest, SendWithEmptyData) {
   auto handle =

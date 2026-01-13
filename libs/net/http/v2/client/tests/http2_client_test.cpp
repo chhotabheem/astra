@@ -1,4 +1,4 @@
-#include "ClientDispatcher.h"
+#include "ClientRegistry.h"
 #include "Http2Client.h"
 #include "Http2ClientError.h"
 #include "Http2ClientResponse.h"
@@ -20,7 +20,7 @@ protected:
     m_config.set_request_timeout_ms(100);
   }
 
-  ClientConfig m_config;
+  ::http2::ClientConfig m_config;
 };
 
 TEST_F(Http2ClientTest, ConstructionDoesNotThrow) {
@@ -350,7 +350,7 @@ protected:
     m_config.set_request_timeout_ms(100);
   }
 
-  ClientConfig m_config;
+  ::http2::ClientConfig m_config;
 };
 
 TEST_F(NgHttp2ClientTest, InitialStateIsDisconnected) {
@@ -423,75 +423,153 @@ TEST_F(NgHttp2ClientTest, MultipleRequestsQueuedBeforeConnect) {
 }
 
 // =============================================================================
-// ClientDispatcher Tests
+// ClientRegistry Tests
 // =============================================================================
 
-class ClientDispatcherTest : public ::testing::Test {
+class ClientRegistryTest : public ::testing::Test {
 protected:
   void SetUp() override {
     m_config.set_connect_timeout_ms(100);
     m_config.set_request_timeout_ms(100);
   }
 
-  ClientConfig m_config;
+  ::http2::ClientConfig m_config;
 };
 
-TEST_F(ClientDispatcherTest, ConstructionDoesNotThrow) {
-  EXPECT_NO_THROW({ ClientDispatcher dispatcher(m_config); });
+TEST_F(ClientRegistryTest, ConstructionDoesNotThrow) {
+  EXPECT_NO_THROW({ ClientRegistry registry(m_config); });
 }
 
-TEST_F(ClientDispatcherTest, SubmitToMultiplePeersCreatesMultipleClients) {
-  ClientDispatcher dispatcher(m_config);
-  std::atomic<int> count{0};
+TEST_F(ClientRegistryTest, GetOrCreateReturnsSameClientForSameKey) {
+  ClientRegistry registry(m_config);
+  auto client1 = registry.get_or_create("127.0.0.1", 19999);
+  auto client2 = registry.get_or_create("127.0.0.1", 19999);
+  EXPECT_EQ(client1.get(), client2.get());
+}
 
-  dispatcher.submit("127.0.0.1", 19991, "GET", "/a", "", {}, [&](auto) {
-    count++;
-  });
-  dispatcher.submit("127.0.0.1", 19992, "GET", "/b", "", {}, [&](auto) {
-    count++;
-  });
-  dispatcher.submit("127.0.0.1", 19993, "GET", "/c", "", {}, [&](auto) {
-    count++;
-  });
+TEST_F(ClientRegistryTest, GetOrCreateReturnsDifferentClientForDifferentKey) {
+  ClientRegistry registry(m_config);
+  auto client1 = registry.get_or_create("127.0.0.1", 19999);
+  auto client2 = registry.get_or_create("127.0.0.1", 19998);
+  EXPECT_NE(client1.get(), client2.get());
+}
 
-  while (count < 3) {
+TEST_F(ClientRegistryTest, DeadClientIsReplaced) {
+  ClientRegistry registry(m_config);
+  auto client1 = registry.get_or_create("127.0.0.1", 19999);
+
+  std::atomic<bool> done{false};
+  client1->submit("GET", "/test", "", {}, [&](auto) {
+    done = true;
+  });
+  while (!done) {
     std::this_thread::yield();
   }
-  EXPECT_EQ(count.load(), 3);
+  EXPECT_TRUE(client1->is_dead());
+
+  auto client2 = registry.get_or_create("127.0.0.1", 19999);
+  EXPECT_NE(client1.get(), client2.get());
 }
 
-TEST_F(ClientDispatcherTest, SubmitToSamePeerReusesClient) {
-  ClientDispatcher dispatcher(m_config);
+TEST_F(ClientRegistryTest, ConcurrentGetOrCreateSameKey) {
+  ClientRegistry registry(m_config);
   std::atomic<int> count{0};
+  std::vector<std::thread> threads;
+  std::vector<std::shared_ptr<NgHttp2Client>> clients(10);
 
-  for (int i = 0; i < 5; i++) {
-    dispatcher.submit("127.0.0.1", 19999, "GET", "/test" + std::to_string(i),
-                      "", {}, [&](auto) {
-                        count++;
-                      });
+  for (int i = 0; i < 10; i++) {
+    threads.emplace_back([&, i]() {
+      clients[i] = registry.get_or_create("127.0.0.1", 19999);
+      count++;
+    });
   }
 
-  while (count < 5) {
+  for (auto &t : threads) {
+    t.join();
+  }
+  EXPECT_EQ(count.load(), 10);
+
+  for (int i = 1; i < 10; i++) {
+    EXPECT_EQ(clients[0].get(), clients[i].get());
+  }
+}
+
+TEST_F(ClientRegistryTest, ConcurrentGetOrCreateDifferentKeys) {
+  ClientRegistry registry(m_config);
+  std::atomic<int> count{0};
+  std::vector<std::thread> threads;
+
+  for (int i = 0; i < 10; i++) {
+    threads.emplace_back([&, i]() {
+      registry.get_or_create("127.0.0.1", 19990 + i);
+      count++;
+    });
+  }
+
+  for (auto &t : threads) {
+    t.join();
+  }
+  EXPECT_EQ(count.load(), 10);
+}
+
+TEST_F(ClientRegistryTest, SharedPtrKeepsClientAliveAfterRemoval) {
+  ClientRegistry registry(m_config);
+  auto client1 = registry.get_or_create("127.0.0.1", 19999);
+
+  std::atomic<bool> done{false};
+  client1->submit("GET", "/test", "", {}, [&](auto) {
+    done = true;
+  });
+  while (!done) {
     std::this_thread::yield();
   }
-  EXPECT_EQ(count.load(), 5);
+
+  auto client2 = registry.get_or_create("127.0.0.1", 19999);
+  EXPECT_NE(client1.get(), client2.get());
+  EXPECT_TRUE(client1->is_dead());
+  EXPECT_FALSE(client2->is_dead());
 }
 
-TEST_F(ClientDispatcherTest, DestructorWaitsForPendingRequests) {
-  std::atomic<int> count{0};
-
+TEST_F(ClientRegistryTest, DestructorTimingMeasurement) {
+  auto start = std::chrono::steady_clock::now();
   {
-    ClientDispatcher dispatcher(m_config);
-    for (int i = 0; i < 3; i++) {
-      dispatcher.submit("127.0.0.1", 19999 + i, "GET", "/test", "", {},
-                        [&](auto) {
-                          count++;
-                        });
-    }
-    while (count < 3) {
+    ClientRegistry registry(m_config);
+    auto client = registry.get_or_create("127.0.0.1", 19999);
+    std::atomic<bool> done{false};
+    client->submit("GET", "/test", "", {}, [&](auto) {
+      done = true;
+    });
+    while (!done) {
       std::this_thread::yield();
     }
   }
+  auto end = std::chrono::steady_clock::now();
+  auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
+                .count();
+  std::cout << "Destructor time (with dead client cleanup): " << ms << "ms"
+            << std::endl;
+  EXPECT_LT(ms, 500);
+}
+
+// NgHttp2Client is_dead tests
+TEST_F(NgHttp2ClientTest, IsDeadInitiallyFalse) {
+  NgHttp2Client client("127.0.0.1", 19999, m_config);
+  EXPECT_FALSE(client.is_dead());
+}
+
+TEST_F(NgHttp2ClientTest, IsDeadAfterConnectionFailure) {
+  NgHttp2Client client("127.0.0.1", 19999, m_config);
+  EXPECT_FALSE(client.is_dead());
+
+  std::atomic<bool> done{false};
+  client.submit("GET", "/test", "", {}, [&](auto) {
+    done = true;
+  });
+  while (!done) {
+    std::this_thread::yield();
+  }
+
+  EXPECT_TRUE(client.is_dead());
 }
 
 } // namespace test

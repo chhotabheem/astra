@@ -17,7 +17,7 @@ using ResponseHandler = std::function<void(
 
 class Http2Client {
 public:
-  explicit Http2Client(const ClientConfig &config);
+  explicit Http2Client(const ::http2::ClientConfig &config);
   ~Http2Client();
 
   Http2Client(const Http2Client &) = delete;

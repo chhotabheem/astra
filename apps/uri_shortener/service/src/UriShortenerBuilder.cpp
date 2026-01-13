@@ -11,6 +11,7 @@
 #include "ProtoConfigLoader.h"
 #include "RandomCodeGenerator.h"
 #include "ResolveLink.h"
+#include "Router.h"
 #include "ShortenLink.h"
 #include "StaticServiceResolver.h"
 #include "UriShortenerApp.h"
@@ -91,7 +92,7 @@ UriShortenerBuilder &UriShortenerBuilder::useCases() {
 }
 
 UriShortenerBuilder &UriShortenerBuilder::httpClient() {
-  astra::http2::ClientConfig client_config;
+  ::http2::ClientConfig client_config;
   if (m_config.bootstrap().has_dataservice() &&
       m_config.bootstrap().dataservice().has_client()) {
     client_config = m_config.bootstrap().dataservice().client();
@@ -167,25 +168,19 @@ UriShortenerBuilder &UriShortenerBuilder::loadShedder() {
 astra::outcome::Result<UriShortenerApp, BuilderError>
 UriShortenerBuilder::build() {
   const auto &bootstrap = m_config.bootstrap();
-  std::string address =
-      bootstrap.has_server() ? bootstrap.server().address() : "0.0.0.0";
-  std::string port = bootstrap.has_server()
-                         ? std::to_string(bootstrap.server().port())
-                         : "8080";
+  std::string uri =
+      bootstrap.has_server() ? bootstrap.server().uri() : "0.0.0.0:8080";
 
-  if (address.empty()) {
-    return astra::outcome::Result<UriShortenerApp, BuilderError>::Err(
-        BuilderError::InvalidConfig);
-  }
-  if (port.empty() || port == "0") {
+  if (uri.empty()) {
     return astra::outcome::Result<UriShortenerApp, BuilderError>::Err(
         BuilderError::InvalidConfig);
   }
 
   initObservability();
 
-  m_components.server =
-      std::make_unique<astra::http2::Http2Server>(bootstrap.server());
+  m_components.router = std::make_unique<astra::router::Router>();
+  m_components.server = std::make_unique<astra::http2::Http2Server>(
+      bootstrap.server(), *m_components.router);
   m_components.executor->start();
 
   return astra::outcome::Result<UriShortenerApp, BuilderError>::Ok(

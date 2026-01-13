@@ -19,7 +19,7 @@ struct ResponseStream {
 } // namespace
 
 NgHttp2Client::NgHttp2Client(const std::string &host, uint16_t port,
-                             const ClientConfig &config,
+                             const ::http2::ClientConfig &config,
                              OnCloseCallback on_close, OnErrorCallback on_error)
     : m_host(host), m_port(port), m_config(config),
       m_on_close(std::move(on_close)), m_on_error(std::move(on_error)) {
@@ -126,6 +126,7 @@ void NgHttp2Client::connect() {
         obs::error("Connection timeout to " + m_host + ":" +
                    std::to_string(m_port));
         m_state.store(ConnectionState::FAILED, std::memory_order_release);
+        m_is_dead.store(true, std::memory_order_release);
 
         // Fail all pending requests
         std::lock_guard<std::mutex> lock(m_connect_mutex);
@@ -171,6 +172,7 @@ void NgHttp2Client::connect() {
 
         ConnectionState prev_state = m_state.load(std::memory_order_acquire);
         m_state.store(ConnectionState::FAILED, std::memory_order_release);
+        m_is_dead.store(true, std::memory_order_release);
         obs::error("Connection error: " + ec.message());
 
         std::lock_guard<std::mutex> lock(m_connect_mutex);
@@ -191,6 +193,7 @@ void NgHttp2Client::connect() {
 
     } catch (const std::exception &e) {
       m_state.store(ConnectionState::FAILED, std::memory_order_release);
+      m_is_dead.store(true, std::memory_order_release);
       obs::error("Failed to create session: " + std::string(e.what()));
       if (m_on_error) {
         m_on_error(Http2ClientError::ConnectionFailed);
@@ -205,6 +208,10 @@ bool NgHttp2Client::is_connected() const {
 
 ConnectionState NgHttp2Client::state() const {
   return m_state.load(std::memory_order_acquire);
+}
+
+bool NgHttp2Client::is_dead() const {
+  return m_is_dead.load(std::memory_order_acquire);
 }
 
 void NgHttp2Client::submit(const std::string &method, const std::string &path,
@@ -283,6 +290,7 @@ void NgHttp2Client::do_submit(const std::string &method,
       if (ec.value() == 2) {
         obs::info("Connection closed by peer - will reconnect on next request");
         m_state.store(ConnectionState::DISCONNECTED, std::memory_order_release);
+        m_is_dead.store(true, std::memory_order_release);
         m_session.reset();
         if (m_on_close) {
           m_on_close();

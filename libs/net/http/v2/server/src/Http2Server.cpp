@@ -8,14 +8,15 @@ namespace astra::http2 {
 
 class Http2Server::Impl {
 public:
-  Impl(const ServerConfig &config) : backend(config) {
+  Impl(const ::http2::ServerConfig &config) : backend(config) {
   }
 
   NgHttp2Server backend;
 };
 
-Http2Server::Http2Server(const ServerConfig &config)
-    : m_impl(std::make_unique<Impl>(config)) {
+Http2Server::Http2Server(const ::http2::ServerConfig &config,
+                         astra::router::IRouter &router)
+    : m_impl(std::make_unique<Impl>(config)), m_router(router) {
   m_impl->backend.handle("*", "/",
                          [this](std::shared_ptr<astra::router::IRequest> req,
                                 std::shared_ptr<astra::router::IResponse> res) {

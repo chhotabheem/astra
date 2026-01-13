@@ -58,9 +58,9 @@ private:
       const auto &bootstrap = config.bootstrap();
 
       if (bootstrap.has_server()) {
-        int port = bootstrap.server().port();
-        if (port <= 0 || port > 65535) {
-          return "Invalid server.port: must be 1-65535";
+        const std::string &uri = bootstrap.server().uri();
+        if (uri.empty()) {
+          return "Invalid server.uri: must not be empty";
         }
       }
 

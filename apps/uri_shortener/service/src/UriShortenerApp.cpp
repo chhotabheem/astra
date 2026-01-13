@@ -5,6 +5,7 @@
 #include "IServiceResolver.h"
 #include "ObservableMessageHandler.h"
 #include "ObservableRequestHandler.h"
+#include "Router.h"
 #include "UriShortenerMessageHandler.h"
 #include "UriShortenerRequestHandler.h"
 
@@ -68,18 +69,21 @@ int UriShortenerApp::run() {
     m_components.obs_req_handler->handle(req, res);
   };
 
-  m_components.server->router().post("/shorten", resilient);
-  m_components.server->router().get("/:code", resilient);
-  m_components.server->router().del("/:code", resilient);
+  m_components.router->add(astra::router::HttpMethod::POST, "/shorten",
+                           resilient);
+  m_components.router->add(astra::router::HttpMethod::GET, "/:code", resilient);
+  m_components.router->add(astra::router::HttpMethod::DELETE, "/:code",
+                           resilient);
 
-  m_components.server->router().get(
-      "/health", [](std::shared_ptr<astra::router::IRequest>,
-                    std::shared_ptr<astra::router::IResponse> res) {
-        res->set_status(200);
-        res->set_header("Content-Type", "application/json");
-        res->write(R"({"status": "ok"})");
-        res->close();
-      });
+  m_components.router->add(astra::router::HttpMethod::GET, "/health",
+                           [](std::shared_ptr<astra::router::IRequest>,
+                              std::shared_ptr<astra::router::IResponse> res) {
+                             res->set_status(200);
+                             res->set_header("Content-Type",
+                                             "application/json");
+                             res->write(R"({"status": "ok"})");
+                             res->close();
+                           });
 
   obs::info("URI Shortener listening");
   obs::info("Using message-based architecture",

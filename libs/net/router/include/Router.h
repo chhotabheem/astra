@@ -1,29 +1,22 @@
 #pragma once
 
-#include "IRequest.h"
-#include "IResponse.h"
+#include "IRouter.h"
 
-#include <functional>
-#include <memory>
 #include <optional>
-#include <string>
 #include <unordered_map>
 #include <vector>
 
 namespace astra::router {
 
-using Handler =
-    std::function<void(std::shared_ptr<IRequest>, std::shared_ptr<IResponse>)>;
-
-class Router {
+class Router : public IRouter {
 public:
   Router() = default;
-  ~Router() = default;
+  ~Router() override = default;
 
-  void get(const std::string &path, Handler handler);
-  void post(const std::string &path, Handler handler);
-  void put(const std::string &path, Handler handler);
-  void del(const std::string &path, Handler handler);
+  void add(HttpMethod method, const std::string &path,
+           Handler handler) override;
+  void dispatch(std::shared_ptr<IRequest> req,
+                std::shared_ptr<IResponse> res) override;
 
   struct MatchResult {
     Handler handler;
@@ -32,7 +25,6 @@ public:
 
   [[nodiscard]] std::optional<MatchResult> match(const std::string &method,
                                                  const std::string &path) const;
-  void dispatch(std::shared_ptr<IRequest> req, std::shared_ptr<IResponse> res);
 
 private:
   struct Node {

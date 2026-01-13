@@ -11,7 +11,7 @@ using namespace astra::http2;
 // =============================================================================
 
 static void BM_ClientConstruction(benchmark::State &state) {
-  ClientConfig config;
+  ::http2::ClientConfig config;
   config.set_request_timeout_ms(100);
 
   for (auto _ : state) {
@@ -26,7 +26,7 @@ BENCHMARK(BM_ClientConstruction);
 // =============================================================================
 
 static void BM_SubmitSinglePeer(benchmark::State &state) {
-  ClientConfig config;
+  ::http2::ClientConfig config;
   config.set_request_timeout_ms(100);
   Http2Client client(config);
 
@@ -44,7 +44,7 @@ static void BM_SubmitSinglePeer(benchmark::State &state) {
 BENCHMARK(BM_SubmitSinglePeer);
 
 static void BM_SubmitMultiplePeers(benchmark::State &state) {
-  ClientConfig config;
+  ::http2::ClientConfig config;
   config.set_request_timeout_ms(100);
   Http2Client client(config);
 
@@ -68,7 +68,7 @@ BENCHMARK(BM_SubmitMultiplePeers);
 // =============================================================================
 
 static void BM_SubmitWithHeaders(benchmark::State &state) {
-  ClientConfig config;
+  ::http2::ClientConfig config;
   config.set_request_timeout_ms(100);
   Http2Client client(config);
 
@@ -91,7 +91,7 @@ static void BM_SubmitWithHeaders(benchmark::State &state) {
 BENCHMARK(BM_SubmitWithHeaders);
 
 static void BM_SubmitLargeBody(benchmark::State &state) {
-  ClientConfig config;
+  ::http2::ClientConfig config;
   config.set_request_timeout_ms(100);
   Http2Client client(config);
 

@@ -1,6 +1,7 @@
 #include "Http2Request.h"
 #include "Http2Response.h"
 #include "Http2Server.h"
+#include "Router.h"
 
 #include <atomic>
 #include <chrono>
@@ -13,35 +14,37 @@ using namespace std::chrono_literals;
 
 namespace {
 
-// Helper to create proto config for tests
-astra::http2::ServerConfig make_config(const std::string &address,
-                                       uint32_t port, uint32_t threads = 1) {
-  astra::http2::ServerConfig config;
-  config.set_address(address);
-  config.set_port(port);
+::http2::ServerConfig make_config(uint32_t threads = 1) {
+  ::http2::ServerConfig config;
+  config.set_uri("http://127.0.0.1:9001");
+  config.set_thread_count(threads);
+  return config;
+}
+
+::http2::ServerConfig make_config_port(uint32_t port, uint32_t threads = 1) {
+  ::http2::ServerConfig config;
+  config.set_uri("http://127.0.0.1:" + std::to_string(port));
   config.set_thread_count(threads);
   return config;
 }
 
 } // namespace
 
-// =============================================================================
-// Construction Tests
-// =============================================================================
-
 TEST(Http2ServerTest, Construction) {
-  auto server = std::make_unique<astra::http2::Http2Server>(
-      make_config("127.0.0.1", 9001));
+  astra::router::Router router;
+  auto server =
+      std::make_unique<astra::http2::Http2Server>(make_config(), router);
   EXPECT_NE(server, nullptr);
 }
 
 TEST(Http2ServerTest, ConstructionWithDifferentPorts) {
+  astra::router::Router router1, router2, router3;
   auto server1 = std::make_unique<astra::http2::Http2Server>(
-      make_config("127.0.0.1", 9101));
+      make_config_port(9101), router1);
   auto server2 = std::make_unique<astra::http2::Http2Server>(
-      make_config("127.0.0.1", 9102));
+      make_config_port(9102), router2);
   auto server3 = std::make_unique<astra::http2::Http2Server>(
-      make_config("127.0.0.1", 9103));
+      make_config_port(9103), router3);
 
   EXPECT_NE(server1, nullptr);
   EXPECT_NE(server2, nullptr);
@@ -49,18 +52,18 @@ TEST(Http2ServerTest, ConstructionWithDifferentPorts) {
 }
 
 TEST(Http2ServerTest, BindToAllInterfaces) {
-  auto server =
-      std::make_unique<astra::http2::Http2Server>(make_config("0.0.0.0", 9007));
+  astra::router::Router router;
+  ::http2::ServerConfig config;
+  config.set_uri("http://0.0.0.0:9007");
+  config.set_thread_count(1);
+  auto server = std::make_unique<astra::http2::Http2Server>(config, router);
   EXPECT_NE(server, nullptr);
 }
 
-// =============================================================================
-// Handler Registration Tests
-// =============================================================================
-
 TEST(Http2ServerTest, HandlerRegistration) {
+  astra::router::Router router;
   auto server = std::make_unique<astra::http2::Http2Server>(
-      make_config("127.0.0.1", 9002));
+      make_config_port(9002), router);
 
   server->handle("GET", "/test",
                  [&](std::shared_ptr<astra::router::IRequest>,
@@ -72,8 +75,9 @@ TEST(Http2ServerTest, HandlerRegistration) {
 }
 
 TEST(Http2ServerTest, MultipleHandlers) {
+  astra::router::Router router;
   auto server = std::make_unique<astra::http2::Http2Server>(
-      make_config("127.0.0.1", 9003));
+      make_config_port(9003), router);
 
   server->handle("GET", "/path1", [](auto, auto res) {
     res->close();
@@ -89,8 +93,9 @@ TEST(Http2ServerTest, MultipleHandlers) {
 }
 
 TEST(Http2ServerTest, SamePathDifferentMethods) {
+  astra::router::Router router;
   auto server = std::make_unique<astra::http2::Http2Server>(
-      make_config("127.0.0.1", 9010));
+      make_config_port(9010), router);
 
   server->handle("GET", "/users", [](auto, auto res) {
     res->close();
@@ -109,8 +114,9 @@ TEST(Http2ServerTest, SamePathDifferentMethods) {
 }
 
 TEST(Http2ServerTest, HandlerWithPathParams) {
+  astra::router::Router router;
   auto server = std::make_unique<astra::http2::Http2Server>(
-      make_config("127.0.0.1", 9011));
+      make_config_port(9011), router);
 
   server->handle("GET", "/users/:userId", [](auto, auto res) {
     res->close();
@@ -127,8 +133,9 @@ TEST(Http2ServerTest, HandlerWithPathParams) {
 }
 
 TEST(Http2ServerTest, ManyHandlersStress) {
+  astra::router::Router router;
   auto server = std::make_unique<astra::http2::Http2Server>(
-      make_config("127.0.0.1", 9012));
+      make_config_port(9012), router);
 
   for (int i = 0; i < 100; ++i) {
     server->handle("GET", "/path" + std::to_string(i), [](auto, auto res) {
@@ -139,36 +146,33 @@ TEST(Http2ServerTest, ManyHandlersStress) {
   SUCCEED();
 }
 
-// =============================================================================
-// Thread Configuration Tests
-// =============================================================================
-
 TEST(Http2ServerTest, ThreadConfiguration) {
   EXPECT_NO_THROW({
+    astra::router::Router r1;
+    astra::router::Router r2;
+    astra::router::Router r3;
     auto server1 = std::make_unique<astra::http2::Http2Server>(
-        make_config("127.0.0.1", 9004, 1));
+        make_config_port(9004, 1), r1);
     auto server2 = std::make_unique<astra::http2::Http2Server>(
-        make_config("127.0.0.1", 9005, 2));
+        make_config_port(9005, 2), r2);
     auto server4 = std::make_unique<astra::http2::Http2Server>(
-        make_config("127.0.0.1", 9006, 4));
+        make_config_port(9006, 4), r3);
   });
 }
 
 TEST(Http2ServerTest, ManyThreadsConfiguration) {
   EXPECT_NO_THROW({
+    astra::router::Router router;
     auto server = std::make_unique<astra::http2::Http2Server>(
-        make_config("127.0.0.1", 9013, 16));
+        make_config_port(9013, 16), router);
   });
 }
 
-// =============================================================================
-// Construction Stress Tests
-// =============================================================================
-
 TEST(Http2ServerTest, StressConstruction) {
   for (int i = 0; i < 100; ++i) {
+    astra::router::Router router;
     auto server = std::make_unique<astra::http2::Http2Server>(
-        make_config("127.0.0.1", 9008));
+        make_config_port(9008), router);
     EXPECT_NE(server, nullptr);
   }
 }
@@ -180,8 +184,9 @@ TEST(Http2ServerTest, ConcurrentConstruction) {
   for (int i = 0; i < 10; ++i) {
     threads.emplace_back([i, &success_count]() {
       try {
+        astra::router::Router router;
         auto server = std::make_unique<astra::http2::Http2Server>(
-            make_config("127.0.0.1", 9100 + i));
+            make_config_port(9100 + i), router);
         if (server) {
           success_count++;
         }
@@ -199,15 +204,12 @@ TEST(Http2ServerTest, ConcurrentConstruction) {
   EXPECT_GT(success_count.load(), 0);
 }
 
-// =============================================================================
-// Runtime Tests
-// =============================================================================
-
 class Http2ServerRuntimeTest : public Test {
 protected:
   void SetUp() override {
+    router_ = std::make_unique<astra::router::Router>();
     server_ = std::make_unique<astra::http2::Http2Server>(
-        make_config("127.0.0.1", 9009));
+        make_config_port(9009), *router_);
   }
 
   void TearDown() override {
@@ -219,6 +221,7 @@ protected:
     }
   }
 
+  std::unique_ptr<astra::router::Router> router_;
   std::unique_ptr<astra::http2::Http2Server> server_;
   std::thread server_thread_;
 };

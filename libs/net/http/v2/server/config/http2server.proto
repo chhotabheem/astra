@@ -1,16 +1,8 @@
 syntax = "proto3";
 
-package astra.http2;
+package http2;
 
-// HTTP/2 server configuration
 message ServerConfig {
-    string address = 1;
-    uint32 port = 2;
-    uint32 thread_count = 3;
-    uint32 max_connections = 4;
-    uint32 request_timeout_ms = 5;
-    
-    // HTTP/2 specific
-    uint32 max_concurrent_streams = 6;
-    uint32 initial_window_size = 7;
+    string uri = 1;
+    uint32 thread_count = 2;
 }

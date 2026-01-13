@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package astra.http2;
+package http2;
 
 message ClientConfig {
     uint32 connect_timeout_ms = 1;

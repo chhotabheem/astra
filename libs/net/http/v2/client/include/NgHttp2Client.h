@@ -34,7 +34,8 @@ struct PendingRequest {
 class NgHttp2Client {
 public:
   NgHttp2Client(const std::string &host, uint16_t port,
-                const ClientConfig &config, OnCloseCallback on_close = nullptr,
+                const ::http2::ClientConfig &config,
+                OnCloseCallback on_close = nullptr,
                 OnErrorCallback on_error = nullptr);
   ~NgHttp2Client();
 
@@ -48,6 +49,7 @@ public:
 
   bool is_connected() const;
   ConnectionState state() const;
+  bool is_dead() const;
 
 private:
   void ensure_connected();
@@ -62,7 +64,7 @@ private:
 
   std::string m_host;
   uint16_t m_port;
-  ClientConfig m_config;
+  ::http2::ClientConfig m_config;
   OnCloseCallback m_on_close;
   OnErrorCallback m_on_error;
 
@@ -76,6 +78,7 @@ private:
   std::atomic<ConnectionState> m_state{ConnectionState::DISCONNECTED};
   std::mutex m_connect_mutex;
   std::queue<PendingRequest> m_pending_requests;
+  std::atomic<bool> m_is_dead{false};
 };
 
 } // namespace astra::http2

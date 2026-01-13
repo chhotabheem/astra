@@ -28,7 +28,7 @@ protected:
     m_resolver.register_service("dataservice", "127.0.0.1", 29999);
   }
 
-  astra::http2::ClientConfig m_config;
+  ::http2::ClientConfig m_config;
   StaticServiceResolver m_resolver;
 };
 

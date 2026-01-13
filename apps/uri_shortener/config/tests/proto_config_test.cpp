@@ -28,44 +28,33 @@ public:
     ::testing::AddGlobalTestEnvironment(new ProtobufEnvironment);
 
 // =============================================================================
-// LIBRARY CONFIG TESTS - astra::http2::ServerConfig
+// LIBRARY CONFIG TESTS - ::http2::ServerConfig
 // =============================================================================
 
 TEST(Http2ServerConfigTest, Defaults) {
-  astra::http2::ServerConfig server;
-  EXPECT_EQ(server.address(), "");
-  EXPECT_EQ(server.port(), 0);
+  ::http2::ServerConfig server;
+  EXPECT_EQ(server.uri(), "");
   EXPECT_EQ(server.thread_count(), 0);
-  EXPECT_EQ(server.max_connections(), 0);
-  EXPECT_EQ(server.request_timeout_ms(), 0);
-  EXPECT_EQ(server.max_concurrent_streams(), 0);
-  EXPECT_EQ(server.initial_window_size(), 0);
 }
 
-TEST(Http2ServerConfigTest, CanSetAddress) {
-  astra::http2::ServerConfig server;
-  server.set_address("0.0.0.0");
-  EXPECT_EQ(server.address(), "0.0.0.0");
-}
-
-TEST(Http2ServerConfigTest, CanSetPort) {
-  astra::http2::ServerConfig server;
-  server.set_port(8080);
-  EXPECT_EQ(server.port(), 8080);
+TEST(Http2ServerConfigTest, CanSetUri) {
+  ::http2::ServerConfig server;
+  server.set_uri("0.0.0.0:8080");
+  EXPECT_EQ(server.uri(), "0.0.0.0:8080");
 }
 
 TEST(Http2ServerConfigTest, CanSetThreadCount) {
-  astra::http2::ServerConfig server;
+  ::http2::ServerConfig server;
   server.set_thread_count(4);
   EXPECT_EQ(server.thread_count(), 4);
 }
 
 // =============================================================================
-// LIBRARY CONFIG TESTS - astra::http2::ClientConfig
+// LIBRARY CONFIG TESTS - ::http2::ClientConfig
 // =============================================================================
 
 TEST(Http2ClientConfigTest, Defaults) {
-  astra::http2::ClientConfig client;
+  ::http2::ClientConfig client;
   EXPECT_EQ(client.connect_timeout_ms(), 0);
   EXPECT_EQ(client.request_timeout_ms(), 0);
   EXPECT_EQ(client.max_concurrent_streams(), 0);
@@ -73,7 +62,7 @@ TEST(Http2ClientConfigTest, Defaults) {
 }
 
 TEST(Http2ClientConfigTest, CanSetTimeouts) {
-  astra::http2::ClientConfig client;
+  ::http2::ClientConfig client;
   client.set_connect_timeout_ms(1000);
   client.set_request_timeout_ms(3000);
   EXPECT_EQ(client.connect_timeout_ms(), 1000);
@@ -81,7 +70,7 @@ TEST(Http2ClientConfigTest, CanSetTimeouts) {
 }
 
 TEST(Http2ClientConfigTest, CanSetStreamSettings) {
-  astra::http2::ClientConfig client;
+  ::http2::ClientConfig client;
   client.set_max_concurrent_streams(100);
   client.set_initial_window_size(65535);
   EXPECT_EQ(client.max_concurrent_streams(), 100);
@@ -253,12 +242,11 @@ TEST(BootstrapConfigTest, HasAllFields) {
 
 TEST(BootstrapConfigTest, CanSetServer) {
   uri_shortener::BootstrapConfig bootstrap;
-  bootstrap.mutable_server()->set_address("0.0.0.0");
-  bootstrap.mutable_server()->set_port(8080);
+  bootstrap.mutable_server()->set_uri("0.0.0.0:8080");
   bootstrap.mutable_server()->set_thread_count(2);
 
-  EXPECT_EQ(bootstrap.server().address(), "0.0.0.0");
-  EXPECT_EQ(bootstrap.server().port(), 8080);
+  EXPECT_EQ(bootstrap.server().uri(), "0.0.0.0:8080");
+  EXPECT_EQ(bootstrap.server().thread_count(), 2);
 }
 
 TEST(BootstrapConfigTest, CanSetExecution) {
@@ -345,11 +333,8 @@ TEST(JsonParsingTest, ParsesServerConfig) {
   const char *json = R"({
         "bootstrap": {
             "server": {
-                "address": "0.0.0.0",
-                "port": 8080,
-                "thread_count": 2,
-                "max_connections": 1000,
-                "request_timeout_ms": 5000
+                "uri": "0.0.0.0:8080",
+                "thread_count": 2
             }
         }
     })";
@@ -358,8 +343,8 @@ TEST(JsonParsingTest, ParsesServerConfig) {
   auto status = google::protobuf::util::JsonStringToMessage(json, &config);
 
   EXPECT_TRUE(status.ok()) << status.message();
-  EXPECT_EQ(config.bootstrap().server().address(), "0.0.0.0");
-  EXPECT_EQ(config.bootstrap().server().port(), 8080);
+  EXPECT_EQ(config.bootstrap().server().uri(), "0.0.0.0:8080");
+  EXPECT_EQ(config.bootstrap().server().thread_count(), 2);
 }
 
 TEST(JsonParsingTest, ParsesExecutionConfig) {
@@ -481,7 +466,7 @@ TEST(JsonParsingTest, ParsesEmptyObject) {
 TEST(MessageDiffTest, IdenticalConfigsAreEqual) {
   uri_shortener::Config config1;
   config1.set_schema_version(1);
-  config1.mutable_bootstrap()->mutable_server()->set_port(8080);
+  config1.mutable_bootstrap()->mutable_server()->set_uri("0.0.0.0:8080");
 
   uri_shortener::Config config2 = config1;
 
@@ -507,7 +492,7 @@ TEST(MessageDiffTest, DifferentVersionsAreNotEqual) {
 TEST(SerializationTest, BinaryRoundTrip) {
   uri_shortener::Config original;
   original.set_schema_version(1);
-  original.mutable_bootstrap()->mutable_server()->set_port(8080);
+  original.mutable_bootstrap()->mutable_server()->set_uri("0.0.0.0:8080");
   original.mutable_runtime()
       ->mutable_load_shedder()
       ->set_max_concurrent_requests(10000);
@@ -525,7 +510,7 @@ TEST(SerializationTest, BinaryRoundTrip) {
 TEST(SerializationTest, JsonRoundTrip) {
   uri_shortener::Config original;
   original.set_schema_version(1);
-  original.mutable_bootstrap()->mutable_server()->set_port(8080);
+  original.mutable_bootstrap()->mutable_server()->set_uri("0.0.0.0:8080");
 
   std::string json;
   google::protobuf::util::MessageToJsonString(original, &json);

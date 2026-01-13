@@ -29,7 +29,7 @@ TEST(ProtoConfigLoaderTest, LoadsValidJsonString) {
   const char *json = R"({
         "schema_version": 1,
         "bootstrap": {
-            "server": {"address": "0.0.0.0", "port": 8080, "thread_count": 2},
+            "server": {"uri": "0.0.0.0:8080", "thread_count": 2},
             "execution": {"pool_executor": {"num_workers": 4}}
         }
     })";
@@ -38,7 +38,7 @@ TEST(ProtoConfigLoaderTest, LoadsValidJsonString) {
 
   ASSERT_TRUE(result.is_ok()) << result.error();
   EXPECT_EQ(result.value().schema_version(), 1);
-  EXPECT_EQ(result.value().bootstrap().server().port(), 8080);
+  EXPECT_EQ(result.value().bootstrap().server().uri(), "0.0.0.0:8080");
 }
 
 TEST(ProtoConfigLoaderTest, FailsOnInvalidJson) {
@@ -65,41 +65,30 @@ TEST(ProtoConfigLoaderTest, IgnoresUnknownFields) {
         "schema_version": 1,
         "future_field": "ignored",
         "bootstrap": {
-            "server": {"port": 8080, "thread_count": 2}
+            "server": {"uri": "0.0.0.0:8080", "thread_count": 2}
         }
     })";
 
   auto result = ProtoConfigLoader::loadFromString(json);
 
   ASSERT_TRUE(result.is_ok()) << result.error();
-  EXPECT_EQ(result.value().bootstrap().server().port(), 8080);
+  EXPECT_EQ(result.value().bootstrap().server().uri(), "0.0.0.0:8080");
 }
 
 // =============================================================================
 // VALIDATION TESTS
 // =============================================================================
 
-TEST(ProtoConfigLoaderTest, ValidatesPortRange) {
+TEST(ProtoConfigLoaderTest, ValidatesEmptyUri) {
   const char *json = R"({
         "schema_version": 1,
-        "bootstrap": {"server": {"port": 70000}}
+        "bootstrap": {"server": {"uri": ""}}
     })";
 
   auto result = ProtoConfigLoader::loadFromString(json);
 
   EXPECT_TRUE(result.is_err());
-  EXPECT_NE(result.error().find("port"), std::string::npos);
-}
-
-TEST(ProtoConfigLoaderTest, ValidatesPortZero) {
-  const char *json = R"({
-        "schema_version": 1,
-        "bootstrap": {"server": {"port": 0}}
-    })";
-
-  auto result = ProtoConfigLoader::loadFromString(json);
-
-  EXPECT_TRUE(result.is_err());
+  EXPECT_NE(result.error().find("uri"), std::string::npos);
 }
 
 TEST(ProtoConfigLoaderTest, ValidatesPoolExecutorWorkers) {
@@ -169,7 +158,7 @@ TEST_F(FileLoadingTest, LoadsValidFile) {
   writeFile(R"({
         "schema_version": 1,
         "bootstrap": {
-            "server": {"address": "0.0.0.0", "port": 8080, "thread_count": 2},
+            "server": {"uri": "0.0.0.0:8080", "thread_count": 2},
             "execution": {"pool_executor": {"num_workers": 4}}
         }
     })");
@@ -177,7 +166,7 @@ TEST_F(FileLoadingTest, LoadsValidFile) {
   auto result = ProtoConfigLoader::loadFromFile(test_file_);
 
   ASSERT_TRUE(result.is_ok()) << result.error();
-  EXPECT_EQ(result.value().bootstrap().server().port(), 8080);
+  EXPECT_EQ(result.value().bootstrap().server().uri(), "0.0.0.0:8080");
 }
 
 TEST_F(FileLoadingTest, FailsOnNonExistentFile) {
@@ -212,7 +201,7 @@ TEST(FullConfigTest, LoadsCompleteConfig) {
   const char *json = R"({
         "schema_version": 1,
         "bootstrap": {
-            "server": {"address": "0.0.0.0", "port": 8080, "thread_count": 2},
+            "server": {"uri": "0.0.0.0:8080", "thread_count": 2},
             "execution": {"pool_executor": {"num_workers": 4}},
             "observability": {"service_name": "uri-shortener", "trace_sample_rate": 0.1},
             "dataservice": {"client": {"host": "localhost", "port": 8081}},
@@ -227,7 +216,7 @@ TEST(FullConfigTest, LoadsCompleteConfig) {
 
   ASSERT_TRUE(result.is_ok()) << result.error();
   EXPECT_EQ(result.value().schema_version(), 1);
-  EXPECT_EQ(result.value().bootstrap().server().port(), 8080);
+  EXPECT_EQ(result.value().bootstrap().server().uri(), "0.0.0.0:8080");
   EXPECT_EQ(result.value().bootstrap().service().name(), "uri-shortener");
   EXPECT_EQ(result.value().runtime().load_shedder().max_concurrent_requests(),
             10000);

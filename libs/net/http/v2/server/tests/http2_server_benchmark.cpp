@@ -1,6 +1,7 @@
 #include "Http2Request.h"
 #include "Http2Response.h"
 #include "Http2Server.h"
+#include "HttpMethod.h"
 #include "Router.h"
 
 #include <benchmark/benchmark.h>
@@ -8,23 +9,21 @@
 #include <thread>
 
 using namespace astra::http2;
-
-// =============================================================================
-// Router Dispatch Benchmarks (internal path through server)
-// =============================================================================
+using namespace astra::router;
 
 static void BM_RouterDispatch(benchmark::State &state) {
-  astra::router::Router router;
-  router.get("/users/:id", [](auto req, auto res) {
+  Router router;
+  router.add(HttpMethod::GET, "/users/:id", [](auto req, auto res) {
     res->set_status(200);
     res->write("OK");
     res->close();
   });
-  router.get("/posts/:postId/comments/:commentId", [](auto req, auto res) {
-    res->set_status(200);
-    res->write("OK");
-    res->close();
-  });
+  router.add(HttpMethod::GET, "/posts/:postId/comments/:commentId",
+             [](auto req, auto res) {
+               res->set_status(200);
+               res->write("OK");
+               res->close();
+             });
 
   for (auto _ : state) {
     auto result = router.match("GET", "/users/12345");
@@ -33,17 +32,14 @@ static void BM_RouterDispatch(benchmark::State &state) {
 }
 BENCHMARK(BM_RouterDispatch);
 
-// =============================================================================
-// Handler Registration Benchmarks
-// =============================================================================
-
 static void BM_RegisterHandlers(benchmark::State &state) {
   for (auto _ : state) {
-    ServerConfig config;
-    config.set_port(0); // Random port
+    ::http2::ServerConfig config;
+    config.set_uri("http://127.0.0.1:0");
     config.set_thread_count(1);
 
-    Http2Server server(config);
+    Router router;
+    Http2Server server(config, router);
     server.handle("GET", "/users", [](auto, auto) {});
     server.handle("GET", "/users/:id", [](auto, auto) {});
     server.handle("POST", "/users", [](auto, auto) {});
@@ -55,17 +51,14 @@ static void BM_RegisterHandlers(benchmark::State &state) {
 }
 BENCHMARK(BM_RegisterHandlers);
 
-// =============================================================================
-// Full Server Lifecycle (construction/destruction)
-// =============================================================================
-
 static void BM_ServerConstruction(benchmark::State &state) {
   for (auto _ : state) {
-    ServerConfig config;
-    config.set_port(0);
+    ::http2::ServerConfig config;
+    config.set_uri("http://127.0.0.1:0");
     config.set_thread_count(4);
 
-    Http2Server server(config);
+    Router router;
+    Http2Server server(config, router);
     benchmark::DoNotOptimize(server);
   }
 }

@@ -7,7 +7,7 @@ set(HTTP2CLIENT_SOURCES
     src/Http2Client.cpp
     src/Http2ClientResponse.cpp
     src/NgHttp2Client.cpp
-    src/ClientDispatcher.cpp
+    src/ClientRegistry.cpp
     ${PROTO_SRCS}
 )
 

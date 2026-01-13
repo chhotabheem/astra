@@ -9,8 +9,7 @@ namespace uri_shortener::test {
 uri_shortener::Config makeValidConfig() {
   uri_shortener::Config config;
   config.set_schema_version(1);
-  config.mutable_bootstrap()->mutable_server()->set_address("127.0.0.1");
-  config.mutable_bootstrap()->mutable_server()->set_port(8080);
+  config.mutable_bootstrap()->mutable_server()->set_uri("127.0.0.1:8080");
   config.mutable_bootstrap()
       ->mutable_execution()
       ->mutable_pool_executor()
@@ -33,23 +32,9 @@ TEST(UriShortenerAppTest, Build_WithValidConfig_Succeeds) {
   EXPECT_TRUE(result.is_ok());
 }
 
-TEST(UriShortenerAppTest, Build_WithEmptyAddress_Fails) {
+TEST(UriShortenerAppTest, Build_WithEmptyUri_Fails) {
   auto config = makeValidConfig();
-  config.mutable_bootstrap()->mutable_server()->set_address("");
-
-  auto result = UriShortenerBuilder(config)
-                    .domain()
-                    .backend()
-                    .messaging()
-                    .resilience()
-                    .build();
-
-  EXPECT_TRUE(result.is_err());
-}
-
-TEST(UriShortenerAppTest, Build_WithZeroPort_Fails) {
-  auto config = makeValidConfig();
-  config.mutable_bootstrap()->mutable_server()->set_port(0);
+  config.mutable_bootstrap()->mutable_server()->set_uri("");
 
   auto result = UriShortenerBuilder(config)
                     .domain()
@@ -64,8 +49,7 @@ TEST(UriShortenerAppTest, Build_WithZeroPort_Fails) {
 TEST(UriShortenerAppTest, Build_WithMinimalConfig_Succeeds) {
   uri_shortener::Config config;
   config.set_schema_version(1);
-  config.mutable_bootstrap()->mutable_server()->set_address("127.0.0.1");
-  config.mutable_bootstrap()->mutable_server()->set_port(8080);
+  config.mutable_bootstrap()->mutable_server()->set_uri("127.0.0.1:8080");
 
   auto result = UriShortenerBuilder(config)
                     .domain()

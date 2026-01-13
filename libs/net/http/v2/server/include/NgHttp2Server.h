@@ -12,7 +12,7 @@ namespace astra::http2 {
 
 class NgHttp2Server {
 public:
-  NgHttp2Server(const ServerConfig &config);
+  NgHttp2Server(const ::http2::ServerConfig &config);
   ~NgHttp2Server();
 
   void handle(const std::string &method, const std::string &path,
@@ -23,7 +23,7 @@ public:
   astra::outcome::Result<void, Http2ServerError> stop();
 
 private:
-  ServerConfig m_config;
+  ::http2::ServerConfig m_config;
   std::atomic<bool> m_is_running{false};
   nghttp2::asio_http2::server::http2 m_server;
 };

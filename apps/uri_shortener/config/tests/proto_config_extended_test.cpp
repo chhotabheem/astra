@@ -37,16 +37,17 @@ public:
 // EDGE CASE - BOUNDARY VALUES
 // =============================================================================
 
-TEST(EdgeCasesTest, PortZero) {
-  astra::http2::ServerConfig server;
-  server.set_port(0);
-  EXPECT_EQ(server.port(), 0);
+TEST(EdgeCasesTest, EmptyUri) {
+  ::http2::ServerConfig server;
+  server.set_uri("");
+  EXPECT_EQ(server.uri(), "");
 }
 
-TEST(EdgeCasesTest, PortMaxUint32) {
-  astra::http2::ServerConfig server;
-  server.set_port(std::numeric_limits<uint32_t>::max());
-  EXPECT_EQ(server.port(), std::numeric_limits<uint32_t>::max());
+TEST(EdgeCasesTest, LongUri) {
+  ::http2::ServerConfig server;
+  std::string long_uri(1000, 'a');
+  server.set_uri(long_uri);
+  EXPECT_EQ(server.uri(), long_uri);
 }
 
 TEST(EdgeCasesTest, WorkerCountMax) {
@@ -96,16 +97,16 @@ TEST(StringEdgeCasesTest, UnicodeServiceName) {
   EXPECT_EQ(service.name(), "サービス名");
 }
 
-TEST(StringEdgeCasesTest, ServerAddressIPv6) {
-  astra::http2::ServerConfig server;
-  server.set_address("::1");
-  EXPECT_EQ(server.address(), "::1");
+TEST(StringEdgeCasesTest, ServerUriIPv6) {
+  ::http2::ServerConfig server;
+  server.set_uri("[::1]:8080");
+  EXPECT_EQ(server.uri(), "[::1]:8080");
 }
 
-TEST(StringEdgeCasesTest, ServerAddressHostname) {
-  astra::http2::ServerConfig server;
-  server.set_address("localhost");
-  EXPECT_EQ(server.address(), "localhost");
+TEST(StringEdgeCasesTest, ServerUriHostname) {
+  ::http2::ServerConfig server;
+  server.set_uri("localhost:8080");
+  EXPECT_EQ(server.uri(), "localhost:8080");
 }
 
 TEST(StringEdgeCasesTest, LogLevelTrace) {
@@ -163,12 +164,12 @@ TEST(JsonEdgeCasesTest, FailsOnTypeMismatchStringForInt) {
 
 TEST(JsonEdgeCasesTest, ParsesMinifiedJson) {
   const char *json =
-      R"({"schema_version":1,"bootstrap":{"server":{"port":8080}}})";
+      R"({"schema_version":1,"bootstrap":{"server":{"uri":"0.0.0.0:8080"}}})";
 
   uri_shortener::Config config;
   auto status = google::protobuf::util::JsonStringToMessage(json, &config);
   EXPECT_TRUE(status.ok());
-  EXPECT_EQ(config.bootstrap().server().port(), 8080);
+  EXPECT_EQ(config.bootstrap().server().uri(), "0.0.0.0:8080");
 }
 
 TEST(JsonEdgeCasesTest, FailsOnArrayWhereObjectExpected) {
@@ -212,20 +213,20 @@ protected:
 
 TEST_F(FileIoTest, CanReadConfigFromFile) {
   WriteFile(
-      R"({"schema_version": 1, "bootstrap": {"server": {"port": 9000}}})");
+      R"({"schema_version": 1, "bootstrap": {"server": {"uri": "0.0.0.0:9000"}}})");
 
   std::string json = ReadFile();
   uri_shortener::Config config;
   auto status = google::protobuf::util::JsonStringToMessage(json, &config);
 
   EXPECT_TRUE(status.ok());
-  EXPECT_EQ(config.bootstrap().server().port(), 9000);
+  EXPECT_EQ(config.bootstrap().server().uri(), "0.0.0.0:9000");
 }
 
 TEST_F(FileIoTest, RoundTripThroughFile) {
   uri_shortener::Config original;
   original.set_schema_version(1);
-  original.mutable_bootstrap()->mutable_server()->set_port(8080);
+  original.mutable_bootstrap()->mutable_server()->set_uri("0.0.0.0:8080");
   original.mutable_runtime()
       ->mutable_load_shedder()
       ->set_max_concurrent_requests(10000);
@@ -260,23 +261,23 @@ TEST_F(FileIoTest, HandlesEmptyFile) {
 TEST(CopyMoveTest, CopyConstructor) {
   uri_shortener::Config original;
   original.set_schema_version(1);
-  original.mutable_bootstrap()->mutable_server()->set_port(8080);
+  original.mutable_bootstrap()->mutable_server()->set_uri("0.0.0.0:8080");
 
   uri_shortener::Config copy(original);
 
   EXPECT_EQ(copy.schema_version(), 1);
-  EXPECT_EQ(copy.bootstrap().server().port(), 8080);
+  EXPECT_EQ(copy.bootstrap().server().uri(), "0.0.0.0:8080");
 }
 
 TEST(CopyMoveTest, MoveConstructor) {
   uri_shortener::Config original;
   original.set_schema_version(1);
-  original.mutable_bootstrap()->mutable_server()->set_port(8080);
+  original.mutable_bootstrap()->mutable_server()->set_uri("0.0.0.0:8080");
 
   uri_shortener::Config moved(std::move(original));
 
   EXPECT_EQ(moved.schema_version(), 1);
-  EXPECT_EQ(moved.bootstrap().server().port(), 8080);
+  EXPECT_EQ(moved.bootstrap().server().uri(), "0.0.0.0:8080");
 }
 
 // =============================================================================
@@ -286,7 +287,7 @@ TEST(CopyMoveTest, MoveConstructor) {
 TEST(ClearResetTest, ClearConfig) {
   uri_shortener::Config config;
   config.set_schema_version(1);
-  config.mutable_bootstrap()->mutable_server()->set_port(8080);
+  config.mutable_bootstrap()->mutable_server()->set_uri("0.0.0.0:8080");
 
   config.Clear();
 
@@ -343,7 +344,7 @@ TEST(SerializationEdgeCasesTest, SerializeLargeConfig) {
 TEST(ConcurrencyTest, ConcurrentReads) {
   uri_shortener::Config config;
   config.set_schema_version(42);
-  config.mutable_bootstrap()->mutable_server()->set_port(8080);
+  config.mutable_bootstrap()->mutable_server()->set_uri("0.0.0.0:8080");
 
   std::atomic<int> read_count{0};
   std::vector<std::thread> threads;
@@ -352,7 +353,7 @@ TEST(ConcurrencyTest, ConcurrentReads) {
     threads.emplace_back([&config, &read_count]() {
       for (int j = 0; j < 100; ++j) {
         EXPECT_EQ(config.schema_version(), 42);
-        EXPECT_EQ(config.bootstrap().server().port(), 8080);
+        EXPECT_EQ(config.bootstrap().server().uri(), "0.0.0.0:8080");
         ++read_count;
       }
     });

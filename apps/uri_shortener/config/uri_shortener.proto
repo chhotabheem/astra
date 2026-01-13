@@ -18,12 +18,12 @@ message ServiceConfig {
 }
 
 message DataServiceClientConfig {
-    astra.http2.ClientConfig client = 1;
+    http2.ClientConfig client = 1;
     resilience.Config resilience = 2;
 }
 
 message BootstrapConfig {
-    astra.http2.ServerConfig server = 1;
+    http2.ServerConfig server = 1;
     execution.Config execution = 2;
     observability.Config observability = 3;
     DataServiceClientConfig dataservice = 4;

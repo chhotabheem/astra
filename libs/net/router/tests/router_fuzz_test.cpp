@@ -15,10 +15,11 @@ void MatchNeverCrashes(const std::string &method, const std::string &path) {
   Router router;
 
   // Add some routes
-  router.get("/users", [](auto, auto) {});
-  router.get("/users/:id", [](auto, auto) {});
-  router.post("/users", [](auto, auto) {});
-  router.get("/posts/:postId/comments/:commentId", [](auto, auto) {});
+  router.add(HttpMethod::GET, "/users", [](auto, auto) {});
+  router.add(HttpMethod::GET, "/users/:id", [](auto, auto) {});
+  router.add(HttpMethod::POST, "/users", [](auto, auto) {});
+  router.add(HttpMethod::GET, "/posts/:postId/comments/:commentId",
+             [](auto, auto) {});
 
   // Match with fuzzed input - should never crash
   auto result = router.match(method, path);
@@ -31,7 +32,7 @@ void AddRouteNeverCrashes(const std::string &path) {
   Router router;
 
   try {
-    router.get(path, [](auto, auto) {});
+    router.add(HttpMethod::GET, path, [](auto, auto) {});
   } catch (const std::exception &) {
     // Allowed
   }
@@ -41,7 +42,7 @@ FUZZ_TEST(RouterFuzzTest, AddRouteNeverCrashes);
 // Fuzz with path parameters
 void MatchWithParams(const std::string &userId, const std::string &action) {
   Router router;
-  router.get("/users/:userId/:action", [](auto, auto) {});
+  router.add(HttpMethod::GET, "/users/:userId/:action", [](auto, auto) {});
 
   std::string path = "/users/" + userId + "/" + action;
   auto result = router.match("GET", path);
@@ -60,10 +61,10 @@ FUZZ_TEST(RouterFuzzTest, MatchWithParams);
 // Fuzz all HTTP methods
 void MatchAllMethods(const std::string &path) {
   Router router;
-  router.get("/test", [](auto, auto) {});
-  router.post("/test", [](auto, auto) {});
-  router.put("/test", [](auto, auto) {});
-  router.del("/test", [](auto, auto) {});
+  router.add(HttpMethod::GET, "/test", [](auto, auto) {});
+  router.add(HttpMethod::POST, "/test", [](auto, auto) {});
+  router.add(HttpMethod::PUT, "/test", [](auto, auto) {});
+  router.add(HttpMethod::DELETE, "/test", [](auto, auto) {});
 
   // Try all methods with fuzzed path
   (void)router.match("GET", path);

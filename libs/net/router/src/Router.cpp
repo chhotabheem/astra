@@ -1,23 +1,26 @@
 #include "Router.h"
 
+#include "HttpMethod.h"
 #include "StringUtils.h"
 
 namespace astra::router {
 
-void Router::get(const std::string &path, Handler handler) {
-  add_route("GET", path, std::move(handler));
+std::string to_string(HttpMethod method) {
+  switch (method) {
+  case HttpMethod::GET:
+    return "GET";
+  case HttpMethod::POST:
+    return "POST";
+  case HttpMethod::PUT:
+    return "PUT";
+  case HttpMethod::DELETE:
+    return "DELETE";
+  }
+  return "GET";
 }
 
-void Router::post(const std::string &path, Handler handler) {
-  add_route("POST", path, std::move(handler));
-}
-
-void Router::put(const std::string &path, Handler handler) {
-  add_route("PUT", path, std::move(handler));
-}
-
-void Router::del(const std::string &path, Handler handler) {
-  add_route("DELETE", path, std::move(handler));
+void Router::add(HttpMethod method, const std::string &path, Handler handler) {
+  add_route(to_string(method), path, std::move(handler));
 }
 
 void Router::add_route(const std::string &method, const std::string &path,

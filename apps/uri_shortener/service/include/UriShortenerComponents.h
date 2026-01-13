@@ -2,6 +2,9 @@
 
 #include <memory>
 
+namespace astra::router {
+class Router;
+}
 namespace astra::http2 {
 class Http2Server;
 class Http2Client;
@@ -52,6 +55,7 @@ struct UriShortenerComponents {
   std::unique_ptr<UriShortenerRequestHandler> req_handler;
   std::unique_ptr<ObservableRequestHandler> obs_req_handler;
 
+  std::unique_ptr<astra::router::Router> router;
   std::unique_ptr<astra::http2::Http2Server> server;
   std::unique_ptr<astra::resilience::AtomicLoadShedder> load_shedder;
 
